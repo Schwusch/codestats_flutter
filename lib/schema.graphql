@@ -1,0 +1,91 @@
+schema {
+  query: RootQueryType
+}
+
+"""ISO 8601 date"""
+scalar Date
+
+"""RFC3339 time with timezone"""
+scalar Datetime
+
+"""User profile public data"""
+type Profile {
+  """User's dates when they have been active and their XP"""
+  dates(since: Date): [ProfileDate]
+
+  """
+  User's dates since given date with their summed XP per language per day
+  """
+  dayLanguageXps(since: Date!): [ProfileDaylanguage]
+
+  """User's XP by day of week"""
+  dayOfWeekXps(since: Date): [ProfileDowXp]
+
+  """User's XP by day of year"""
+  dayOfYearXps: ProfileDayOfYearXp
+
+  """User's XP by hour of day (in 24 hour format)"""
+  hourOfDayXps: ProfileHourOfDayXp
+
+  """User's languages and their XP"""
+  languages(since: Datetime): [ProfileLanguage]
+
+  """User's machines and their XP"""
+  machines(since: Datetime): [ProfileMachine]
+
+  """Timestamp when user registered into service"""
+  registered: Datetime
+
+  """Total amount of XP of user"""
+  totalXp: Int
+}
+
+"""Date when user was active and its total XP for a profile"""
+type ProfileDate {
+  date: String
+  xp: Int
+}
+
+"""Date when profile has an amount of XP of the language"""
+type ProfileDaylanguage {
+  date: Date
+  language: String
+  xp: Int
+}
+
+"""
+Map where key is number of day of year (including leap day, like in the year 2000) and value is amount of XP
+"""
+scalar ProfileDayOfYearXp
+
+"""Day of week and its combined XP"""
+type ProfileDowXp {
+  day: Int
+  xp: Int
+}
+
+"""
+Map where key is hour of day (in 24 hour format) and value is amount of XP
+"""
+scalar ProfileHourOfDayXp
+
+"""Language and its total XP for a profile"""
+type ProfileLanguage {
+  name: String
+  xp: Int
+}
+
+"""Machine and its total XP for a profile"""
+type ProfileMachine {
+  name: String
+  xp: Int
+}
+
+type RootQueryType {
+  """Get profile by username"""
+  profile(
+    """Username of profile"""
+    username: String
+  ): Profile
+}
+
