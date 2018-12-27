@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var now = DateTime.now();
     return Query(
-      queries.profile(username, DateTime(now.year, now.month, now.day)),
+      queries.profile(username, now.subtract(Duration(hours: 12))),
       pollInterval: 30,
       builder: ({
         bool loading,

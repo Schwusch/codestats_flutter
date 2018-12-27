@@ -27,7 +27,7 @@ class UserLevelWidget extends StatelessWidget {
           XpChip(
             xp: getRecentXp(userModel),
             backgroundColor: Colors.deepPurpleAccent.shade200,
-            postFix: "XP today",
+            prefix: "+",
           ),
         ],
       ),

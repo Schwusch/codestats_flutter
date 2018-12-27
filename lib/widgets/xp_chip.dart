@@ -9,6 +9,7 @@ class XpChip extends StatelessWidget {
       @required this.xp,
       this.showLevel = false,
       this.postFix = "XP",
+      this.prefix = "",
       this.backgroundColor = Colors.deepOrange,
       this.avatarColor = Colors.deepOrangeAccent})
       : super(key: key);
@@ -16,6 +17,7 @@ class XpChip extends StatelessWidget {
   final int xp;
   final bool showLevel;
   final String postFix;
+  final String prefix;
   final Color backgroundColor;
   final Color avatarColor;
 
@@ -30,7 +32,7 @@ class XpChip extends StatelessWidget {
           shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10))),
           label: Text(
-            "${formatter.format(xp)} $postFix",
+            "$prefix${formatter.format(xp)} $postFix",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           avatar: showLevel
