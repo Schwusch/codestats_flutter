@@ -10,7 +10,6 @@ import 'package:charts_flutter/flutter.dart' as charts;
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of y our application.
   @override
   Widget build(BuildContext context) {
     ValueNotifier<Client> client = ValueNotifier(
@@ -23,6 +22,7 @@ class MyApp extends StatelessWidget {
     return GraphqlProvider(
       client: client,
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Code::Stats',
         theme: ThemeData(
           primarySwatch: Colors.blueGrey,
@@ -41,17 +41,16 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String username = "Schwusch";
   Random rand = Random();
-  int updates = 0;
 
   // Assign avery language their own color
   Map<String, charts.Color> colors = {};
 
   @override
   Widget build(BuildContext context) {
+    var now = DateTime.now();
     return Query(
-      queries.profile(username, DateTime.now()),
+      queries.profile(username, DateTime(now.year, now.month, now.day)),
       pollInterval: 30,
-      variables: {"username": username},
       builder: ({
         bool loading,
         Map data,
@@ -66,9 +65,6 @@ class _HomePageState extends State<HomePage> {
             child: CircularProgressIndicator(),
           );
         }
-
-        updates++;
-        print("Updating Statistics $updates...");
 
         return StatisticsWidget(
           userModel: UserModel.fromJson(data[username]),
