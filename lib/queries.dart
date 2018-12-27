@@ -5,8 +5,7 @@ String formatDateUtc(DateTime date) {
       date, [yyyy, "-", m, "-", dd, "T", HH, ":", mm, ":", ss, ".", SSS, z]);
 }
 
-String profile(String username, DateTime since) => """
-{
+String _profile(String username, DateTime since) => """
 $username: profile(username: "$username") {
     totalXp: totalXp
     total_langs: languages {
@@ -38,5 +37,15 @@ $username: profile(username: "$username") {
     }
     day_of_year_xps: dayOfYearXps
     hour_of_day_xps: hourOfDayXps
-  } }
+  } 
+
 """;
+
+String profiles(List<String> users, DateTime since) {
+  var buffer = StringBuffer();
+  buffer.write("{");
+  users.forEach((user) => buffer.write(_profile(user, since)));
+  buffer.write("}");
+
+  return buffer.toString();
+}

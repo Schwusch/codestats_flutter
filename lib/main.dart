@@ -1,15 +1,24 @@
 import 'dart:math';
 
+import 'package:bloc/bloc.dart';
+import 'package:codestats_flutter/bloc/events.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:codestats_flutter/bloc/codestats_bloc.dart';
+import 'package:codestats_flutter/bloc/delegates.dart';
 import 'package:codestats_flutter/tab_navigator.dart';
-import 'package:codestats_flutter/usermodel.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:codestats_flutter/queries.dart' as queries;
 import 'package:charts_flutter/flutter.dart' as charts;
 
-void main() => runApp(MyApp());
+void main() {
+  BlocSupervisor().delegate = LogTransitionDelegate();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
+  final UserBloc _bloc = UserBloc();
+
   @override
   Widget build(BuildContext context) {
     ValueNotifier<Client> client = ValueNotifier(
@@ -27,7 +36,10 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blueGrey,
         ),
-        home: HomePage(),
+        home: BlocProvider<UserBloc>(
+          bloc: _bloc,
+          child: HomePage(),
+        ),
       ),
     );
   }
@@ -39,7 +51,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String username = "Schwusch";
   Random rand = Random();
 
   // Assign avery language their own color
@@ -47,31 +58,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    var now = DateTime.now();
-    return Query(
-      queries.profile(username, now.subtract(Duration(hours: 12))),
-      pollInterval: 30,
-      builder: ({
-        bool loading,
-        Map data,
-        Exception error,
-      }) {
-        if (error != null) {
-          return Center(child: Text(error.toString()));
-        }
+    final UserBloc _userbloc = BlocProvider.of(context);
+    final now = DateTime.now();
 
-        if (loading) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        return TabNavigator(
-          userModel: UserModel.fromJson(data[username]),
-          username: username,
-          colors: colors,
-        );
-      },
+    return BlocBuilder<UserEvent, UserState>(
+      bloc: _userbloc,
+      builder: (context, UserState state) => Query(
+          queries.profiles(state.allUsers, now.subtract(Duration(hours: 12))),
+          pollInterval: 30,
+          builder: ({
+            bool loading,
+            Map data,
+            Exception error,
+          }) =>
+              TabNavigator(
+                colors: colors,
+                error: error,
+                data: data,
+                loading: loading,
+              )),
     );
   }
 }

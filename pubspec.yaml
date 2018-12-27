@@ -29,6 +29,7 @@ dependencies:
   percent_indicator: ^1.0.11
   intl: ^0.15.7
   backdrop: ^0.1.8
+  flutter_bloc: ^0.4.11
   pimp_my_button:
     git:
       url: git://github.com/Norbert515/pimp_my_button.git
