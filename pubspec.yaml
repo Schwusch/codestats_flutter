@@ -28,6 +28,9 @@ dependencies:
   fcharts: ^0.0.10
   percent_indicator: ^1.0.11
   intl: ^0.15.7
+  pimp_my_button:
+    git:
+      url: git://github.com/Norbert515/pimp_my_button.git
 
 dev_dependencies:
   flutter_test:

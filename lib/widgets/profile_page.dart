@@ -1,5 +1,6 @@
 import 'package:codestats_flutter/usermodel.dart';
 import 'package:codestats_flutter/utils.dart';
+import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:codestats_flutter/widgets/user_level.dart';
 import 'package:fcharts/fcharts.dart';
 import 'package:flutter/material.dart';
@@ -76,8 +77,36 @@ class ProfilePage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Center(
-          child: Text("Total XP per hour of day"),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Text(
+              "Machines total XP",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
+        ),
+        LayoutBuilder(
+          builder: (context, BoxConstraints constraints) => Column(
+                children: userModel.totalMachines
+                    .map(
+                      (machine) => LevelPercentIndicator(
+                            width: constraints.maxWidth * 0.7,
+                            name: machine.name,
+                            xp: machine.xp,
+                          ),
+                    )
+                    .toList(),
+              ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Center(
+            child: Text(
+              "Total XP per hour of day",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ),
         ),
         AspectRatio(
           aspectRatio: 4 / 3,

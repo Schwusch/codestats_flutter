@@ -22,13 +22,13 @@ class DayLanguageXpsWidget extends StatelessWidget {
         child: charts.TimeSeriesChart(
           languages.values
               .map((dlx) => charts.Series<DayLanguageXps, DateTime>(
-            id: dlx.first.language,
-            domainFn: (DayLanguageXps elem, _) =>
-                DateTime.parse(elem.date),
-            measureFn: (DayLanguageXps elem, _) => elem.xp,
-            data: dlx,
-            colorFn: (elem, _) => colors[elem.language],
-          ))
+                    id: dlx.first.language,
+                    domainFn: (DayLanguageXps elem, _) =>
+                        DateTime.parse(elem.date),
+                    measureFn: (DayLanguageXps elem, _) => elem.xp,
+                    data: dlx,
+                    colorFn: (elem, _) => colors[elem.language],
+                  ))
               .toList(),
           animate: true,
           defaultInteractions: false,

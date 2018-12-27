@@ -27,8 +27,24 @@ class TabNavigator extends StatefulWidget {
   }
 }
 
-class TabNavigatorState extends State<TabNavigator> {
+class TabNavigatorState extends State<TabNavigator>
+    with SingleTickerProviderStateMixin {
   int tabIndex = 0;
+  AnimationController _controller;
+  Animation animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+    animation = Tween(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(_controller);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +68,9 @@ class TabNavigatorState extends State<TabNavigator> {
         widget.colors[key] = color;
       }
     });
+
     Widget body;
+
     switch (tabIndex) {
       case 0:
         body = ProfilePage(
@@ -75,13 +93,17 @@ class TabNavigatorState extends State<TabNavigator> {
         // TODO Year view
         break;
     }
+    _controller.forward(from: 0.0);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.username),
         backgroundColor: Colors.blueGrey[800],
       ),
-      body: body,
+      body: FadeTransition(
+        opacity: animation,
+        child: body,
+      ),
       bottomNavigationBar: FlipBoxBar(
         animationDuration: Duration(milliseconds: 500),
         items: [
@@ -101,17 +123,16 @@ class TabNavigatorState extends State<TabNavigator> {
               text: Text("Languages"),
               frontColor: Colors.purple[700],
               backColor: Colors.purple[300]),
-          FlipBarItem(
+          /*FlipBarItem(
             icon: Icon(Icons.calendar_today),
             text: Text("Year view"),
             frontColor: Colors.cyan.shade700,
             backColor: Colors.cyan.shade200,
-          ),
-
+          ),*/
         ],
         onIndexChanged: (newIndex) => setState(() {
-          tabIndex = newIndex;
-        }),
+              tabIndex = newIndex;
+            }),
       ),
     );
   }
