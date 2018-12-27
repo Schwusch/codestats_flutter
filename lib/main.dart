@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codestats_flutter/statistics.dart';
+import 'package:codestats_flutter/tab_navigator.dart';
 import 'package:codestats_flutter/usermodel.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
 
-        return StatisticsWidget(
+        return TabNavigator(
           userModel: UserModel.fromJson(data[username]),
           username: username,
           colors: colors,

@@ -26,6 +26,7 @@ dependencies:
   flip_box_bar: ^0.2.0
   flutter_circular_chart: ^0.1.0
   fcharts: ^0.0.10
+  percent_indicator: ^1.0.11
   intl: ^0.15.7
 
 dev_dependencies:
