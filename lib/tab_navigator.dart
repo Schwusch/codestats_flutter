@@ -1,6 +1,6 @@
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/bloc/events.dart';
-import 'package:codestats_flutter/usermodel.dart';
+import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/widgets/fluid_slider.dart';
 import 'package:codestats_flutter/widgets/language_levels.dart';
 import 'package:codestats_flutter/widgets/profile_page.dart';
@@ -54,12 +54,17 @@ class TabNavigatorState extends State<TabNavigator>
   Widget build(BuildContext context) {
     final UserBloc _userBloc = BlocProvider.of(context);
 
-    UserModel userModel;
-
-    try {
-      userModel =
-          UserModel.fromJson(widget.data[_userBloc.currentState.currentUser]);
-    } catch (e) {}
+    User userModel;
+    if(widget.data[_userBloc.currentState.currentUser] != null) {
+      try {
+        userModel =
+            User.fromJson(widget.data[_userBloc.currentState.currentUser]);
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      print(widget.data);
+    }
 
     Widget body;
 
@@ -68,9 +73,7 @@ class TabNavigatorState extends State<TabNavigator>
         child: CircularProgressIndicator(),
       );
     } else if (widget.error != null) {
-      body = Center(
-          child:
-              Text(widget.error.toString()));
+      body = Center(child: Text(widget.error.toString()));
     } else {
       switch (tabIndex) {
         case 0:
@@ -104,25 +107,44 @@ class TabNavigatorState extends State<TabNavigator>
             frontLayer: Scaffold(
               body: FadeTransition(
                 opacity: animation,
-                child: body,
+                child: Container(
+                  child: body,
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.white,
+                        Colors.grey.shade100,
+                      ],
+                    ),
+                  ),
+                ),
               ),
               bottomNavigationBar: FlipBoxBar(
                 animationDuration: Duration(milliseconds: 500),
                 items: [
                   FlipBarItem(
                     icon: Icon(Icons.person),
-                    text: Text("Profile"),
+                    text: Text(
+                      "Profile",
+                      style: TextStyle(color: Colors.black),
+                    ),
                     frontColor: Colors.amber[700],
                     backColor: Colors.amber[300],
                   ),
                   FlipBarItem(
                       icon: Icon(Icons.timer),
-                      text: Text("Recent"),
+                      text: Text(
+                        "Recent",
+                        style: TextStyle(color: Colors.black),
+                      ),
                       frontColor: Colors.green[800],
                       backColor: Colors.green[300]),
                   FlipBarItem(
                       icon: Icon(Icons.translate),
-                      text: Text("Languages"),
+                      text: Text(
+                        "Languages",
+                        style: TextStyle(color: Colors.black),
+                      ),
                       frontColor: Colors.purple[700],
                       backColor: Colors.purple[300]),
                   /*FlipBarItem(

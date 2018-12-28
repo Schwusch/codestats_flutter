@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:codestats_flutter/usermodel.dart';
+import 'package:codestats_flutter/models/user/day_language_xps.dart';
+import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/widgets/day_language_xps.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class WeekStatistics extends StatelessWidget {
     @required this.colors,
   }) : super(key: key);
 
-  final UserModel userModel;
+  final User userModel;
   final Map<String, charts.Color> colors;
 
   @override
@@ -39,14 +40,16 @@ class WeekStatistics extends StatelessWidget {
       }
     });
 
-    return Column(
-      children: [
-        DayLanguageXpsWidget(
-          userModel: userModel,
-          languages: languages,
-          colors: colors,
-        ),
-      ],
+    if (languages.isEmpty) {
+      return Center(
+        child: Text("No recent activity :("),
+      );
+    }
+
+    return DayLanguageXpsWidget(
+      userModel: userModel,
+      languages: languages,
+      colors: colors,
     );
   }
 }

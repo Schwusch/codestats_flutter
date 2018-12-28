@@ -1,4 +1,4 @@
-import 'package:codestats_flutter/usermodel.dart';
+import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/xp_chip.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ class UserLevelWidget extends StatelessWidget {
     @required this.userModel,
   }) : super(key: key);
 
-  final UserModel userModel;
+  final User userModel;
 
   @override
   Widget build(BuildContext context) {

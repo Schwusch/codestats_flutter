@@ -1,9 +1,9 @@
-import 'package:codestats_flutter/usermodel.dart';
+import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:flutter/material.dart';
 
 class LanguageLevelPage extends StatelessWidget {
-  final UserModel userModel;
+  final User userModel;
 
   const LanguageLevelPage({Key key, @required this.userModel})
       : super(key: key);

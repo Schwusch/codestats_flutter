@@ -34,6 +34,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Code::Stats',
         theme: ThemeData(
+          textTheme: Typography(platform: TargetPlatform.android).white.apply(
+            bodyColor: Colors.blueGrey[600]
+          ),
           primarySwatch: Colors.blueGrey,
         ),
         home: BlocProvider<UserBloc>(

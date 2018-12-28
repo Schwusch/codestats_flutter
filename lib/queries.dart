@@ -8,23 +8,23 @@ String formatDateUtc(DateTime date) {
 String _profile(String username, DateTime since) => """
 $username: profile(username: "$username") {
     totalXp: totalXp
-    total_langs: languages {
+    totalLangs: languages {
       name
       xp
     }
-    recent_langs: languages(since: "${formatDateUtc(since.toUtc())}") {
+    recentLangs: languages(since: "${formatDateUtc(since.toUtc())}") {
       name
       xp
     }
-    total_machines: machines {
+    totalMachines: machines {
       name
       xp
     }
-    recent_machines: machines(since: "${formatDateUtc(since.toUtc())}") {
+    recentMachines: machines(since: "${formatDateUtc(since.toUtc())}") {
       name
       xp
     }
-    day_language_xps: dayLanguageXps(since: "${formatDate(since.subtract(Duration(days: 7)), [
+    dayLanguageXps: dayLanguageXps(since: "${formatDate(since.subtract(Duration(days: 7)), [
       yyyy,
       '-',
       mm,
@@ -35,8 +35,8 @@ $username: profile(username: "$username") {
       language
       xp
     }
-    day_of_year_xps: dayOfYearXps
-    hour_of_day_xps: hourOfDayXps
+    dayOfYearXps: dayOfYearXps
+    hourOfDayXps: hourOfDayXps
   } 
 
 """;

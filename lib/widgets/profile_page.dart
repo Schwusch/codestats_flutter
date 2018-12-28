@@ -1,4 +1,4 @@
-import 'package:codestats_flutter/usermodel.dart';
+import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:codestats_flutter/widgets/user_level.dart';
@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
 
 class ProfilePage extends StatelessWidget {
-  final UserModel userModel;
+  final User userModel;
 
   const ProfilePage({
     Key key,
