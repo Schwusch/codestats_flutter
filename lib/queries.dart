@@ -12,7 +12,7 @@ $username: profile(username: "$username") {
       name
       xp
     }
-    recentLangs: languages(since: "${formatDateUtc(since.toUtc())}") {
+    recentLangs: languages(since: "${formatDateUtc(since.subtract(Duration(hours: 12)).toUtc())}") {
       name
       xp
     }
@@ -20,7 +20,7 @@ $username: profile(username: "$username") {
       name
       xp
     }
-    recentMachines: machines(since: "${formatDateUtc(since.toUtc())}") {
+    recentMachines: machines(since: "${formatDateUtc(since.subtract(Duration(hours: 12)).toUtc())}") {
       name
       xp
     }

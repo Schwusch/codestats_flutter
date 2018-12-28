@@ -4,7 +4,7 @@ part 'xp.g.dart';
 
 @JsonSerializable(nullable: true, useWrappers: true)
 class Xp {
-  final int xp;
+  int xp;
   final String name;
 
   Xp(this.xp, this.name);

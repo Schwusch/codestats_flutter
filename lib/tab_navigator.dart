@@ -1,5 +1,5 @@
+import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
-import 'package:codestats_flutter/bloc/events.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/widgets/fluid_slider.dart';
 import 'package:codestats_flutter/widgets/language_levels.dart';
@@ -9,19 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flip_box_bar/flip_box_bar.dart';
 import 'package:backdrop/backdrop.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TabNavigator extends StatefulWidget {
   final Map<String, charts.Color> colors;
-  final bool loading;
-  final Map data;
-  final Exception error;
+  final Map<String, User> users;
+  final String currentUser;
 
   TabNavigator({
     @required this.colors,
-    @required this.loading,
-    @required this.data,
-    @required this.error,
+    @required this.users,
+    @required this.currentUser,
   });
 
   @override
@@ -52,28 +49,15 @@ class TabNavigatorState extends State<TabNavigator>
 
   @override
   Widget build(BuildContext context) {
-    final UserBloc _userBloc = BlocProvider.of(context);
-
-    User userModel;
-    if(widget.data[_userBloc.currentState.currentUser] != null) {
-      try {
-        userModel =
-            User.fromJson(widget.data[_userBloc.currentState.currentUser]);
-      } catch (e) {
-        print(e);
-      }
-    } else {
-      print(widget.data);
-    }
+    UserBloc bloc = BlocProvider.of(context);
+    User userModel = widget.users[widget.currentUser];
 
     Widget body;
 
-    if (widget.loading || userModel == null) {
+    if (userModel == null) {
       body = Center(
         child: CircularProgressIndicator(),
       );
-    } else if (widget.error != null) {
-      body = Center(child: Text(widget.error.toString()));
     } else {
       switch (tabIndex) {
         case 0:
@@ -100,126 +84,121 @@ class TabNavigatorState extends State<TabNavigator>
 
     _controller.forward(from: 0.0);
 
-    return BlocBuilder<UserEvent, UserState>(
-      bloc: _userBloc,
-      builder: (context, state) => BackdropScaffold(
-            title: Text(state.currentUser),
-            frontLayer: Scaffold(
-              body: FadeTransition(
-                opacity: animation,
-                child: Container(
-                  child: body,
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: [
-                        Colors.white,
-                        Colors.grey.shade100,
-                      ],
-                    ),
-                  ),
-                ),
+    return BackdropScaffold(
+      title: Text(widget.currentUser ?? ""),
+      frontLayer: Scaffold(
+        body: FadeTransition(
+          opacity: animation,
+          child: Container(
+            child: body,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                colors: [
+                  Colors.white,
+                  Colors.grey.shade100,
+                ],
               ),
-              bottomNavigationBar: FlipBoxBar(
-                animationDuration: Duration(milliseconds: 500),
-                items: [
-                  FlipBarItem(
-                    icon: Icon(Icons.person),
-                    text: Text(
-                      "Profile",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    frontColor: Colors.amber[700],
-                    backColor: Colors.amber[300],
-                  ),
-                  FlipBarItem(
-                      icon: Icon(Icons.timer),
-                      text: Text(
-                        "Recent",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      frontColor: Colors.green[800],
-                      backColor: Colors.green[300]),
-                  FlipBarItem(
-                      icon: Icon(Icons.translate),
-                      text: Text(
-                        "Languages",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      frontColor: Colors.purple[700],
-                      backColor: Colors.purple[300]),
-                  /*FlipBarItem(
+            ),
+          ),
+        ),
+        bottomNavigationBar: FlipBoxBar(
+          animationDuration: Duration(milliseconds: 500),
+          items: [
+            FlipBarItem(
+              icon: Icon(Icons.person),
+              text: Text(
+                "Profile",
+                style: TextStyle(color: Colors.black),
+              ),
+              frontColor: Colors.amber[700],
+              backColor: Colors.amber[300],
+            ),
+            FlipBarItem(
+                icon: Icon(Icons.timer),
+                text: Text(
+                  "Recent",
+                  style: TextStyle(color: Colors.black),
+                ),
+                frontColor: Colors.green[800],
+                backColor: Colors.green[300]),
+            FlipBarItem(
+                icon: Icon(Icons.translate),
+                text: Text(
+                  "Languages",
+                  style: TextStyle(color: Colors.black),
+                ),
+                frontColor: Colors.purple[700],
+                backColor: Colors.purple[300]),
+            /*FlipBarItem(
               icon: Icon(Icons.calendar_today),
               text: Text("Year view"),
               frontColor: Colors.cyan.shade700,
               backColor: Colors.cyan.shade200,
             ),*/
-                ],
-                onIndexChanged: (newIndex) => setState(() {
-                      tabIndex = newIndex;
-                    }),
-              ),
-            ),
-            backLayer: Scaffold(
-              backgroundColor: Colors.blueGrey,
-              body: Padding(
-                padding: const EdgeInsets.only(
-                  top: 30,
-                  left: 24,
-                  right: 24,
-                ),
-                child: ListView(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Settings",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Text(
-                      "Number of days in recent tab",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: FluidSlider(
-                        value: recentLength.toDouble(),
-                        onChanged: (double newValue) {
-                          setState(() {
-                            recentLength = newValue.floor();
-                          });
-                        },
-                        min: 1,
-                        max: 14,
-                        sliderColor: Colors.indigo,
-                      ),
-                    ),
-                  ],
+          ],
+          onIndexChanged: (newIndex) => setState(() {
+            tabIndex = newIndex;
+          }),
+        ),
+      ),
+      backLayer: Scaffold(
+        backgroundColor: Colors.blueGrey,
+        body: Padding(
+          padding: const EdgeInsets.only(
+            top: 30,
+            left: 24,
+            right: 24,
+          ),
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Settings",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
-            ),
-            iconPosition: BackdropIconPosition.leading,
-            actions: [
-              PopupMenuButton(
-                icon: Icon(Icons.people),
-                onSelected: (chosen) {
-                  _userBloc.dispatch(ChangeUser(chosen));
-                },
-                itemBuilder: (BuildContext context) => state.allUsers
-                    .map((user) => PopupMenuItem(
-                          value: user,
-                          child: Text(user),
-                        ))
-                    .toList(),
-              )
+              Text(
+                "Number of days in recent tab",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: FluidSlider(
+                  value: recentLength.toDouble(),
+                  onChanged: (double newValue) {
+                    setState(() {
+                      recentLength = newValue.floor();
+                    });
+                  },
+                  min: 1,
+                  max: 14,
+                  sliderColor: Colors.indigo,
+                ),
+              ),
             ],
           ),
+        ),
+      ),
+      iconPosition: BackdropIconPosition.leading,
+      actions: [
+        PopupMenuButton(
+          icon: Icon(Icons.people),
+          onSelected: bloc.selectUser.add,
+          itemBuilder: (BuildContext context) => widget.users.keys
+              .map((user) => PopupMenuItem(
+            value: user,
+            child: Text(user),
+          ))
+              .toList(),
+        )
+      ],
     );
   }
 }
