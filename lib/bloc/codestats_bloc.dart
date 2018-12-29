@@ -16,7 +16,8 @@ class UserBloc implements BlocBase {
   UserState state;
 
   final socket = PhoenixSocket(
-      "wss://codestats.net/live_update_socket/websocket?vsn=2.0.0");
+      "wss://codestats.net/live_update_socket/websocket",
+      socketOptions: PhoenixSocketOptions(params: {"vsn": "2.0.0"}));
   final Dio _dio = Dio(
     Options(
       baseUrl: "https://codestats.net",
@@ -45,7 +46,9 @@ class UserBloc implements BlocBase {
         },
         persist: (state) => jsonEncode(state.toJson()),
         seedValue: UserState(
-          allUsers: {"Schwusch": null, "MasterBait": null},
+          allUsers: {
+            "Schwusch": null,
+          },
         ),
         onHydrate: fetchAllUsers);
 
@@ -53,7 +56,8 @@ class UserBloc implements BlocBase {
     setupDebugLog(_dio);
 
     assert(() {
-      socket.onMessage((message) => print("SOCKET_MESSAGE: $message"));
+      socket.onMessage((PhoenixMessage message) => print(
+          "SOCKET_MESSAGE: ${DateTime.now().toIso8601String()} ${message.toJSON()}"));
       socket.onOpen(() => print("SOCKET OPENED!"));
       socket.onError((e) => print("SOCKET ERROR: $e"));
       socket.onClose((c) => print("SOCKET CLOSE: $c"));
@@ -61,48 +65,63 @@ class UserBloc implements BlocBase {
     }());
   }
 
+  _createChannel(String name, User user) {
+    if (name == null &&
+        user == null &&
+        socket.channels.indexWhere(
+                (PhoenixChannel chnl) => chnl.topic == "users:$name") >
+            -1) return;
+
+    var userChannel = socket.channel("users:$name");
+    userChannel.onError((payload, ref, joinRef) =>
+        print("CHANNEL ERROR:\n$ref\n$joinRef\n$payload"));
+    userChannel.onClose((Map payload, String ref, String joinRef) {
+      print("CHANNEL CLOSE:\n$ref\n$joinRef\n$payload");
+      print("NUMBER_OF_CHANNELS: ${socket.channels.length}");
+      _createChannel(name, user);
+    });
+
+    userChannel.on("new_pulse", (Map payload, String _ref, String _joinRef) {
+      assert(() {
+        print("NEW_PULSE:\n$payload");
+        return true;
+      }());
+
+      try {
+        Pulse pulse = Pulse.fromJson(payload);
+        if (user != null && pulse != null) {
+          var machine =
+              user.recentMachines?.firstWhere((xp) => xp.name == pulse.machine);
+
+          var totalNew = $(pulse.xps).sumBy((xp) => xp.amount).floor();
+
+          user.totalXp = user.totalXp + totalNew;
+
+          if (machine != null) {
+            machine.xp = machine.xp + totalNew;
+          }
+          pulse?.xps?.forEach((xp) {
+            var lang = user.recentLangs
+                ?.firstWhere((langXp) => langXp.name == xp.language);
+
+            if (lang != null) {
+              lang.xp = lang.xp + xp.amount;
+            } else {
+              user.recentLangs?.add(Xp(xp.amount, xp.language));
+            }
+          });
+          _userStateController.sink.add(state);
+        }
+      } catch (e) {
+        print(e);
+      }
+    });
+    userChannel.join();
+  }
+
   _refreshChannels(UserState state) async {
     await socket.connect();
-    socket.channels.forEach((c) => c.leave());
-    socket.channels.clear();
-    state?.allUsers?.forEach((name, user) {
-      var userChannel = socket.channel("users:$name");
-      userChannel.onError((payload, ref, joinRef) => print("CHANNEL ERROR:\n$ref\n$joinRef\n$payload"));
-      userChannel.onClose((Map payload, String ref, String joinRef) =>
-          print("CHANNEL CLOSE:\n$ref\n$joinRef\n$payload"));
-
-      userChannel.on("new_pulse", (Map payload, String _ref, String _joinRef) {
-        assert(() {
-          print("NEW_PULSE:\n$payload");
-          return true;
-        }());
-
-        try {
-          Pulse pulse = Pulse.fromJson(payload);
-          if (user != null && pulse != null) {
-            var machine = user?.recentMachines
-                ?.firstWhere((xp) => xp.name == pulse.machine);
-            if (machine != null) {
-              machine.xp =
-                  machine.xp + $(pulse.xps).sumBy((xp) => xp.amount).floor();
-            }
-            pulse?.xps?.forEach((xp) {
-              var lang = user?.recentLangs
-                  ?.firstWhere((langXp) => langXp.name == xp.language);
-              if (lang != null) {
-                lang.xp = lang.xp + xp.amount;
-              } else {
-                user?.recentLangs?.add(Xp(xp.amount, xp.language));
-              }
-            });
-            _userStateController.sink.add(state);
-          }
-        } catch (e) {
-          print(e);
-        }
-      });
-      userChannel.join();
-    });
+    state?.allUsers?.forEach(_createChannel);
   }
 
   _setUserState(UserState newState) {
@@ -132,6 +151,7 @@ class UserBloc implements BlocBase {
         } else {
           state.errors.clear();
           state.errors.add('Server responded with ${response.statusCode}');
+          // TODO display errors in UI
         }
       } on DioError catch (e) {
         // The request was made and the server responded with a status code

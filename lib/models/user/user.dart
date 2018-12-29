@@ -13,7 +13,7 @@ class User {
   final Map<String, int> hourOfDayXps;
   final Map<String, int> dayOfYearXps;
   final List<DayLanguageXps> dayLanguageXps;
-  final int totalXp;
+  int totalXp;
 
   User(this.totalMachines, this.totalLangs, this.recentMachines, this.recentLangs, this.hourOfDayXps, this.dayOfYearXps, this.dayLanguageXps, this.totalXp);
 
