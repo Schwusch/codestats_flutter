@@ -110,17 +110,19 @@ class ProfilePageState extends State<ProfilePage> {
         UserLevelWidget(
           userModel: widget.userModel,
         ),
-        AnimatedCircularChart(
-          key: chartKey,
-          size: Size.square(250),
-          edgeStyle: SegmentEdgeStyle.round,
-          initialChartData: [],
-          holeLabel:
-              '${((thisLevelXpSoFar / thisLevelXpTotal) * 100).round()}% of level ${level + 1}',
-          labelStyle: new TextStyle(
-            color: Colors.blueGrey[600],
-            fontWeight: FontWeight.bold,
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) => AnimatedCircularChart(
+                key: chartKey,
+                size: Size.square(constraints.maxWidth / 2),
+                edgeStyle: SegmentEdgeStyle.round,
+                initialChartData: [],
+                holeLabel:
+                    '${((thisLevelXpSoFar / thisLevelXpTotal) * 100).round()}% of level ${level + 1}',
+                labelStyle: new TextStyle(
+                  color: Colors.blueGrey[600],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),

@@ -360,6 +360,13 @@ class _FluidSliderState extends State<FluidSlider>
                     onHorizontalDragStart: _onHorizontalDragStart,
                     onHorizontalDragUpdate: _onHorizontalDragUpdate,
                     onHorizontalDragEnd: _onHorizontalDragEnd,
+                    onTapUp: (details) {
+                      if (widget.onChangeEnd != null) {
+                        _handleDragEnd(_clamp(_currX));
+                      }
+                      _currX = 0.0;
+                      _animationController.reverse();
+                    },
                     child: Container(
                       width: thumbDiameter,
                       height: thumbDiameter,
