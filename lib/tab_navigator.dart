@@ -63,6 +63,8 @@ class TabNavigatorState extends State<TabNavigator>
         case 0:
           body = ProfilePage(
             userModel: userModel,
+            bloc: bloc,
+            userName: widget.currentUser,
           );
           break;
         case 1:

@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:codestats_flutter/bloc/codestats_bloc.dart';
+import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
@@ -8,17 +12,47 @@ import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final User userModel;
+  final UserBloc bloc;
+  final String userName;
 
   const ProfilePage({
     Key key,
     @required this.userModel,
+    @required this.bloc,
+    @required this.userName,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final formatter = NumberFormat("#,###");
+  ProfilePageState createState() {
+    return new ProfilePageState();
+  }
+}
+
+class ProfilePageState extends State<ProfilePage> {
+  GlobalKey<AnimatedCircularChartState> chartKey =
+      new GlobalKey<AnimatedCircularChartState>();
+  StreamSubscription circularChartSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    circularChartSubscription = widget.bloc.users.listen(
+      (UserState state) => chartKey.currentState.updateData(
+            [createCircularStack(state.allUsers[widget.userName])],
+          ),
+    );
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+    circularChartSubscription.cancel();
+  }
+
+  CircularStackEntry createCircularStack(User userModel) {
+    List<CircularSegmentEntry> segments = [];
     var level = getLevel(userModel.totalXp);
     var previousLevelXp = getXp(level).toDouble();
     var nextLevelXp = getXp(level + 1);
@@ -27,15 +61,6 @@ class ProfilePage extends StatelessWidget {
     var recentXp = getRecentXp(userModel).toDouble();
 
     bool recentXpLessThanSoFarOnLevel = recentXp < thisLevelXpSoFar;
-
-    List<CircularSegmentEntry> segments = [];
-
-    var hoursOfDayData = $(userModel.hourOfDayXps.entries
-        .map((entry) => MapEntry(int.parse(entry.key), entry.value)))
-      ..sort((a, b) => a.key - b.key);
-
-    var minY = hoursOfDayData.minBy((elem) => elem.value).value;
-    var maxY = hoursOfDayData.maxBy((elem) => elem.value).value;
 
     if (recentXpLessThanSoFarOnLevel) {
       segments.add(
@@ -59,19 +84,39 @@ class ProfilePage extends StatelessWidget {
           rankKey: 'Remaining'),
     );
 
+    return CircularStackEntry(segments);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = NumberFormat("#,###");
+    var level = getLevel(widget.userModel.totalXp);
+    var previousLevelXp = getXp(level).toDouble();
+    var nextLevelXp = getXp(level + 1);
+    var thisLevelXpSoFar = widget.userModel.totalXp - previousLevelXp;
+    var thisLevelXpTotal = nextLevelXp - previousLevelXp;
+
+    var hoursOfDayData = $(widget.userModel.hourOfDayXps.entries
+        .map((entry) => MapEntry(int.parse(entry.key), entry.value)))
+      ..sort((a, b) => a.key - b.key);
+
+    var minY = hoursOfDayData.minBy((elem) => elem.value).value;
+    var maxY = hoursOfDayData.maxBy((elem) => elem.value).value;
+
+    chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
+
     return ListView(
       children: <Widget>[
         UserLevelWidget(
-          userModel: userModel,
+          userModel: widget.userModel,
         ),
         AnimatedCircularChart(
+          key: chartKey,
           size: Size.square(250),
           edgeStyle: SegmentEdgeStyle.round,
-          initialChartData: [
-            CircularStackEntry(segments),
-          ],
+          initialChartData: [],
           holeLabel:
-              '${((thisLevelXpSoFar / thisLevelXpTotal) * 100).floor()}% of level ${level + 1}',
+              '${((thisLevelXpSoFar / thisLevelXpTotal) * 100).round()}% of level ${level + 1}',
           labelStyle: new TextStyle(
             color: Colors.blueGrey[600],
             fontWeight: FontWeight.bold,
@@ -88,7 +133,7 @@ class ProfilePage extends StatelessWidget {
         ),
         LayoutBuilder(
           builder: (context, BoxConstraints constraints) => Column(
-                children: userModel.totalMachines
+                children: widget.userModel.totalMachines
                     .map(
                       (machine) => LevelPercentIndicator(
                             width: constraints.maxWidth * 0.7,
