@@ -1,4 +1,4 @@
-
+import 'package:charts_common/common.dart';
 import 'package:codestats_flutter/models/user/day_language_xps.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +18,7 @@ class DayLanguageXpsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: charts.TimeSeriesChart(
@@ -32,16 +33,29 @@ class DayLanguageXpsWidget extends StatelessWidget {
                 ))
             .toList(),
         animate: true,
+        animationDuration: Duration(milliseconds: 150),
         defaultInteractions: false,
         defaultRenderer: new charts.BarRendererConfig<DateTime>(
           groupingType: charts.BarGroupingType.stacked,
         ),
-        domainAxis: new charts.DateTimeAxisSpec(
-            usingBarRenderer: true, showAxisLine: true),
+        domainAxis: charts.DateTimeAxisSpec(
+          usingBarRenderer: true,
+          renderSpec: SmallTickRendererSpec<DateTime>(
+            labelAnchor: TickLabelAnchor.centered,
+            labelOffsetFromTickPx: 0,
+
+          ),
+          tickProviderSpec: DayTickProviderSpec(increments: List.generate(7, (i) => i + 1))
+        ),
         behaviors: [
+          charts.LinePointHighlighter(showHorizontalFollowLine: LinePointHighlighterFollowLineType.nearest),
           charts.SelectNearest(),
           charts.DomainHighlighter(),
           charts.SeriesLegend(
+            entryTextStyle: TextStyleSpec(color: charts.ColorUtil.fromDartColor(Colors.black)),
+            measureFormatter: (xp) => xp != null ? "${xp?.round()} XP" : "",
+            legendDefaultMeasure: LegendDefaultMeasure.sum,
+            showMeasures: true,
             position: charts.BehaviorPosition.top,
             outsideJustification: charts.OutsideJustification.endDrawArea,
             horizontalFirst: false,

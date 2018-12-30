@@ -67,7 +67,6 @@ class AddUserPage extends StatelessWidget {
                           ),
                         ],
                       );
-                    } else if (snapshot.data == ValidUser.Valid) {
                     } else {
                       return SizedBox(
                         width: 24,
