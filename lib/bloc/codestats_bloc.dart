@@ -13,7 +13,7 @@ import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:superpower/superpower.dart';
 import 'package:rxdart/subjects.dart';
 
-enum ValidUser { Unknown, Valid, Invalid, Error }
+enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 
 enum DataFetching { Done, Loading, Error }
 
@@ -200,13 +200,9 @@ class UserBloc implements BlocBase {
 
   addUser(String newUser) async {
     print("ADDUSER adding: '$newUser'");
+    _userValidationSubject.add(ValidUser.Loading);
     try {
       Response response = await _dio.get("/api/users/$newUser");
-
-      if (response.statusCode != 200) {
-        _userValidationSubject.add(ValidUser.Error);
-        print("ADDUSER response.statusCode=${response.statusCode}");
-      }
 
       if (response.data["error"] != null) {
         _userValidationSubject.add(ValidUser.Invalid);
@@ -219,8 +215,14 @@ class UserBloc implements BlocBase {
       state.allUsers[newUser] = null;
 
       await fetchAllUsers();
-    } catch (e) {
-      print("ADDUSER exception: $e");
+    } catch (e)  {
+      if(e is DioError && e.type == DioErrorType.RESPONSE && e.response.statusCode == 404) {
+        _userValidationSubject.add(ValidUser.Invalid);
+        print("ADDUSER exception: $e");
+      } else {
+        _userValidationSubject.add(ValidUser.Error);
+      }
+
     }
   }
 
