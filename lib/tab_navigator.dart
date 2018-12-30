@@ -1,14 +1,17 @@
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/user.dart';
-import 'package:codestats_flutter/widgets/fluid_slider.dart';
+import 'package:codestats_flutter/widgets/backdrop.dart';
+import 'package:codestats_flutter/widgets/choose_user_menu.dart';
 import 'package:codestats_flutter/widgets/language_levels.dart';
 import 'package:codestats_flutter/widgets/profile_page.dart';
+import 'package:codestats_flutter/widgets/random_loading_animation.dart';
+import 'package:codestats_flutter/widgets/reload_data.dart';
+import 'package:codestats_flutter/widgets/settings.dart';
 import 'package:codestats_flutter/widgets/week_xps.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flip_box_bar/flip_box_bar.dart';
-import 'package:backdrop/backdrop.dart';
 
 class TabNavigator extends StatefulWidget {
   final Map<String, charts.Color> colors;
@@ -30,22 +33,6 @@ class TabNavigator extends StatefulWidget {
 class TabNavigatorState extends State<TabNavigator>
     with SingleTickerProviderStateMixin {
   int tabIndex = 0;
-  AnimationController _controller;
-  Animation animation;
-  int recentLength = 1;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 500),
-    );
-    animation = Tween(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(_controller);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +41,18 @@ class TabNavigatorState extends State<TabNavigator>
 
     Widget body;
 
-    if (userModel == null) {
+    if (widget.currentUser != null &&
+        widget.currentUser.isNotEmpty &&
+        userModel == null) {
       body = Center(
-        child: CircularProgressIndicator(),
+        child: RandomLoadingAnimation(),
+      );
+    } else if (widget.currentUser == null || widget.currentUser.isEmpty) {
+      if (widget.users.isNotEmpty) {
+        bloc.selectUser.add(widget.users.keys.first);
+      }
+      body = Center(
+        child: Text("No user chosen"),
       );
     } else {
       switch (tabIndex) {
@@ -84,22 +80,28 @@ class TabNavigatorState extends State<TabNavigator>
       }
     }
 
-    _controller.forward(from: 0.0);
-
     return BackdropScaffold(
       title: Text(widget.currentUser ?? ""),
       frontLayer: Scaffold(
-        body: FadeTransition(
-          opacity: animation,
-          child: Container(
-            child: body,
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                colors: [
-                  Colors.white,
-                  Colors.grey.shade100,
-                ],
-              ),
+        body: Container(
+          child: StreamBuilder(
+              stream: bloc.dataFetching,
+              initialData: DataFetching.Done,
+              builder: (context, snapshot) {
+                if (snapshot.data == DataFetching.Loading) {
+                  return Center(
+                    child: RandomLoadingAnimation(),
+                  );
+                }
+
+                return body;
+              }),
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              colors: [
+                Colors.white,
+                Colors.grey.shade100,
+              ],
             ),
           ),
         ),
@@ -139,67 +141,18 @@ class TabNavigatorState extends State<TabNavigator>
             ),*/
           ],
           onIndexChanged: (newIndex) => setState(() {
-            tabIndex = newIndex;
-          }),
+                tabIndex = newIndex;
+              }),
         ),
       ),
-      backLayer: Scaffold(
-        backgroundColor: Colors.blueGrey,
-        body: Padding(
-          padding: const EdgeInsets.only(
-            top: 30,
-            left: 24,
-            right: 24,
-          ),
-          child: ListView(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  "Settings",
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              Text(
-                "Number of days in recent tab",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: FluidSlider(
-                  value: recentLength.toDouble(),
-                  onChanged: (double newValue) {
-                    setState(() {
-                      recentLength = newValue.floor();
-                    });
-                  },
-                  min: 1,
-                  max: 14,
-                  sliderColor: Colors.indigo,
-                ),
-              ),
-            ],
-          ),
-        ),
+      backLayer: Settings(
+        bloc: bloc,
+        users: widget.users,
       ),
       iconPosition: BackdropIconPosition.leading,
       actions: [
-        PopupMenuButton(
-          icon: Icon(Icons.people),
-          onSelected: bloc.selectUser.add,
-          itemBuilder: (BuildContext context) => widget.users.keys
-              .map((user) => PopupMenuItem(
-            value: user,
-            child: Text(user),
-          ))
-              .toList(),
-        )
+        ReloadData(bloc: bloc),
+        ChooseUserMenu(bloc: bloc, widget: widget)
       ],
     );
   }

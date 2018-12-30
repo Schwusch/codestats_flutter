@@ -24,23 +24,26 @@ class XpChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat("#,###");
+    var level = getLevel(xp);
 
     return PimpedButton(
       pimpedWidgetBuilder: (context, controller) {
-        controller.forward();
+        controller.forward(from: 0);
         return Chip(
           shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10))),
           label: Text(
             "$prefix${formatter.format(xp)} $postFix",
+            key: ValueKey(xp),
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           avatar: showLevel
               ? CircleAvatar(
+                  key: ValueKey(level),
                   maxRadius: 100,
                   backgroundColor: avatarColor,
                   child: Text(
-                    formatter.format(getLevel(xp)),
+                    '$level',
                     style: TextStyle(
                       color: Colors.grey.shade200,
                     ),

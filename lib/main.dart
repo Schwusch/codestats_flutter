@@ -2,13 +2,15 @@ import 'dart:math';
 
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
-import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/tab_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:flutter/services.dart';
+import 'package:rxdart/rxdart.dart';
 
 void main() {
-  runApp(MyApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) => runApp(MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -16,7 +18,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Code::Stats',
@@ -50,18 +51,14 @@ class _HomePageState extends State<HomePage> {
     final UserBloc _userbloc = BlocProvider.of(context);
 
     return StreamBuilder(
-        stream: _userbloc.users,
-        builder: (context, AsyncSnapshot<UserState> usersSnapshot) {
-          if (usersSnapshot.hasData &&
-              (usersSnapshot.data?.allUsers?.isNotEmpty ?? false)) {
-            return StreamBuilder(
-              stream: _userbloc.selectedUser,
-              builder: (context, AsyncSnapshot<String> snapshot) =>
-                  TabNavigator(
-                    colors: colors,
-                    users: usersSnapshot.data.allUsers,
-                    currentUser: snapshot.data,
-                  ),
+        stream: CombineLatestStream(
+            [_userbloc.users, _userbloc.selectedUser], (values) => values),
+        builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+          if (snapshot.hasData) {
+            return TabNavigator(
+              colors: colors,
+              users: snapshot.data[0].allUsers,
+              currentUser: snapshot.data[1],
             );
           }
 

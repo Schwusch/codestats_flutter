@@ -38,11 +38,13 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    circularChartSubscription = widget.bloc.users.listen(
-      (UserState state) => chartKey.currentState.updateData(
-            [createCircularStack(state.allUsers[widget.userName])],
-          ),
-    );
+    circularChartSubscription = widget.bloc.users.listen((UserState state) {
+      if(state.allUsers[widget.userName] != null) {
+        chartKey.currentState.updateData(
+          [createCircularStack(state.allUsers[widget.userName])],
+        );
+      }
+    });
   }
 
   @override
@@ -106,7 +108,7 @@ class ProfilePageState extends State<ProfilePage> {
     chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
 
     return ListView(
-      children: <Widget>[
+      children: [
         UserLevelWidget(
           userModel: widget.userModel,
         ),
@@ -125,7 +127,7 @@ class ProfilePageState extends State<ProfilePage> {
               ),
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
           child: Center(
             child: Text(
               "Machines total XP",
@@ -147,7 +149,7 @@ class ProfilePageState extends State<ProfilePage> {
               ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 20.0),
+          padding: EdgeInsets.only(top: 20.0),
           child: Center(
             child: Text(
               "Total XP per hour of day",

@@ -11,16 +11,22 @@ import 'package:codestats_flutter/queries.dart' as queries;
 import 'package:codestats_flutter/utils.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:superpower/superpower.dart';
+import 'package:rxdart/subjects.dart';
+
+enum ValidUser { Unknown, Valid, Invalid, Error }
+
+enum DataFetching { Done, Loading, Error }
 
 class UserBloc implements BlocBase {
   UserState state;
+  static const baseUrl = "https://codestats.net";
+  static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
 
-  final socket = PhoenixSocket(
-      "wss://codestats.net/live_update_socket/websocket",
+  final socket = PhoenixSocket(wsBaseUrl,
       socketOptions: PhoenixSocketOptions(params: {"vsn": "2.0.0"}));
   final Dio _dio = Dio(
     Options(
-      baseUrl: "https://codestats.net",
+      baseUrl: baseUrl,
     ),
   );
 
@@ -35,6 +41,20 @@ class UserBloc implements BlocBase {
 
   Stream<UserState> get users => _userStateController.stream;
 
+  PublishSubject<ValidUser> _userValidationSubject = PublishSubject();
+
+  Stream<ValidUser> get userValidation =>
+      _userValidationSubject.stream.startWith(ValidUser.Unknown);
+
+  StreamSink<ValidUser> get setUserValidation => _userValidationSubject.sink;
+
+  BehaviorSubject<DataFetching> _dataFetchingSubject = BehaviorSubject();
+
+  Stream<DataFetching> get dataFetching =>
+      _dataFetchingSubject.stream.startWith(DataFetching.Done);
+
+  StreamSink<DataFetching> get setDataFetching => _dataFetchingSubject.sink;
+
   UserBloc() {
     _userStateController = HydratedSubject<UserState>("userState",
         hydrate: (s) {
@@ -48,6 +68,7 @@ class UserBloc implements BlocBase {
         seedValue: UserState(
           allUsers: {
             "Schwusch": null,
+            "MasterBait": null,
           },
         ),
         onHydrate: fetchAllUsers);
@@ -56,8 +77,6 @@ class UserBloc implements BlocBase {
     setupDebugLog(_dio);
 
     assert(() {
-      socket.onMessage((PhoenixMessage message) => print(
-          "SOCKET_MESSAGE: ${DateTime.now().toIso8601String()} ${message.toJSON()}"));
       socket.onOpen(() => print("SOCKET OPENED!"));
       socket.onError((e) => print("SOCKET ERROR: $e"));
       socket.onClose((c) => print("SOCKET CLOSE: $c"));
@@ -66,8 +85,8 @@ class UserBloc implements BlocBase {
   }
 
   _createChannel(String name, User user) {
-    if (name == null &&
-        user == null &&
+    if (name == null ||
+        user == null ||
         socket.channels.indexWhere(
                 (PhoenixChannel chnl) => chnl.topic == "users:$name") >
             -1) return;
@@ -77,13 +96,11 @@ class UserBloc implements BlocBase {
         print("CHANNEL ERROR:\n$ref\n$joinRef\n$payload"));
     userChannel.onClose((Map payload, String ref, String joinRef) {
       print("CHANNEL CLOSE:\n$ref\n$joinRef\n$payload");
-      print("NUMBER_OF_CHANNELS: ${socket.channels.length}");
-      _createChannel(name, user);
     });
 
     userChannel.on("new_pulse", (Map payload, String _ref, String _joinRef) {
       assert(() {
-        print("NEW_PULSE:\n$payload");
+        print("NEW_PULSE: $payload");
         return true;
       }());
 
@@ -110,6 +127,7 @@ class UserBloc implements BlocBase {
               user.recentLangs?.add(Xp(xp.amount, xp.language));
             }
           });
+
           _userStateController.sink.add(state);
         }
       } catch (e) {
@@ -130,6 +148,8 @@ class UserBloc implements BlocBase {
 
   fetchAllUsers() async {
     if (state?.allUsers?.isNotEmpty ?? false) {
+      setDataFetching.add(DataFetching.Loading);
+
       var userNames = state.allUsers.keys.toList();
 
       try {
@@ -145,15 +165,24 @@ class UserBloc implements BlocBase {
                 state.allUsers[user] = User.fromJson(userMap);
               }
             });
+
             _refreshChannels(state);
             _userStateController.sink.add(state);
+            setDataFetching.add(DataFetching.Done);
+          } else {
+            setDataFetching.add(DataFetching.Error);
+            state.errors.clear();
+            state.errors.add('Received data was corrupt');
           }
         } else {
+          setDataFetching.add(DataFetching.Error);
           state.errors.clear();
           state.errors.add('Server responded with ${response.statusCode}');
           // TODO display errors in UI
         }
       } on DioError catch (e) {
+        setDataFetching.add(DataFetching.Error);
+
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx and is also not 304.
         if (e.response != null) {
@@ -161,16 +190,60 @@ class UserBloc implements BlocBase {
           print(e.response.headers);
           print(e.response.request);
         } else {
-          // Something happened in setting up or sending the request that triggered an Error
+          // Something happened in setting up or sending
+          // the request that triggered an Error
           print(e.message);
         }
       }
     }
   }
 
+  addUser(String newUser) async {
+    print("ADDUSER adding: '$newUser'");
+    try {
+      Response response = await _dio.get("/api/users/$newUser");
+
+      if (response.statusCode != 200) {
+        _userValidationSubject.add(ValidUser.Error);
+        print("ADDUSER response.statusCode=${response.statusCode}");
+      }
+
+      if (response.data["error"] != null) {
+        _userValidationSubject.add(ValidUser.Invalid);
+        print("ADDUSER response.data=${response.data}");
+      }
+
+      _userValidationSubject.add(ValidUser.Valid);
+      _currentUserController.add(newUser);
+
+      state.allUsers[newUser] = null;
+
+      await fetchAllUsers();
+    } catch (e) {
+      print("ADDUSER exception: $e");
+    }
+  }
+
+  removeUser(String username) {
+    state.allUsers.remove(username);
+    socket.channels
+        .firstWhere((channel) => channel.topic == "users:$username")
+        ?.leave();
+    if (_currentUserController.value == username) {
+      if (state.allUsers.isNotEmpty) {
+        _currentUserController.add(state.allUsers.keys.first);
+      } else {
+        _currentUserController.add(null);
+      }
+    }
+    _userStateController.sink.add(state);
+  }
+
   @override
   void dispose() {
     _currentUserController.close();
     _userStateController.close();
+    _userValidationSubject.close();
+    _dataFetchingSubject.close();
   }
 }
