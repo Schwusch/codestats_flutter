@@ -36,6 +36,10 @@ class TabNavigatorState extends State<TabNavigator>
 
   @override
   Widget build(BuildContext context) {
+    // Attempt to hide keyboard, if shown
+    FocusScope.of(context)
+        .requestFocus(new FocusNode());
+
     UserBloc bloc = BlocProvider.of(context);
     User userModel = widget.users[widget.currentUser];
 
@@ -82,72 +86,70 @@ class TabNavigatorState extends State<TabNavigator>
 
     return BackdropScaffold(
       title: Text(widget.currentUser ?? ""),
-      frontLayer: Scaffold(
-        body: Container(
-          child: StreamBuilder(
-              stream: bloc.dataFetching,
-              initialData: DataFetching.Done,
-              builder: (context, snapshot) {
-                if (snapshot.data == DataFetching.Loading) {
-                  return Center(
-                    child: RandomLoadingAnimation(),
-                  );
-                }
+      frontLayer: Container(
+        child: StreamBuilder(
+            stream: bloc.dataFetching,
+            initialData: DataFetching.Done,
+            builder: (context, snapshot) {
+              if (snapshot.data == DataFetching.Loading) {
+                return Center(
+                  child: RandomLoadingAnimation(),
+                );
+              }
 
-                return body;
-              }),
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              colors: [
-                Colors.white,
-                Colors.grey.shade100,
-              ],
-            ),
+              return body;
+            }),
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            colors: [
+              Colors.white,
+              Colors.grey.shade100,
+            ],
           ),
-        ),
-        bottomNavigationBar: FlipBoxBar(
-          animationDuration: Duration(milliseconds: 500),
-          items: [
-            FlipBarItem(
-              icon: Icon(Icons.person),
-              text: Text(
-                "Profile",
-                style: TextStyle(color: Colors.black),
-              ),
-              frontColor: Colors.amber[700],
-              backColor: Colors.amber[300],
-            ),
-            FlipBarItem(
-                icon: Icon(Icons.timer),
-                text: Text(
-                  "Recent",
-                  style: TextStyle(color: Colors.black),
-                ),
-                frontColor: Colors.green[800],
-                backColor: Colors.green[300]),
-            FlipBarItem(
-                icon: Icon(Icons.translate),
-                text: Text(
-                  "Languages",
-                  style: TextStyle(color: Colors.black),
-                ),
-                frontColor: Colors.purple[700],
-                backColor: Colors.purple[300]),
-            /*FlipBarItem(
-              icon: Icon(Icons.calendar_today),
-              text: Text("Year view"),
-              frontColor: Colors.cyan.shade700,
-              backColor: Colors.cyan.shade200,
-            ),*/
-          ],
-          onIndexChanged: (newIndex) => setState(() {
-                tabIndex = newIndex;
-              }),
         ),
       ),
       backLayer: Settings(
         bloc: bloc,
         users: widget.users,
+      ),
+      bottomNavigationBar: FlipBoxBar(
+        animationDuration: Duration(milliseconds: 500),
+        items: [
+          FlipBarItem(
+            icon: Icon(Icons.person),
+            text: Text(
+              "Profile",
+              style: TextStyle(color: Colors.black),
+            ),
+            frontColor: Colors.amber[700],
+            backColor: Colors.amber[300],
+          ),
+          FlipBarItem(
+              icon: Icon(Icons.timer),
+              text: Text(
+                "Recent",
+                style: TextStyle(color: Colors.black),
+              ),
+              frontColor: Colors.green[800],
+              backColor: Colors.green[300]),
+          FlipBarItem(
+              icon: Icon(Icons.translate),
+              text: Text(
+                "Languages",
+                style: TextStyle(color: Colors.black),
+              ),
+              frontColor: Colors.purple[700],
+              backColor: Colors.purple[300]),
+          /*FlipBarItem(
+              icon: Icon(Icons.calendar_today),
+              text: Text("Year view"),
+              frontColor: Colors.cyan.shade700,
+              backColor: Colors.cyan.shade200,
+            ),*/
+        ],
+        onIndexChanged: (newIndex) => setState(() {
+          tabIndex = newIndex;
+        }),
       ),
       iconPosition: BackdropIconPosition.leading,
       actions: [

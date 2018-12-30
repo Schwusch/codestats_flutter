@@ -24,7 +24,7 @@ class ReloadData extends StatelessWidget {
           );
         } else if (snapshot.data == DataFetching.Loading) {
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 16),
             child: RandomLoadingAnimation(
               color: Colors.white,
               size: 16,

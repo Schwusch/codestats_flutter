@@ -55,6 +55,14 @@ class UserBloc implements BlocBase {
 
   StreamSink<DataFetching> get setDataFetching => _dataFetchingSubject.sink;
 
+  PublishSubject<Map<String, dynamic>> _searchResultSubject = PublishSubject();
+
+  Stream<Map<String, dynamic>> get searchResult => _searchResultSubject.stream;
+
+  PublishSubject<String> _searchUserSubject = PublishSubject();
+
+  StreamSink<String> get searchUser => _searchUserSubject;
+
   UserBloc() {
     _userStateController = HydratedSubject<UserState>("userState",
         hydrate: (s) {
@@ -74,6 +82,14 @@ class UserBloc implements BlocBase {
         onHydrate: fetchAllUsers);
 
     _userStateController.stream.listen(_setUserState);
+
+    _searchUserSubject
+        .distinct()
+        .debounce(Duration(milliseconds: 500))
+        .where((s) => s.trim().isNotEmpty)
+        .map((s) => s.trim())
+        .listen(this._onSearchUser);
+
     setupDebugLog(_dio);
 
     assert(() {
@@ -198,32 +214,35 @@ class UserBloc implements BlocBase {
     }
   }
 
-  addUser(String newUser) async {
-    print("ADDUSER adding: '$newUser'");
-    _userValidationSubject.add(ValidUser.Loading);
-    try {
-      Response response = await _dio.get("/api/users/$newUser");
+  _onSearchUser(String userName) async {
+    print("Searching for: $userName");
 
-      if (response.data["error"] != null) {
+    _searchResultSubject.add(null);
+    _userValidationSubject.add(ValidUser.Loading);
+
+    try {
+      Response response = await _dio.get("/api/users/$userName");
+
+      if (response.data == null || response.data["error"] != null) {
         _userValidationSubject.add(ValidUser.Invalid);
-        print("ADDUSER response.data=${response.data}");
       }
 
+      _searchResultSubject.add(response.data);
       _userValidationSubject.add(ValidUser.Valid);
-      _currentUserController.add(newUser);
 
-      state.allUsers[newUser] = null;
-
-      await fetchAllUsers();
     } catch (e)  {
       if(e is DioError && e.type == DioErrorType.RESPONSE && e.response.statusCode == 404) {
         _userValidationSubject.add(ValidUser.Invalid);
-        print("ADDUSER exception: $e");
       } else {
         _userValidationSubject.add(ValidUser.Error);
       }
-
     }
+  }
+
+  addUser(String newUser) async {
+    state.allUsers[newUser] = null;
+    _currentUserController.add(newUser);
+    await fetchAllUsers();
   }
 
   removeUser(String username) {
@@ -247,5 +266,7 @@ class UserBloc implements BlocBase {
     _userStateController.close();
     _userValidationSubject.close();
     _dataFetchingSubject.close();
+    _searchResultSubject.close();
+    _searchUserSubject.close();
   }
 }

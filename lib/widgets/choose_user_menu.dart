@@ -1,5 +1,5 @@
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
-import 'package:codestats_flutter/tab_navigator.dart';
+import 'package:codestats_flutter/widgets/tab_navigator.dart';
 import 'package:codestats_flutter/widgets/backdrop.dart';
 import 'package:flutter/material.dart';
 

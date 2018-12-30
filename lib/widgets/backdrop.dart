@@ -20,6 +20,7 @@ class BackdropScaffold extends StatefulWidget {
   final Widget title;
   final Widget backLayer;
   final Widget frontLayer;
+  final Widget bottomNavigationBar;
   final List<Widget> actions;
   final double headerHeight;
   final BorderRadius frontLayerBorderRadius;
@@ -37,6 +38,7 @@ class BackdropScaffold extends StatefulWidget {
       topRight: Radius.circular(16.0),
     ),
     this.iconPosition = BackdropIconPosition.leading,
+    this.bottomNavigationBar,
   });
 
   @override
@@ -189,6 +191,7 @@ class _BackdropScaffoldState extends State<BackdropScaffold>
             );
           },
         ),
+        bottomNavigationBar: widget.bottomNavigationBar,
       ),
     );
   }
@@ -221,7 +224,7 @@ class BackdropToggleButton extends StatelessWidget {
       onPressed: () {
         FocusScope.of(context).requestFocus(new FocusNode());
         Backdrop.of(context).fling();
-  },
+      },
     );
   }
 }
