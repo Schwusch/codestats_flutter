@@ -247,13 +247,14 @@ class UserBloc implements BlocBase {
     socket.channels
         .firstWhere((channel) => channel.topic == "users:$username", orElse: () => null)
         ?.leave();
-    if (_currentUserController.value == username) {
+    if (_currentUserController.value == username || state.allUsers.isEmpty) {
       if (state.allUsers.isNotEmpty) {
-        _currentUserController.add(state.allUsers.keys.first);
+        selectUser.add(state.allUsers.keys.first);
       } else {
-        _currentUserController.add(null);
+        selectUser.add("");
       }
     }
+
     _userStateController.sink.add(state);
   }
 

@@ -29,6 +29,7 @@ dependencies:
   pimp_my_button:
     git:
       url: git://github.com/Norbert515/pimp_my_button.git
+      ref: 8845aceaafc04ccb1db4cc4e7074395cf698c607
 
 dev_dependencies:
   json_serializable: ^2.0.1
