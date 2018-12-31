@@ -33,6 +33,11 @@ dependencies:
 dev_dependencies:
   json_serializable: ^2.0.1
   build_runner: ^1.1.2
+  flutter_launcher_icons: ^0.7.0
 
 flutter:
   uses-material-design: true
+
+flutter_icons:
+  android: true
+  image_path: assets/icon/ic_launcher.png

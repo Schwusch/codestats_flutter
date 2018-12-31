@@ -18,7 +18,6 @@ class DayLanguageXpsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: charts.TimeSeriesChart(
@@ -38,28 +37,38 @@ class DayLanguageXpsWidget extends StatelessWidget {
         defaultRenderer: new charts.BarRendererConfig<DateTime>(
           groupingType: charts.BarGroupingType.stacked,
         ),
+        primaryMeasureAxis: charts.NumericAxisSpec(
+          tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+              (value) => "${value.round()} XP"),
+        ),
         domainAxis: charts.DateTimeAxisSpec(
           usingBarRenderer: true,
           renderSpec: SmallTickRendererSpec<DateTime>(
             labelAnchor: TickLabelAnchor.centered,
             labelOffsetFromTickPx: 0,
-
           ),
-          tickProviderSpec: DayTickProviderSpec(increments: List.generate(7, (i) => i + 1))
+          tickProviderSpec: DayTickProviderSpec(
+            increments: [1],
+          ),
         ),
         behaviors: [
-          charts.LinePointHighlighter(showHorizontalFollowLine: LinePointHighlighterFollowLineType.nearest),
-          charts.SelectNearest(),
+          charts.LinePointHighlighter(
+              showHorizontalFollowLine:
+                  LinePointHighlighterFollowLineType.nearest),
+          charts.SelectNearest(
+            eventTrigger: SelectionTrigger.tapAndDrag,
+          ),
           charts.DomainHighlighter(),
           charts.SeriesLegend(
-            entryTextStyle: TextStyleSpec(color: charts.ColorUtil.fromDartColor(Colors.black)),
+            entryTextStyle: TextStyleSpec(
+                color: charts.ColorUtil.fromDartColor(Colors.black)),
             measureFormatter: (xp) => xp != null ? "${xp?.round()} XP" : "",
             legendDefaultMeasure: LegendDefaultMeasure.sum,
             showMeasures: true,
             position: charts.BehaviorPosition.top,
-            outsideJustification: charts.OutsideJustification.endDrawArea,
+            outsideJustification: charts.OutsideJustification.start,
             horizontalFirst: false,
-            desiredMaxRows: (languages.keys.length / 2).floor(),
+            desiredMaxRows: (languages.keys.length / 2).ceil(),
           ),
         ],
       ),

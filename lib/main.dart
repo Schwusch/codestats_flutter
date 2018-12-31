@@ -11,7 +11,7 @@ void main() {
 }
 
 class CodeStatsApp extends StatelessWidget {
-  final UserBloc _bloc = UserBloc();
+  final UserBloc _bloc = UserBloc()..fetchAllUsers();
 
   @override
   Widget build(BuildContext context) {

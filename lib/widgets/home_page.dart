@@ -25,18 +25,10 @@ class _HomePageState extends State<HomePage> {
         stream: CombineLatestStream(
             [_userbloc.users, _userbloc.selectedUser], (values) => values),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (snapshot.hasData) {
-            return TabNavigator(
-              colors: colors,
-              users: snapshot.data[0].allUsers,
-              currentUser: snapshot.data[1],
-            );
-          }
-
-          return Scaffold(
-            body: Center(
-              child: Text("Something is wrong"),
-            ),
+          return TabNavigator(
+            colors: colors,
+            users: snapshot.data != null ? snapshot.data[0].allUsers : null,
+            currentUser: snapshot.data != null ? snapshot.data[1] : null,
           );
         });
   }

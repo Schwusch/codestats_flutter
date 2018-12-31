@@ -37,11 +37,10 @@ class TabNavigatorState extends State<TabNavigator>
   @override
   Widget build(BuildContext context) {
     // Attempt to hide keyboard, if shown
-    FocusScope.of(context)
-        .requestFocus(new FocusNode());
+    FocusScope.of(context).requestFocus(new FocusNode());
 
     UserBloc bloc = BlocProvider.of(context);
-    User userModel = widget.users[widget.currentUser];
+    User userModel = widget.users != null ? widget.users[widget.currentUser] : null;
 
     Widget body;
 
@@ -52,11 +51,26 @@ class TabNavigatorState extends State<TabNavigator>
         child: RandomLoadingAnimation(),
       );
     } else if (widget.currentUser == null || widget.currentUser.isEmpty) {
-      if (widget.users.isNotEmpty) {
+      if (widget.users != null && widget.users.isNotEmpty) {
         bloc.selectUser.add(widget.users.keys.first);
       }
       body = Center(
-        child: Text("No user chosen"),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Text("No user chosen"),
+            ),
+            FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed("/addUser");
+              },
+              child: Icon(Icons.add),
+            )
+          ],
+        ),
       );
     } else {
       switch (tabIndex) {
@@ -148,8 +162,8 @@ class TabNavigatorState extends State<TabNavigator>
             ),*/
         ],
         onIndexChanged: (newIndex) => setState(() {
-          tabIndex = newIndex;
-        }),
+              tabIndex = newIndex;
+            }),
       ),
       iconPosition: BackdropIconPosition.leading,
       actions: [

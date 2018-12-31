@@ -21,61 +21,65 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = NumberFormat("#,###");
 
+    var widgets = [
+      ListTile(
+        title: Text(
+          "Users",
+          style: TextStyle(
+              color: Colors.blueGrey.shade100,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic),
+        ),
+        trailing: IconButton(
+          color: Colors.white,
+          icon: Icon(Icons.add_circle_outline),
+          onPressed: () {
+            Navigator.of(context).pushNamed("/addUser");
+          },
+        ),
+      ),
+    ];
+    if(users != null) {
+      widgets.addAll(
+        $(users.keys).sorted().mapNotNull((user) {
+          if (bloc.state.allUsers[user] == null) {
+            return null;
+          }
+
+          return ListTile(
+            onTap: () {
+              bloc.selectUser.add(user);
+              Backdrop.of(context).fling();
+            },
+            title: Text(
+              user,
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            subtitle: Text(
+                "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP"),
+            leading: CircleAvatar(
+              child: Text("${getLevel(bloc.state.allUsers[user]?.totalXp)}"),
+            ),
+            trailing: IconButton(
+              color: Colors.white,
+              icon: Icon(Icons.remove_circle_outline),
+              onPressed: () {
+                _onAlertButtonsPressed(context, user);
+              },
+            ),
+          );
+        }).toList(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.blueGrey,
       body: ListView(
         padding: const EdgeInsets.only(top: 30, bottom: 30),
-        children: [
-          ListTile(
-            title: Text(
-              "Users",
-              style: TextStyle(
-                  color: Colors.blueGrey.shade100,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic),
-            ),
-            trailing: IconButton(
-              color: Colors.white,
-              icon: Icon(Icons.add_circle_outline),
-              onPressed: () {
-                Navigator.of(context).pushNamed("/addUser");
-              },
-            ),
-          ),
-        ]..addAll(
-            $(users.keys).sorted().mapNotNull((user) {
-              if (bloc.state.allUsers[user] == null) {
-                return null;
-              }
-
-              return ListTile(
-                onTap: () {
-                  bloc.selectUser.add(user);
-                  Backdrop.of(context).fling();
-                },
-                title: Text(
-                  user,
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                subtitle: Text(
-                    "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP"),
-                leading: CircleAvatar(
-                  child: Text(
-                      "${getLevel(bloc.state.allUsers[user]?.totalXp)}"),
-                ),
-                trailing: IconButton(
-                  color: Colors.white,
-                  icon: Icon(Icons.remove_circle_outline),
-                  onPressed: () {
-                    _onAlertButtonsPressed(context, user);
-                  },
-                ),
-              );
-            }).toList(),
-          ),
+        children: widgets,
       ),
     );
   }

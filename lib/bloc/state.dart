@@ -5,12 +5,14 @@ part 'state.g.dart';
 
 @JsonSerializable(nullable: true, useWrappers: true)
 class UserState {
-  Map<String, User> allUsers = {};
+  Map<String, User> allUsers;
   List<String> errors = [];
 
   UserState({
-    this.allUsers = const {},
+    this.allUsers
   });
+
+  factory UserState.empty() => UserState(allUsers: {});
 
   factory UserState.fromJson(Map<String, dynamic> json) => _$UserStateFromJson(json);
   Map<String, dynamic> toJson() => _$UserStateToJson(this);

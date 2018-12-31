@@ -10,7 +10,7 @@ UserState _$UserStateFromJson(Map<String, dynamic> json) {
   return UserState(
       allUsers: (json['allUsers'] as Map<String, dynamic>)?.map((k, e) =>
           MapEntry(
-              k, e == null ? null : User.fromJson(e as Map<String, dynamic>))));
+              k, e == null ? null : User.fromJson(e as Map<String, dynamic>))) ?? {});
 }
 
 Map<String, dynamic> _$UserStateToJson(UserState instance) =>

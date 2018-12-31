@@ -18,7 +18,7 @@ enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 enum DataFetching { Done, Loading, Error }
 
 class UserBloc implements BlocBase {
-  UserState state;
+  UserState state = UserState.empty();
   static const baseUrl = "https://codestats.net";
   static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
 
@@ -69,19 +69,14 @@ class UserBloc implements BlocBase {
           try {
             return UserState.fromJson(jsonDecode(s));
           } catch (e) {
-            return null;
+            return UserState.empty();
           }
         },
+        seedValue: UserState.empty(),
         persist: (state) => jsonEncode(state.toJson()),
-        seedValue: UserState(
-          allUsers: {
-            "Schwusch": null,
-            "MasterBait": null,
-          },
-        ),
         onHydrate: fetchAllUsers);
 
-    _userStateController.stream.listen(_setUserState);
+    _userStateController.listen(_setUserState);
 
     _searchUserSubject
         .distinct()
@@ -229,9 +224,10 @@ class UserBloc implements BlocBase {
 
       _searchResultSubject.add(response.data);
       _userValidationSubject.add(ValidUser.Valid);
-
-    } catch (e)  {
-      if(e is DioError && e.type == DioErrorType.RESPONSE && e.response.statusCode == 404) {
+    } catch (e) {
+      if (e is DioError &&
+          e.type == DioErrorType.RESPONSE &&
+          e.response.statusCode == 404) {
         _userValidationSubject.add(ValidUser.Invalid);
       } else {
         _userValidationSubject.add(ValidUser.Error);
@@ -241,6 +237,7 @@ class UserBloc implements BlocBase {
 
   addUser(String newUser) async {
     state.allUsers[newUser] = null;
+    _userStateController.add(state);
     _currentUserController.add(newUser);
     await fetchAllUsers();
   }
