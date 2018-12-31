@@ -245,7 +245,7 @@ class UserBloc implements BlocBase {
   removeUser(String username) {
     state.allUsers.remove(username);
     socket.channels
-        .firstWhere((channel) => channel.topic == "users:$username")
+        .firstWhere((channel) => channel.topic == "users:$username", orElse: () => null)
         ?.leave();
     if (_currentUserController.value == username) {
       if (state.allUsers.isNotEmpty) {

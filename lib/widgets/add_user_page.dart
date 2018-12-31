@@ -68,12 +68,8 @@ class AddUserPage extends StatelessWidget {
                         ],
                       );
                     } else {
-                      return SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: RandomLoadingAnimation(
-                          size: 24,
-                        ),
+                      return RandomLoadingAnimation(
+                        size: 24,
                       );
                     }
                   },
