@@ -23,7 +23,7 @@ class CodeStatsApp extends StatelessWidget {
         theme: ThemeData(
           textTheme: Typography(platform: TargetPlatform.android)
               .white
-              .apply(bodyColor: Colors.blueGrey[600]),
+              .apply(bodyColor: Colors.blueGrey[600], displayColor: Colors.blueGrey[600]),
           primarySwatch: Colors.blueGrey,
         ),
         initialRoute: "/",

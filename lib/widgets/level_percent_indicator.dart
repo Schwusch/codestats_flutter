@@ -22,13 +22,13 @@ class LevelPercentIndicator extends StatelessWidget {
     var thisLevelXpSoFar = xp - previousLevelXp;
     var thisLevelXpTotal = nextLevelXp - previousLevelXp;
     double percent = thisLevelXpSoFar / thisLevelXpTotal;
+    String percentText = "${(percent * 100).round()} %";
     double recentPercent;
+
     if(recent != null) {
       recentPercent = percent;
       percent = ((thisLevelXpSoFar - recent) / thisLevelXpTotal).clamp(0, 1);
     }
-
-    String percentText = "${(percent * 100).floor()} %";
 
     return Column(
       children: [
@@ -48,7 +48,7 @@ class LevelPercentIndicator extends StatelessWidget {
           recent: recentPercent,
           center: Text(
             percentText,
-            style: TextStyle(fontSize: 12.0),
+            style: TextStyle(fontSize: 12.0, color: Colors.black,),
           ),
           leading: Text("$level"),
           trailing: Text("${level + 1}"),

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+import 'package:package_info/package_info.dart';
 
 class Settings extends StatelessWidget {
   final Map<String, User> users;
@@ -21,7 +22,7 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = NumberFormat("#,###");
 
-    var widgets = [
+    List<Widget> widgets = [
       ListTile(
         title: Text(
           "Users",
@@ -40,7 +41,16 @@ class Settings extends StatelessWidget {
         ),
       ),
     ];
-    if(users != null) {
+
+    if (users != null && users.isNotEmpty) {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          child: Divider(
+            color: Colors.blueGrey.shade200,
+          ),
+        ),
+      );
       widgets.addAll(
         $(users.keys).sorted().mapNotNull((user) {
           if (bloc.state.allUsers[user] == null) {
@@ -59,7 +69,11 @@ class Settings extends StatelessWidget {
               ),
             ),
             subtitle: Text(
-                "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP"),
+              "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
             leading: CircleAvatar(
               child: Text("${getLevel(bloc.state.allUsers[user]?.totalXp)}"),
             ),
@@ -74,6 +88,42 @@ class Settings extends StatelessWidget {
         }).toList(),
       );
     }
+
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        child: Divider(
+          color: Colors.blueGrey.shade200,
+        ),
+      ),
+    );
+
+    widgets.add(ListTile(
+      onTap: () async {
+        PackageInfo packageInfo = await PackageInfo.fromPlatform();
+        showAboutDialog(
+          context: context,
+          applicationIcon: CircleAvatar(
+            backgroundColor: Colors.transparent,
+            child: Image.asset("assets/icon/ic_launcher.png"),
+          ),
+          children: [
+            Text("The Code::Stats logo is licensed with CC BY-NC 4.0"),
+            Text("Copyright © 2016, Mikko Ahlroth"),
+          ],
+          applicationVersion: packageInfo.version,
+          applicationName: packageInfo.appName,
+        );
+      },
+      leading: Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      title: Text(
+        "About Code::Stats",
+        style: TextStyle(color: Colors.white),
+      ),
+    ));
 
     return Scaffold(
       backgroundColor: Colors.blueGrey,
