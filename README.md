@@ -1,16 +1,19 @@
-# codestats_flutter
+# Code::Stats Viewer
 
-View codestats in your phone
+[View codestats in your phone!](https://play.google.com/store/apps/details?id=se.bocker.codestatsflutter)
+<a href='https://play.google.com/store/apps/details?id=se.bocker.codestatsflutter&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
 
-## Getting Started
+![](screenshots/profile.png)  |  ![](screenshots/recent.png) | ![](screenshots/languages.png)
+| ------------------------- | ------------------------- | -----------
+![](screenshots/settings.png)  |  ![](screenshots/adduser.png) |
 
-This project is a starting point for a Flutter application.
+## Running the app
 
-A few resources to get you started if this is your first Flutter project:
+To run this project:
+ - Follow the [Flutter installation instructions](https://flutter.io/setup/)
+ - Clone this project and run `flutter doctor` in the project root directory
+ - Run `flutter run`
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+## The code
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Application-specific code is in [/lib](/lib).
