@@ -1,16 +1,17 @@
 import 'package:codestats_flutter/utils.dart';
+import 'package:codestats_flutter/widgets/linear_percent_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class LevelPercentIndicator extends StatelessWidget {
   const LevelPercentIndicator(
-      {Key key, @required this.width, @required this.xp, @required this.name})
+      {Key key, @required this.width, @required this.xp, @required this.name, this.recent})
       : super(key: key);
 
   final double width;
   final int xp;
   final String name;
+  final int recent;
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,12 @@ class LevelPercentIndicator extends StatelessWidget {
     var thisLevelXpSoFar = xp - previousLevelXp;
     var thisLevelXpTotal = nextLevelXp - previousLevelXp;
     double percent = thisLevelXpSoFar / thisLevelXpTotal;
+    double recentPercent;
+    if(recent != null) {
+      recentPercent = percent;
+      percent = ((thisLevelXpSoFar - recent) / thisLevelXpTotal).clamp(0, 1);
+    }
+
     String percentText = "${(percent * 100).floor()} %";
 
     return Column(
@@ -29,22 +36,25 @@ class LevelPercentIndicator extends StatelessWidget {
           text: TextSpan(style: DefaultTextStyle.of(context).style, children: [
             TextSpan(text: name, style: TextStyle(fontWeight: FontWeight.bold)),
             TextSpan(
-              text: " level $level (${formatter.format(xp)} XP)",
+              text: " level $level (${formatter.format(xp)} XP) ${recent != null ? '(+$recent)' : ''}",
             ),
           ]),
         ),
         LinearPercentIndicator(
+          animation: true,
           width: width,
           lineHeight: 14.0,
           percent: percent,
+          recent: recentPercent,
           center: Text(
             percentText,
-            style: new TextStyle(fontSize: 12.0),
+            style: TextStyle(fontSize: 12.0),
           ),
           leading: Text("$level"),
           trailing: Text("${level + 1}"),
           alignment: MainAxisAlignment.center,
           progressColor: Colors.green,
+          recentColor: Colors.amber,
         ),
       ],
     );

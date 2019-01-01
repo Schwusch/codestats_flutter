@@ -30,16 +30,16 @@ class XpChip extends StatelessWidget {
       pimpedWidgetBuilder: (context, controller) {
         controller.forward(from: 0);
         return Chip(
+          key: ValueKey(level),
           shape: BeveledRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10))),
           label: Text(
             "$prefix${formatter.format(xp)} $postFix",
-            key: ValueKey(xp),
+            //key: ValueKey(xp),
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
           avatar: showLevel
               ? CircleAvatar(
-                  key: ValueKey(level),
                   maxRadius: 100,
                   backgroundColor: avatarColor,
                   child: Text(

@@ -2,7 +2,7 @@ import 'package:date_format/date_format.dart';
 
 String formatDateUtc(DateTime date) {
   return formatDate(
-      date, [yyyy, "-", m, "-", dd, "T", HH, ":", mm, ":", ss, ".", SSS, z]);
+      date, [yyyy, "-", mm, "-", dd, "T", HH, ":", mm, ":", ss, ".", SSS, z]);
 }
 
 String _profile(String username, DateTime since) => """

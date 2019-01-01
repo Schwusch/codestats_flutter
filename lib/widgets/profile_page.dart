@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/models/user/user.dart';
+import 'package:codestats_flutter/models/user/xp.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:codestats_flutter/widgets/user_level.dart';
+import 'package:collection/collection.dart';
 import 'package:fcharts/fcharts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
@@ -106,6 +108,7 @@ class ProfilePageState extends State<ProfilePage> {
     var maxY = hoursOfDayData.maxBy((elem) => elem.value).value;
 
     chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
+    Map<String, List<Xp>> recentMachines = groupBy(widget.userModel.recentMachines, (Xp element) => element.name);
 
     return ListView(
       children: [
@@ -143,6 +146,7 @@ class ProfilePageState extends State<ProfilePage> {
                             width: constraints.maxWidth * 0.7,
                             name: machine.name,
                             xp: machine.xp,
+                        recent: recentMachines[machine.name]?.first?.xp,
                           ),
                     )
                     .toList(),

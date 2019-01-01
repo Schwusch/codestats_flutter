@@ -84,15 +84,16 @@ class UserBloc implements BlocBase {
         .where((s) => s.trim().isNotEmpty)
         .map((s) => s.trim())
         .listen(this._onSearchUser);
-
     setupDebugLog(_dio);
 
-    assert(() {
-      socket.onOpen(() => print("SOCKET OPENED!"));
-      socket.onError((e) => print("SOCKET ERROR: $e"));
-      socket.onClose((c) => print("SOCKET CLOSE: $c"));
-      return true;
-    }());
+    socket.onError((e) {
+      _debugPrint("SOCKET_ERROR: $e");
+      fetchAllUsers();
+    });
+    socket.onClose((c) {
+      _debugPrint("SOCKET_CLOSE: $c");
+      fetchAllUsers();
+    });
   }
 
   _createChannel(String name, User user) {
@@ -104,45 +105,57 @@ class UserBloc implements BlocBase {
 
     var userChannel = socket.channel("users:$name");
     userChannel.onError((payload, ref, joinRef) =>
-        print("CHANNEL ERROR:\n$ref\n$joinRef\n$payload"));
+        _debugPrint("CHANNEL ERROR:\n$ref\n$joinRef\n$payload"));
     userChannel.onClose((Map payload, String ref, String joinRef) {
-      print("CHANNEL CLOSE:\n$ref\n$joinRef\n$payload");
+      _debugPrint("CHANNEL CLOSE:\n$ref\n$joinRef\n$payload");
     });
 
     userChannel.on("new_pulse", (Map payload, String _ref, String _joinRef) {
-      assert(() {
-        print("NEW_PULSE: $payload");
-        return true;
-      }());
+      _debugPrint("NEW_PULSE: $payload");
 
       try {
         Pulse pulse = Pulse.fromJson(payload);
         if (user != null && pulse != null) {
-          var machine =
+          var recentMachine =
               user.recentMachines?.firstWhere((xp) => xp.name == pulse.machine);
+          var machine =
+              user.totalMachines?.firstWhere((xp) => xp.name == pulse.machine);
 
           var totalNew = $(pulse.xps).sumBy((xp) => xp.amount).floor();
 
           user.totalXp = user.totalXp + totalNew;
 
+          if (recentMachine != null) {
+            recentMachine.xp = recentMachine.xp + totalNew;
+          }
+
           if (machine != null) {
             machine.xp = machine.xp + totalNew;
           }
+
           pulse?.xps?.forEach((xp) {
-            var lang = user.recentLangs
+            var recentLang = user.recentLangs
+                ?.firstWhere((langXp) => langXp.name == xp.language);
+            var lang = user.totalLangs
                 ?.firstWhere((langXp) => langXp.name == xp.language);
 
-            if (lang != null) {
-              lang.xp = lang.xp + xp.amount;
+            if (recentLang != null) {
+              recentLang.xp = recentLang.xp + xp.amount;
             } else {
               user.recentLangs?.add(Xp(xp.amount, xp.language));
+            }
+
+            if(lang != null) {
+              lang.xp = lang.xp + xp.amount;
+            } else {
+              user.totalLangs?.add(Xp(xp.amount, xp.language));
             }
           });
 
           _userStateController.sink.add(state);
         }
       } catch (e) {
-        print(e);
+        _debugPrint("PULSE_ERROR: $e");
       }
     });
     userChannel.join();
@@ -245,7 +258,8 @@ class UserBloc implements BlocBase {
   removeUser(String username) {
     state.allUsers.remove(username);
     socket.channels
-        .firstWhere((channel) => channel.topic == "users:$username", orElse: () => null)
+        .firstWhere((channel) => channel.topic == "users:$username",
+            orElse: () => null)
         ?.leave();
     if (_currentUserController.value == username || state.allUsers.isEmpty) {
       if (state.allUsers.isNotEmpty) {
@@ -256,6 +270,13 @@ class UserBloc implements BlocBase {
     }
 
     _userStateController.sink.add(state);
+  }
+
+  _debugPrint(dynamic d) {
+    assert(() {
+      print("$d");
+      return true;
+    }());
   }
 
   @override
