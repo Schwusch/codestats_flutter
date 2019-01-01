@@ -27,7 +27,7 @@ class LevelPercentIndicator extends StatelessWidget {
 
     if(recent != null) {
       recentPercent = percent;
-      percent = ((thisLevelXpSoFar - recent) / thisLevelXpTotal).clamp(0, 1);
+      percent = ((thisLevelXpSoFar - recent) / thisLevelXpTotal).clamp(0.0, 1.0).toDouble();
     }
 
     return Column(
