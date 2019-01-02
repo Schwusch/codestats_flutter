@@ -75,6 +75,7 @@ class TabNavigatorState extends State<TabNavigator>
               ),
             ),
             FloatingActionButton.extended(
+              heroTag: null,
               icon: Icon(Icons.web), label: Text("Create profile"),
               onPressed: () async {
                 const url = 'https://codestats.net/';
