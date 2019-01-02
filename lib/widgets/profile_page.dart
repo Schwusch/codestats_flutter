@@ -110,6 +110,9 @@ class ProfilePageState extends State<ProfilePage> {
     chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
     Map<String, List<Xp>> recentMachines = groupBy(widget.userModel.recentMachines, (Xp element) => element.name);
 
+    // sort the machines by level
+    widget.userModel.totalMachines.sort((a, b) => b.xp - a.xp);
+
     return ListView(
       children: [
         UserLevelWidget(

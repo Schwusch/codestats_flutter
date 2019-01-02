@@ -12,6 +12,7 @@ import 'package:codestats_flutter/widgets/week_xps.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flip_box_bar/flip_box_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TabNavigator extends StatefulWidget {
   final Map<String, charts.Color> colors;
@@ -60,14 +61,27 @@ class TabNavigatorState extends State<TabNavigator>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.only(bottom: 16),
               child: Text("No user chosen"),
             ),
-            FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed("/addUser");
+            Padding(
+              padding: EdgeInsets.only(bottom: 16.0),
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.of(context).pushNamed("/addUser");
+                },
+                icon: Icon(Icons.add),
+                label: Text("Add user"),
+              ),
+            ),
+            FloatingActionButton.extended(
+              icon: Icon(Icons.web), label: Text("Create profile"),
+              onPressed: () async {
+                const url = 'https://codestats.net/';
+                if (await canLaunch(url)) {
+                  await launch(url);
+                }
               },
-              child: Icon(Icons.add),
             )
           ],
         ),
