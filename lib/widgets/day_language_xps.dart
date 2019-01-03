@@ -46,7 +46,7 @@ class DayLanguageXpsWidget extends StatelessWidget {
             )
             .toList(),
         animate: true,
-        animationDuration: Duration(milliseconds: 150),
+        animationDuration: Duration(milliseconds: 800),
         defaultInteractions: false,
         defaultRenderer: charts.BarRendererConfig<DateTime>(
           groupingType: charts.BarGroupingType.stacked,

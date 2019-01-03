@@ -14,7 +14,6 @@ class TabNavigator extends StatelessWidget {
   Widget build(BuildContext context) {
     // Attempt to hide keyboard, if shown
     FocusScope.of(context).requestFocus(FocusNode());
-
     UserBloc bloc = BlocProvider.of(context);
 
     return BackdropScaffold(

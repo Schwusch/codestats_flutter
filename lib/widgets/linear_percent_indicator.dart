@@ -52,7 +52,7 @@ class LinearPercentIndicator extends StatefulWidget {
       this.backgroundColor = const Color(0xFFB8C7CB),
       this.progressColor = Colors.red,
       this.animation = false,
-      this.animationDuration = 500,
+      this.animationDuration = 1000,
       this.leading,
       this.trailing,
       this.center,
@@ -92,8 +92,12 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
       _animationController = AnimationController(
           vsync: this,
           duration: Duration(milliseconds: widget.animationDuration));
-      _animation = Tween(begin: 0.0, end: 1.0).animate(_animationController)
-        ..addListener(() {
+      _animation = CurvedAnimation(
+        parent: Tween(begin: 0.0, end: 1.0).animate(
+          _animationController,
+        ),
+        curve: Curves.bounceOut,
+      )..addListener(() {
           setState(() {
             _percent = widget.percent * _animation.value;
             if (widget.recent != null) {
@@ -235,14 +239,31 @@ class LinearPainter extends CustomPainter {
     final end = Offset(size.width, size.height / 2);
     canvas.drawLine(start, end, _paintBackground);
     if (recent != null) {
-      canvas.drawLine(start, Offset(size.width * recent, size.height / 2),
+      canvas.drawLine(
+          start,
+          Offset(
+            size.width * recent,
+            size.height / 2,
+          ),
           _paintRecentLine);
     } else {
-      canvas.drawLine(start, Offset(size.width * 0, size.height / 2),
-          _paintRecentLine);
+      canvas.drawLine(
+        start,
+        Offset(
+          size.width * 0,
+          size.height / 2,
+        ),
+        _paintRecentLine,
+      );
     }
     canvas.drawLine(
-        start, Offset(size.width * progress, size.height / 2), _paintLine);
+      start,
+      Offset(
+        size.width * progress,
+        size.height / 2,
+      ),
+      _paintLine,
+    );
   }
 
   @override

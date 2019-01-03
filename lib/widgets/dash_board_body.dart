@@ -79,7 +79,6 @@ class DashBoardBody extends StatelessWidget {
                 userName: currentUser,
               );
             case 1:
-              print("SELECTED: $currentUser");
               return DayLanguageXpsWidget(
                 userModel: userModel,
               );
