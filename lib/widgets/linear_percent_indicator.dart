@@ -63,7 +63,7 @@ class LinearPercentIndicator extends StatefulWidget {
       this.recent = 0.0})
       : super(key: key) {
     if (percent < 0.0 || percent > 1.0) {
-      throw new Exception("Percent value must be a double between 0.0 and 1.0");
+      throw Exception("Percent value must be a double between 0.0 and 1.0");
     }
   }
 
@@ -89,7 +89,7 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
   @override
   void initState() {
     if (widget.animation) {
-      _animationController = new AnimationController(
+      _animationController = AnimationController(
           vsync: this,
           duration: Duration(milliseconds: widget.animationDuration));
       _animation = Tween(begin: 0.0, end: 1.0).animate(_animationController)
@@ -162,7 +162,7 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
 
     return Material(
       color: Colors.transparent,
-      child: new Container(
+      child: Container(
           color: widget.fillColor,
           child: Row(
             mainAxisAlignment: widget.alignment,

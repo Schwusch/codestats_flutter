@@ -1,5 +1,6 @@
+import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
-import 'package:codestats_flutter/models/user/user.dart';
+import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/widgets/backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,18 +10,10 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:package_info/package_info.dart';
 
 class Settings extends StatelessWidget {
-  final Map<String, User> users;
-  final UserBloc bloc;
-
-  const Settings({
-    Key key,
-    @required this.users,
-    @required this.bloc,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat("#,###");
+    UserBloc bloc = BlocProvider.of(context);
 
     List<Widget> widgets = [
       ListTile(
@@ -41,53 +34,64 @@ class Settings extends StatelessWidget {
         ),
       ),
     ];
+    widgets.add(
+      StreamBuilder(
+        stream: bloc.users,
+        builder: (context, AsyncSnapshot<UserState> snapshot) {
+          var users = snapshot.data?.allUsers;
+          if (users != null && users.isNotEmpty) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    color: Colors.blueGrey.shade200,
+                  ),
+                ),
+              ]..addAll(
+                  $(users.keys).sorted().mapNotNull((user) {
+                    if (users[user] == null) {
+                      return null;
+                    }
 
-    if (users != null && users.isNotEmpty) {
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16),
-          child: Divider(
-            color: Colors.blueGrey.shade200,
-          ),
-        ),
-      );
-      widgets.addAll(
-        $(users.keys).sorted().mapNotNull((user) {
-          if (bloc.state.allUsers[user] == null) {
-            return null;
-          }
-
-          return ListTile(
-            onTap: () {
-              bloc.selectUser.add(user);
-              Backdrop.of(context).fling();
-            },
-            title: Text(
-              user,
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            subtitle: Text(
-              "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            leading: CircleAvatar(
-              child: Text("${getLevel(bloc.state.allUsers[user]?.totalXp)}"),
-            ),
-            trailing: IconButton(
-              color: Colors.white,
-              icon: Icon(Icons.remove_circle_outline),
-              onPressed: () {
-                _onAlertButtonsPressed(context, user);
-              },
-            ),
-          );
-        }).toList(),
-      );
-    }
+                    return ListTile(
+                      onTap: () {
+                        bloc.selectUser.add(user);
+                        Backdrop.of(context).fling();
+                      },
+                      title: Text(
+                        user,
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      subtitle: Text(
+                        "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      leading: CircleAvatar(
+                        child: Text(
+                            "${getLevel(bloc.state.allUsers[user]?.totalXp)}"),
+                      ),
+                      trailing: IconButton(
+                        color: Colors.white,
+                        icon: Icon(Icons.remove_circle_outline),
+                        onPressed: () {
+                          _onAlertButtonsPressed(context, user, bloc);
+                        },
+                      ),
+                    );
+                  }),
+                ),
+            );
+          } else
+            return Container();
+        },
+      ),
+    );
 
     widgets.add(
       Padding(
@@ -134,7 +138,7 @@ class Settings extends StatelessWidget {
     );
   }
 
-  _onAlertButtonsPressed(BuildContext context, String user) {
+  _onAlertButtonsPressed(BuildContext context, String user, UserBloc bloc) {
     Alert(
       style: AlertStyle(
         animationType: AnimationType.grow,

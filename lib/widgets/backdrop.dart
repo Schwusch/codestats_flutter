@@ -222,7 +222,7 @@ class BackdropToggleButton extends StatelessWidget {
         progress: Backdrop.of(context).controller.view,
       ),
       onPressed: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
+        FocusScope.of(context).requestFocus(FocusNode());
         Backdrop.of(context).fling();
       },
     );

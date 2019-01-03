@@ -28,13 +28,13 @@ class ProfilePage extends StatefulWidget {
 
   @override
   ProfilePageState createState() {
-    return new ProfilePageState();
+    return ProfilePageState();
   }
 }
 
 class ProfilePageState extends State<ProfilePage> {
   GlobalKey<AnimatedCircularChartState> chartKey =
-      new GlobalKey<AnimatedCircularChartState>();
+      GlobalKey<AnimatedCircularChartState>();
   StreamSubscription circularChartSubscription;
 
   @override
@@ -126,7 +126,7 @@ class ProfilePageState extends State<ProfilePage> {
                 initialChartData: [],
                 holeLabel:
                     '${((thisLevelXpSoFar / thisLevelXpTotal) * 100).round()}% of level ${level + 1}',
-                labelStyle: new TextStyle(
+                labelStyle: TextStyle(
                   color: Colors.blueGrey[600],
                   fontWeight: FontWeight.bold,
                 ),

@@ -1,6 +1,9 @@
 import 'package:charts_common/common.dart';
+import 'package:codestats_flutter/bloc/bloc_provider.dart';
+import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/day_language_xps.dart';
 import 'package:codestats_flutter/models/user/user.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -8,33 +11,44 @@ class DayLanguageXpsWidget extends StatelessWidget {
   const DayLanguageXpsWidget({
     Key key,
     @required this.userModel,
-    @required this.languages,
-    @required this.colors,
   }) : super(key: key);
 
   final User userModel;
-  final Map<String, List<DayLanguageXps>> languages;
-  final Map<String, charts.Color> colors;
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc bloc = BlocProvider.of(context);
+
+    Map<String, List<DayLanguageXps>> languages = groupBy(
+      userModel.dayLanguageXps,
+      (DayLanguageXps element) => element.language,
+    );
+
+    if (languages.isEmpty) {
+      return Center(
+        child: Text("No recent activity :("),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(8.0),
       child: charts.TimeSeriesChart(
         languages.values
-            .map((dlx) => charts.Series<DayLanguageXps, DateTime>(
-                  id: dlx.first.language,
-                  domainFn: (DayLanguageXps elem, _) =>
-                      DateTime.parse(elem.date),
-                  measureFn: (DayLanguageXps elem, _) => elem.xp,
-                  data: dlx,
-                  colorFn: (elem, _) => colors[elem.language],
-                ))
+            .map(
+              (dlx) => charts.Series<DayLanguageXps, DateTime>(
+                    id: dlx.first.language,
+                    domainFn: (DayLanguageXps elem, _) =>
+                        DateTime.parse(elem.date),
+                    measureFn: (DayLanguageXps elem, _) => elem.xp,
+                    data: dlx,
+                    colorFn: (elem, _) => bloc.languageColor(elem.language),
+                  ),
+            )
             .toList(),
         animate: true,
         animationDuration: Duration(milliseconds: 150),
         defaultInteractions: false,
-        defaultRenderer: new charts.BarRendererConfig<DateTime>(
+        defaultRenderer: charts.BarRendererConfig<DateTime>(
           groupingType: charts.BarGroupingType.stacked,
         ),
         primaryMeasureAxis: charts.NumericAxisSpec(
@@ -61,7 +75,8 @@ class DayLanguageXpsWidget extends StatelessWidget {
           charts.DomainHighlighter(),
           charts.SeriesLegend(
             entryTextStyle: TextStyleSpec(
-                color: charts.ColorUtil.fromDartColor(Colors.black)),
+              color: charts.ColorUtil.fromDartColor(Colors.black),
+            ),
             measureFormatter: (xp) => xp != null ? "${xp?.round()} XP" : "",
             legendDefaultMeasure: LegendDefaultMeasure.sum,
             showMeasures: true,

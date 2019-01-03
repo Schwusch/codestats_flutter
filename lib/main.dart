@@ -1,7 +1,7 @@
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/widgets/add_user_page.dart';
-import 'package:codestats_flutter/widgets/home_page.dart';
+import 'package:codestats_flutter/widgets/tab_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -28,7 +28,7 @@ class CodeStatsApp extends StatelessWidget {
         ),
         initialRoute: "/",
         routes: {
-          "/": (_) => HomePage(),
+          "/": (_) => TabNavigator(),
           "/addUser": (_) => AddUserPage(),
         },
       ),

@@ -1,17 +1,14 @@
+import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/widgets/random_loading_animation.dart';
 import 'package:flutter/material.dart';
 
 class ReloadData extends StatelessWidget {
-  const ReloadData({
-    Key key,
-    @required this.bloc,
-  }) : super(key: key);
-
-  final UserBloc bloc;
 
   @override
   Widget build(BuildContext context) {
+    UserBloc bloc = BlocProvider.of(context);
+
     return StreamBuilder(
       stream: bloc.dataFetching,
       initialData: DataFetching.Done,

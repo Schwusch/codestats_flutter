@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/models/pulse/pulse.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
+import 'package:flutter/material.dart';
 import 'package:hydrated/hydrated.dart';
 import 'package:dio/dio.dart';
 import 'package:codestats_flutter/queries.dart' as queries;
@@ -12,6 +14,7 @@ import 'package:codestats_flutter/utils.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:superpower/superpower.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 
@@ -21,6 +24,9 @@ class UserBloc implements BlocBase {
   UserState state = UserState.empty();
   static const baseUrl = "https://codestats.net";
   static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
+
+  final Map<String, charts.Color> _colors = {};
+  final Random _rand = Random();
 
   final socket = PhoenixSocket(wsBaseUrl,
       socketOptions: PhoenixSocketOptions(params: {"vsn": "2.0.0"}));
@@ -63,6 +69,8 @@ class UserBloc implements BlocBase {
 
   StreamSink<String> get searchUser => _searchUserSubject;
 
+  BehaviorSubject<int> chosenTab = BehaviorSubject(seedValue: 0);
+
   UserBloc() {
     _userStateController = HydratedSubject<UserState>("userState",
         hydrate: (s) {
@@ -94,6 +102,22 @@ class UserBloc implements BlocBase {
       _debugPrint("SOCKET_CLOSE: $c");
       fetchAllUsers();
     });
+  }
+
+  charts.Color languageColor(String language) {
+    if (_colors[language] == null) {
+      // Randomize a color
+      var color = charts.ColorUtil.fromDartColor(
+          Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
+      // Find a unique color
+      while (_colors.values.contains(color)) {
+        color = charts.ColorUtil.fromDartColor(
+            Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
+      }
+
+      _colors[language] = color;
+    }
+    return _colors[language];
   }
 
   _createChannel(String name, User user) {
@@ -287,5 +311,6 @@ class UserBloc implements BlocBase {
     _dataFetchingSubject.close();
     _searchResultSubject.close();
     _searchUserSubject.close();
+    chosenTab.close();
   }
 }

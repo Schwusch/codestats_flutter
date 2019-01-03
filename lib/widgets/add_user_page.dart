@@ -97,7 +97,7 @@ class AddUserPage extends StatelessWidget {
                                 icon: Icon(Icons.add_circle_outline),
                                 onPressed: () {
                                   FocusScope.of(context)
-                                      .requestFocus(new FocusNode());
+                                      .requestFocus(FocusNode());
                                   _userBloc.setUserValidation
                                       .add(ValidUser.Unknown);
                                   _userBloc.addUser(userName);
