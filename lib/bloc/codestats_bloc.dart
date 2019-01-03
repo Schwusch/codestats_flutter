@@ -54,7 +54,7 @@ class UserBloc implements BlocBase {
 
   StreamSink<ValidUser> get setUserValidation => _userValidationSubject.sink;
 
-  BehaviorSubject<DataFetching> _dataFetchingSubject = BehaviorSubject();
+  PublishSubject<DataFetching> _dataFetchingSubject = PublishSubject();
 
   Stream<DataFetching> get dataFetching =>
       _dataFetchingSubject.stream.startWith(DataFetching.Done);
