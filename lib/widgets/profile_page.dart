@@ -6,13 +6,15 @@ import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
-import 'package:codestats_flutter/widgets/user_level.dart';
+import 'package:codestats_flutter/widgets/shimmer.dart';
 import 'package:collection/collection.dart';
 import 'package:fcharts/fcharts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:pimp_my_button/pimp_my_button.dart';
 import 'package:superpower/superpower.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class ProfilePage extends StatefulWidget {
   final User userModel;
@@ -41,7 +43,7 @@ class ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     circularChartSubscription = widget.bloc.users.listen((UserState state) {
-      if(state.allUsers[widget.userName] != null) {
+      if (state.allUsers[widget.userName] != null) {
         chartKey.currentState.updateData(
           [createCircularStack(state.allUsers[widget.userName])],
         );
@@ -108,36 +110,107 @@ class ProfilePageState extends State<ProfilePage> {
     var maxY = hoursOfDayData.maxBy((elem) => elem.value).value;
 
     chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
-    Map<String, List<Xp>> recentMachines = groupBy(widget.userModel.recentMachines, (Xp element) => element.name);
+    Map<String, List<Xp>> recentMachines =
+        groupBy(widget.userModel.recentMachines, (Xp element) => element.name);
 
     // sort the machines by level
     widget.userModel.totalMachines.sort((a, b) => b.xp - a.xp);
 
     return ListView(
       children: [
-        UserLevelWidget(
-          userModel: widget.userModel,
+        Center(
+          child: PimpedButton(
+            pimpedWidgetBuilder: (context, controller) {
+              controller.forward(from: 0);
+              return Shimmer.fromColors(
+                baseColor: Colors.blueGrey.shade600,
+                highlightColor: Colors.blueGrey.shade100,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 8),
+                  child: AutoSizeText(
+                    "${widget.userModel.totalXp}",
+                    style: TextStyle(
+                      fontSize: 999,
+                      fontFamily: "OCRAEXT",
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+              );
+            },
+            particle: DemoParticle(),
+          ),
         ),
         LayoutBuilder(
           builder: (context, constraints) => AnimatedCircularChart(
+                duration: Duration(seconds: 1),
                 key: chartKey,
-                size: Size.square(constraints.maxWidth / 2),
+                size: Size.square(constraints.maxWidth * 2 / 3),
                 edgeStyle: SegmentEdgeStyle.round,
                 initialChartData: [],
-                holeLabel:
-                    '${((thisLevelXpSoFar / thisLevelXpTotal) * 100).round()}% of level ${level + 1}',
-                labelStyle: TextStyle(
-                  color: Colors.blueGrey[600],
-                  fontWeight: FontWeight.bold,
+                holeLabel: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'LEVEL',
+                      style: TextStyle(
+                        color: Colors.blueGrey[600],
+                      ),
+                    ),
+                    Text(
+                      '$level',
+                      style: TextStyle(
+                        fontSize: 32,
+                        color: Colors.blueGrey[600],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text.rich(
+                        TextSpan(
+                            text: '${formatter.format(thisLevelXpSoFar)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.blueGrey.shade600,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            children: [
+                              TextSpan(
+                                text:
+                                    ' / ${formatter.format(thisLevelXpTotal)} XP',
+                                style: TextStyle(fontWeight: FontWeight.normal),
+                              )
+                            ]),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('12h '),
+                          Icon(Icons.timer),
+                          Text(
+                              ' +${formatter.format(getRecentXp(widget.userModel))} XP'),
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
         ),
         Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(top: 20, bottom: 20),
           child: Center(
             child: Text(
-              "Machines total XP",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              "Machines",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                fontFamily: 'OCRAEXT',
+              ),
             ),
           ),
         ),
@@ -149,18 +222,23 @@ class ProfilePageState extends State<ProfilePage> {
                             width: constraints.maxWidth * 0.7,
                             name: machine.name,
                             xp: machine.xp,
-                        recent: recentMachines[machine.name]?.first?.xp,
+                            recent: recentMachines[machine.name]?.first?.xp,
                           ),
                     )
                     .toList(),
               ),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 20.0),
+          padding: EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 20),
           child: Center(
-            child: Text(
+            child: AutoSizeText(
               "Total XP per hour of day",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              maxLines: 1,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 30,
+                fontFamily: 'OCRAEXT',
+              ),
             ),
           ),
         ),
