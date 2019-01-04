@@ -24,7 +24,7 @@ class SubHeader extends StatelessWidget {
             shadows: [
               Shadow(
                 offset: Offset(2.5, 2.5),
-                blurRadius: 4.0,
+                blurRadius: 3.0,
                 color: Colors.black.withOpacity(0.3),
               ),
             ],

@@ -103,55 +103,63 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
         size: Size.square(constraints.maxWidth * 2 / 3),
         edgeStyle: SegmentEdgeStyle.round,
         initialChartData: [],
-        holeLabel: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'LEVEL',
-              style: TextStyle(
-                color: Colors.blueGrey[600],
-              ),
-            ),
-            Text(
-              '$level',
-              style: TextStyle(
-                fontSize: 32,
-                color: Colors.blueGrey[600],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Text.rich(
-                TextSpan(
-                    text: '${widget.formatter.format(thisLevelXpSoFar)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.blueGrey.shade600,
-                      fontWeight: FontWeight.bold,
-                    ),
+        holeLabel: SizedBox.fromSize(
+          size: Size.square(constraints.maxWidth * 2 / 3 - 73),
+          child: Material(
+            elevation: 4,
+            color: Colors.grey.shade100,
+            shape: CircleBorder(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'LEVEL',
+                  style: TextStyle(
+                    color: Colors.blueGrey[600],
+                  ),
+                ),
+                Text(
+                  '$level',
+                  style: TextStyle(
+                    fontSize: 32,
+                    color: Colors.blueGrey[600],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text.rich(
+                    TextSpan(
+                        text: '${widget.formatter.format(thisLevelXpSoFar)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blueGrey.shade600,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        children: [
+                          TextSpan(
+                            text:
+                            ' / ${widget.formatter.format(thisLevelXpTotal)} XP',
+                            style: TextStyle(fontWeight: FontWeight.normal),
+                          )
+                        ]),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextSpan(
-                        text:
-                        ' / ${widget.formatter.format(thisLevelXpTotal)} XP',
-                        style: TextStyle(fontWeight: FontWeight.normal),
-                      )
-                    ]),
-              ),
+                      Text('12h '),
+                      Icon(Icons.timer),
+                      Text(
+                          ' +${widget.formatter.format(getRecentXp(widget.userModel))} XP'),
+                    ],
+                  ),
+                )
+              ],
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('12h '),
-                  Icon(Icons.timer),
-                  Text(
-                      ' +${widget.formatter.format(getRecentXp(widget.userModel))} XP'),
-                ],
-              ),
-            )
-          ],
+          ),
         ),
       ),
     );

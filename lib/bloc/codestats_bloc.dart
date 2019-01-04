@@ -45,7 +45,7 @@ class UserBloc implements BlocBase {
 
   HydratedSubject<UserState> _userStateController;
 
-  Stream<UserState> get users => _userStateController.stream;
+  Stream<UserState> get users => _userStateController;
 
   PublishSubject<ValidUser> _userValidationSubject = PublishSubject();
 
@@ -120,9 +120,8 @@ class UserBloc implements BlocBase {
     return _colors[language];
   }
 
-  _createChannel(String name, User user) {
+  _createChannel(String name, User _) {
     if (name == null ||
-        user == null ||
         socket.channels.indexWhere(
                 (PhoenixChannel chnl) => chnl.topic == "users:$name") >
             -1) return;
@@ -136,7 +135,8 @@ class UserBloc implements BlocBase {
 
     userChannel.on("new_pulse", (Map payload, String _ref, String _joinRef) {
       _debugPrint("NEW_PULSE: $payload");
-
+      var state = _userStateController.value;
+      var user = state.allUsers[name];
       try {
         Pulse pulse = Pulse.fromJson(payload);
         if (user != null && pulse != null) {
@@ -176,7 +176,7 @@ class UserBloc implements BlocBase {
             }
           });
 
-          _userStateController.sink.add(state);
+          _userStateController.add(state);
         }
       } catch (e) {
         _debugPrint("PULSE_ERROR: $e");
@@ -215,7 +215,7 @@ class UserBloc implements BlocBase {
             });
 
             _refreshChannels(state);
-            _userStateController.sink.add(state);
+            _userStateController.add(state);
             setDataFetching.add(DataFetching.Done);
           } else {
             setDataFetching.add(DataFetching.Error);
