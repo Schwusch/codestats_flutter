@@ -75,7 +75,6 @@ class DashBoardBody extends StatelessWidget {
             case 0:
               return ProfilePage(
                 userModel: userModel,
-                bloc: bloc,
                 userName: currentUser,
               );
             case 1:
