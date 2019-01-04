@@ -21,7 +21,6 @@ enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 enum DataFetching { Done, Loading, Error }
 
 class UserBloc implements BlocBase {
-  UserState state = UserState.empty();
   static const baseUrl = "https://codestats.net";
   static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
 
@@ -43,9 +42,7 @@ class UserBloc implements BlocBase {
 
   Stream<String> get selectedUser => _currentUserController.stream;
 
-  HydratedSubject<UserState> _userStateController;
-
-  Stream<UserState> get users => _userStateController;
+  HydratedSubject<UserState> userStateController;
 
   PublishSubject<ValidUser> _userValidationSubject = PublishSubject();
 
@@ -72,7 +69,7 @@ class UserBloc implements BlocBase {
   BehaviorSubject<int> chosenTab = BehaviorSubject(seedValue: 0);
 
   UserBloc() {
-    _userStateController = HydratedSubject<UserState>("userState",
+    userStateController = HydratedSubject<UserState>("userState",
         hydrate: (s) {
           try {
             return UserState.fromJson(jsonDecode(s));
@@ -83,8 +80,6 @@ class UserBloc implements BlocBase {
         seedValue: UserState.empty(),
         persist: (state) => jsonEncode(state.toJson()),
         onHydrate: fetchAllUsers);
-
-    _userStateController.listen(_setUserState);
 
     _searchUserSubject
         .distinct()
@@ -135,7 +130,7 @@ class UserBloc implements BlocBase {
 
     userChannel.on("new_pulse", (Map payload, String _ref, String _joinRef) {
       _debugPrint("NEW_PULSE: $payload");
-      var state = _userStateController.value;
+      var state = userStateController.value;
       var user = state.allUsers[name];
       try {
         Pulse pulse = Pulse.fromJson(payload);
@@ -176,7 +171,7 @@ class UserBloc implements BlocBase {
             }
           });
 
-          _userStateController.add(state);
+          userStateController.add(state);
         }
       } catch (e) {
         _debugPrint("PULSE_ERROR: $e");
@@ -190,11 +185,9 @@ class UserBloc implements BlocBase {
     state?.allUsers?.forEach(_createChannel);
   }
 
-  _setUserState(UserState newState) {
-    state = newState;
-  }
-
   fetchAllUsers() async {
+    var state = userStateController.value;
+
     if (state?.allUsers?.isNotEmpty ?? false) {
       setDataFetching.add(DataFetching.Loading);
 
@@ -215,7 +208,7 @@ class UserBloc implements BlocBase {
             });
 
             _refreshChannels(state);
-            _userStateController.add(state);
+            userStateController.add(state);
             setDataFetching.add(DataFetching.Done);
           } else {
             setDataFetching.add(DataFetching.Error);
@@ -273,13 +266,15 @@ class UserBloc implements BlocBase {
   }
 
   addUser(String newUser) async {
+    var state = userStateController.value;
     state.allUsers[newUser] = null;
-    _userStateController.add(state);
+    userStateController.add(state);
     _currentUserController.add(newUser);
     await fetchAllUsers();
   }
 
   removeUser(String username) {
+    var state = userStateController.value;
     state.allUsers.remove(username);
     socket.channels
         .firstWhere((channel) => channel.topic == "users:$username",
@@ -293,7 +288,7 @@ class UserBloc implements BlocBase {
       }
     }
 
-    _userStateController.sink.add(state);
+    userStateController.sink.add(state);
   }
 
   _debugPrint(dynamic d) {
@@ -306,7 +301,7 @@ class UserBloc implements BlocBase {
   @override
   void dispose() {
     _currentUserController.close();
-    _userStateController.close();
+    userStateController.close();
     _userValidationSubject.close();
     _dataFetchingSubject.close();
     _searchResultSubject.close();

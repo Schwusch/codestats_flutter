@@ -36,7 +36,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
   @override
   void initState() {
     super.initState();
-    circularChartSubscription = widget.bloc.users.listen((UserState state) {
+    circularChartSubscription = widget.bloc.userStateController.listen((UserState state) {
       if (state.allUsers[widget.userName] != null) {
         chartKey.currentState.updateData(
           [createCircularStack(state.allUsers[widget.userName])],

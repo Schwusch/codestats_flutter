@@ -16,7 +16,7 @@ class DashBoardBody extends StatelessWidget {
 
     return StreamBuilder(
       stream: CombineLatestStream(
-        [bloc.users, bloc.selectedUser, bloc.chosenTab],
+        [bloc.userStateController as Stream, bloc.selectedUser, bloc.chosenTab],
         (values) => values,
       ),
       initialData: [null, null, 0],

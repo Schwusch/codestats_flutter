@@ -36,7 +36,7 @@ class Settings extends StatelessWidget {
     ];
     widgets.add(
       StreamBuilder(
-        stream: bloc.users,
+        stream: bloc.userStateController,
         builder: (context, AsyncSnapshot<UserState> snapshot) {
           var users = snapshot.data?.allUsers;
           if (users != null && users.isNotEmpty) {
@@ -67,14 +67,14 @@ class Settings extends StatelessWidget {
                         ),
                       ),
                       subtitle: Text(
-                        "${formatter.format(bloc.state.allUsers[user]?.totalXp)} XP",
+                        "${formatter.format(bloc.userStateController.value.allUsers[user]?.totalXp)} XP",
                         style: TextStyle(
                           color: Colors.white,
                         ),
                       ),
                       leading: CircleAvatar(
                         child: Text(
-                            "${getLevel(bloc.state.allUsers[user]?.totalXp)}"),
+                            "${getLevel(bloc.userStateController.value.allUsers[user]?.totalXp)}"),
                       ),
                       trailing: IconButton(
                         color: Colors.white,

@@ -11,7 +11,7 @@ class ChooseUserMenu extends StatelessWidget {
     UserBloc bloc = BlocProvider.of(context);
 
     return StreamBuilder(
-      stream: bloc.users,
+      stream: bloc.userStateController,
       builder: (context, AsyncSnapshot<UserState> snapshot) =>
           snapshot.hasData && snapshot.data.allUsers.isNotEmpty
               ? PopupMenuButton(
