@@ -15,6 +15,7 @@ import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:superpower/superpower.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:random_color/random_color.dart';
 
 enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 
@@ -26,6 +27,7 @@ class UserBloc implements BlocBase {
 
   final Map<String, charts.Color> _colors = {};
   final Random _rand = Random();
+  RandomColor _randomColor = RandomColor();
 
   final socket = PhoenixSocket(wsBaseUrl,
       socketOptions: PhoenixSocketOptions(params: {"vsn": "2.0.0"}));
@@ -101,16 +103,19 @@ class UserBloc implements BlocBase {
 
   charts.Color languageColor(String language) {
     if (_colors[language] == null) {
-      // Randomize a color
-      var color = charts.ColorUtil.fromDartColor(
-          Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
-      // Find a unique color
-      while (_colors.values.contains(color)) {
-        color = charts.ColorUtil.fromDartColor(
+      if(_colors.length >= Colors.primaries.length) {
+        _colors[language] = charts.ColorUtil.fromDartColor(_randomColor.randomColor());
+      } else {
+        // Randomize a color
+        var color = charts.ColorUtil.fromDartColor(
             Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
+        // Find a unique color
+        while (_colors.values.contains(color)) {
+          color = charts.ColorUtil.fromDartColor(
+              Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
+        }
+        _colors[language] = color;
       }
-
-      _colors[language] = color;
     }
     return _colors[language];
   }

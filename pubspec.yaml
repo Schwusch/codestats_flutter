@@ -1,7 +1,7 @@
 name: codestats_flutter
 description: View codestats in your phone
 
-version: 1.0.6+7
+version: 1.0.7+8
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -29,6 +29,7 @@ dependencies:
   rflutter_alert: ^1.0.2
   url_launcher: ^4.0.3
   auto_size_text: ^0.3.0
+  random_color: ^1.0.3
   pimp_my_button:
     git:
       url: git://github.com/Norbert515/pimp_my_button.git
