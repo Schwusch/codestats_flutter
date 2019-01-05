@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/models/pulse/pulse.dart';
@@ -24,14 +23,22 @@ enum DataFetching { Done, Loading, Error }
 class UserBloc implements BlocBase {
   static const baseUrl = "https://codestats.net";
   static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
+  final _possibleColors = Colors.primaries
+      .map((c) => charts.ColorUtil.fromDartColor(c))
+      .toList()
+        ..shuffle();
+  final Map<String, charts.Color> _languageColors = {};
 
-  final Map<String, charts.Color> _colors = {};
-  final Random _rand = Random();
   RandomColor _randomColor = RandomColor();
 
-  final socket = PhoenixSocket(wsBaseUrl,
-      socketOptions: PhoenixSocketOptions(params: {"vsn": "2.0.0"}));
-  final Dio _dio = Dio(
+  final socket = PhoenixSocket(
+    wsBaseUrl,
+    socketOptions: PhoenixSocketOptions(
+      params: {"vsn": "2.0.0"},
+    ),
+  );
+
+  final _dio = Dio(
     Options(
       baseUrl: baseUrl,
     ),
@@ -102,22 +109,15 @@ class UserBloc implements BlocBase {
   }
 
   charts.Color languageColor(String language) {
-    if (_colors[language] == null) {
-      if(_colors.length >= Colors.primaries.length) {
-        _colors[language] = charts.ColorUtil.fromDartColor(_randomColor.randomColor());
+    if (_languageColors[language] == null) {
+      if (_possibleColors.isNotEmpty) {
+        _languageColors[language] = _possibleColors.removeLast();
       } else {
-        // Randomize a color
-        var color = charts.ColorUtil.fromDartColor(
-            Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
-        // Find a unique color
-        while (_colors.values.contains(color)) {
-          color = charts.ColorUtil.fromDartColor(
-              Colors.primaries[_rand.nextInt(Colors.primaries.length)]);
-        }
-        _colors[language] = color;
+        _languageColors[language] =
+            charts.ColorUtil.fromDartColor(_randomColor.randomColor());
       }
     }
-    return _colors[language];
+    return _languageColors[language];
   }
 
   _createChannel(String name, User _) {
@@ -169,7 +169,7 @@ class UserBloc implements BlocBase {
               user.recentLangs?.add(Xp(xp.amount, xp.language));
             }
 
-            if(lang != null) {
+            if (lang != null) {
               lang.xp = lang.xp + xp.amount;
             } else {
               user.totalLangs?.add(Xp(xp.amount, xp.language));
