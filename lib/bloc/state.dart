@@ -6,7 +6,6 @@ part 'state.g.dart';
 @JsonSerializable(nullable: true, useWrappers: true)
 class UserState {
   Map<String, User> allUsers;
-  List<String> errors = [];
 
   UserState({
     this.allUsers

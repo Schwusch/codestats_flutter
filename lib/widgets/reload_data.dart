@@ -11,29 +11,26 @@ class ReloadData extends StatefulWidget {
 }
 
 class ReloadDataState extends State<ReloadData> {
-  StreamSubscription subscription;
+  StreamSubscription errorSubscription;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    subscription?.cancel();
-    subscription = BlocProvider.of<UserBloc>(context).dataFetching.listen(
-      (DataFetching data) {
-        if (data == DataFetching.Error) {
-          Scaffold.of(context).showSnackBar(
+    var bloc = BlocProvider.of<UserBloc>(context);
+    errorSubscription?.cancel();
+    errorSubscription = bloc.errors.listen(
+      (error) => Scaffold.of(context).showSnackBar(
             SnackBar(
-              content: Text('Something went wrong when fetching data :('),
+              content: Text(error),
             ),
-          );
-        }
-      },
+          ),
     );
   }
 
   @override
   void dispose() {
     super.dispose();
-    subscription.cancel();
+    errorSubscription.cancel();
   }
 
   @override

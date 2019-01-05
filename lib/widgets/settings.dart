@@ -51,9 +51,6 @@ class Settings extends StatelessWidget {
                 ),
               ]..addAll(
                   $(users.keys).sorted().mapNotNull((user) {
-                    if (users[user] == null) {
-                      return null;
-                    }
 
                     return ListTile(
                       onTap: () {
@@ -67,14 +64,14 @@ class Settings extends StatelessWidget {
                         ),
                       ),
                       subtitle: Text(
-                        "${formatter.format(bloc.userStateController.value.allUsers[user]?.totalXp)} XP",
+                        "${formatter.format(bloc.userStateController.value.allUsers[user]?.totalXp ?? 0)} XP",
                         style: TextStyle(
                           color: Colors.white,
                         ),
                       ),
                       leading: CircleAvatar(
                         child: Text(
-                            "${getLevel(bloc.userStateController.value.allUsers[user]?.totalXp)}"),
+                            "${getLevel(bloc.userStateController.value.allUsers[user]?.totalXp ?? 0)}"),
                       ),
                       trailing: IconButton(
                         color: Colors.white,

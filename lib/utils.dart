@@ -29,11 +29,11 @@ ${buildRequestString(options)}
 }
 
 String buildRequestString(Options options) => """URL:
-${options.baseUrl}${options.path}
+${options?.baseUrl}${options?.path}
 HEADERS:
-${options.headers}
+${options?.headers}
 DATA:
-${options.data}""";
+${options?.data}""";
 
 Response logResponse(Response response) {
   debugPrint(""" BEGIN HTTP RESPONSE
@@ -43,19 +43,19 @@ ${buildResponseString(response)}
 }
 
 String buildResponseString(Response response) => """URL:
-${response.request.baseUrl}${response.request.path}
+${response?.request?.baseUrl}${response?.request?.path}
 HEADERS:
-${response.headers}
-${response.data.toString()}""";
+${response?.headers}
+${response?.data.toString()}""";
 
 DioError logError(DioError error) {
   debugPrint(""" BEGIN HTTP ERROR
-${error.message}
-${error.type.toString()}
+${error?.message}
+${error?.type.toString()}
 REQUEST:
-${buildRequestString(error.response.request)}
+${buildRequestString(error?.response?.request)}
 RESPONSE:
-${buildResponseString(error.response)}
+${buildResponseString(error?.response)}
   """, wrapWidth: 1024);
   return error;
 }

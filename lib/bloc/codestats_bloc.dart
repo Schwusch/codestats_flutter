@@ -77,6 +77,8 @@ class UserBloc implements BlocBase {
 
   BehaviorSubject<int> chosenTab = BehaviorSubject(seedValue: 0);
 
+  final PublishSubject<String> errors = PublishSubject<String>();
+
   UserBloc() {
     userStateController = HydratedSubject<UserState>("userState",
         hydrate: (s) {
@@ -217,18 +219,20 @@ class UserBloc implements BlocBase {
             setDataFetching.add(DataFetching.Done);
           } else {
             setDataFetching.add(DataFetching.Error);
-            state.errors.clear();
-            state.errors.add('Received data was corrupt');
+            errors.add('No data was received from the server');
           }
+
+          List graphQlErrors = response.data['errors'];
+          graphQlErrors?.forEach((e) {
+            errors.add('${e['path']?.first ?? ""} - ${e['message']}');
+          });
         } else {
           setDataFetching.add(DataFetching.Error);
-          state.errors.clear();
-          state.errors.add('Server responded with ${response.statusCode}');
-          // TODO display errors in UI
+          errors.add('Server responded with ${response.statusCode}');
         }
       } on DioError catch (e) {
         setDataFetching.add(DataFetching.Error);
-
+        errors.add(e.toString());
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx and is also not 304.
         if (e.response != null) {
@@ -312,5 +316,6 @@ class UserBloc implements BlocBase {
     _searchResultSubject.close();
     _searchUserSubject.close();
     chosenTab.close();
+    errors.close();
   }
 }
