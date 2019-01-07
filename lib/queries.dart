@@ -5,7 +5,7 @@ String formatDateUtc(DateTime date) {
       date, [yyyy, "-", mm, "-", dd, "T", HH, ":", mm, ":", ss, ".", SSS, z]);
 }
 
-String profiles(List<String> users, DateTime since) {
+String profiles(List<String> users, DateTime since, int recentDays) {
   var buffer = StringBuffer();
   buffer.write("{\n");
   
@@ -34,7 +34,7 @@ fragment ProfileInfo on Profile {
       name
       xp
     }
-    dayLanguageXps: dayLanguageXps(since: "${formatDate(since.subtract(Duration(days: 7)), [
+    dayLanguageXps: dayLanguageXps(since: "${formatDate(since.subtract(Duration(days: recentDays)), [
     yyyy,
     '-',
     mm,

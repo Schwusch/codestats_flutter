@@ -47,6 +47,8 @@ class UserBloc implements BlocBase {
   HydratedSubject<String> _currentUserController =
       HydratedSubject<String>("currentUser", seedValue: "");
 
+  final HydratedSubject<int> recentLength = HydratedSubject<int>("recentLength", seedValue: 7);
+
   StreamSink<String> get selectUser => _currentUserController.sink;
 
   Stream<String> get selectedUser => _currentUserController.stream;
@@ -94,7 +96,7 @@ class UserBloc implements BlocBase {
 
     _searchUserSubject
         .distinct()
-        .debounce(Duration(milliseconds: 500))
+        .debounce(Duration(milliseconds: 750))
         .where((s) => s.trim().isNotEmpty)
         .map((s) => s.trim())
         .listen(this._onSearchUser);
@@ -202,7 +204,7 @@ class UserBloc implements BlocBase {
 
       try {
         var response = await _dio.post("/profile-graph",
-            data: {"query": queries.profiles(userNames, DateTime.now())});
+            data: {"query": queries.profiles(userNames, DateTime.now(), recentLength.value)});
         if (response.statusCode == 200) {
           var data = response.data["data"];
 
@@ -317,5 +319,6 @@ class UserBloc implements BlocBase {
     _searchUserSubject.close();
     chosenTab.close();
     errors.close();
+    recentLength.close();
   }
 }

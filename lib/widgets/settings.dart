@@ -2,6 +2,7 @@ import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/widgets/backdrop.dart';
+import 'package:codestats_flutter/widgets/recent_period_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
@@ -16,6 +17,23 @@ class Settings extends StatelessWidget {
     UserBloc bloc = BlocProvider.of(context);
 
     List<Widget> widgets = [
+      ListTile(
+        title: Text(
+          "Nr of days in 'Recent' tab",
+          style: TextStyle(
+              color: Colors.blueGrey.shade100,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic),
+        ),
+      ),
+      RecentPeriodSettings(),
+      Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        child: Divider(
+          color: Colors.blueGrey.shade200,
+        ),
+      ),
       ListTile(
         title: Text(
           "Users",
@@ -41,49 +59,41 @@ class Settings extends StatelessWidget {
           var users = snapshot.data?.allUsers;
           if (users != null && users.isNotEmpty) {
             return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    color: Colors.blueGrey.shade200,
-                  ),
-                ),
-              ]..addAll(
-                  $(users.keys).sorted().mapNotNull((user) {
-
-                    return ListTile(
-                      onTap: () {
-                        bloc.selectUser.add(user);
-                        Backdrop.of(context).fling();
-                      },
-                      title: Text(
-                        user,
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      subtitle: Text(
-                        "${formatter.format(bloc.userStateController.value.allUsers[user]?.totalXp ?? 0)} XP",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                      leading: CircleAvatar(
-                        child: Text(
-                            "${getLevel(bloc.userStateController.value.allUsers[user]?.totalXp ?? 0)}"),
-                      ),
-                      trailing: IconButton(
-                        color: Colors.white,
-                        icon: Icon(Icons.remove_circle_outline),
-                        onPressed: () {
-                          _onAlertButtonsPressed(context, user, bloc);
-                        },
-                      ),
-                    );
-                  }),
-                ),
-            );
+                mainAxisSize: MainAxisSize.min,
+                children: $(users.keys)
+                    .sorted()
+                    .mapNotNull(
+                      (user) => ListTile(
+                            onTap: () {
+                              bloc.selectUser.add(user);
+                              Backdrop.of(context).fling();
+                            },
+                            title: Text(
+                              user,
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "${formatter.format(bloc.userStateController.value.allUsers[user]?.totalXp ?? 0)} XP",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            leading: CircleAvatar(
+                              child: Text(
+                                  "${getLevel(bloc.userStateController.value.allUsers[user]?.totalXp ?? 0)}"),
+                            ),
+                            trailing: IconButton(
+                              color: Colors.white,
+                              icon: Icon(Icons.remove_circle_outline),
+                              onPressed: () {
+                                _onAlertButtonsPressed(context, user, bloc);
+                              },
+                            ),
+                          ),
+                    )
+                    .toList());
           } else
             return Container();
         },
