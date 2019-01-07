@@ -5,16 +5,16 @@ String formatDateUtc(DateTime date) {
       date, [yyyy, "-", mm, "-", dd, "T", HH, ":", mm, ":", ss, ".", SSS, z]);
 }
 
-String _profile(String username, DateTime since) => """
-$username: profile(username: "$username") {
-    ...ProfileInfo
-  }
-""";
-
 String profiles(List<String> users, DateTime since) {
   var buffer = StringBuffer();
   buffer.write("{\n");
-  users.forEach((user) => buffer.write(_profile(user, since)));
+  
+  users.forEach((user) => buffer.write("""
+$user: profile(username: "$user") {
+    ...ProfileInfo
+  }
+"""));
+
   buffer.write("""}
 fragment ProfileInfo on Profile {
   totalXp: totalXp
