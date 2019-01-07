@@ -7,7 +7,17 @@ String formatDateUtc(DateTime date) {
 
 String _profile(String username, DateTime since) => """
 $username: profile(username: "$username") {
-    totalXp: totalXp
+    ...ProfileInfo
+  }
+""";
+
+String profiles(List<String> users, DateTime since) {
+  var buffer = StringBuffer();
+  buffer.write("{\n");
+  users.forEach((user) => buffer.write(_profile(user, since)));
+  buffer.write("""}
+fragment ProfileInfo on Profile {
+  totalXp: totalXp
     totalLangs: languages {
       name
       xp
@@ -25,27 +35,20 @@ $username: profile(username: "$username") {
       xp
     }
     dayLanguageXps: dayLanguageXps(since: "${formatDate(since.subtract(Duration(days: 7)), [
-      yyyy,
-      '-',
-      mm,
-      '-',
-      dd
-    ])}") {
+    yyyy,
+    '-',
+    mm,
+    '-',
+    dd
+  ])}") {
       date
       language
       xp
     }
     dayOfYearXps: dayOfYearXps
     hourOfDayXps: hourOfDayXps
-  } 
-
-""";
-
-String profiles(List<String> users, DateTime since) {
-  var buffer = StringBuffer();
-  buffer.write("{");
-  users.forEach((user) => buffer.write(_profile(user, since)));
-  buffer.write("}");
+  }
+  """);
 
   return buffer.toString();
 }
