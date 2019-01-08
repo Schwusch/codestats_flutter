@@ -5,7 +5,7 @@
 ![](screenshots/demo.webp) | ![](screenshots/profile.png)  |  ![](screenshots/recent.png)
 | ------------------------- | ------------------------- | -----------
 ![](screenshots/languages.png) | ![](screenshots/settings.png)  |  ![](screenshots/adduser.png)
-|![](screenshots/year.png)| ------------------------- | -----------
+|![](screenshots/year.png)| | 
 
 ## Running the app
 
