@@ -2,6 +2,7 @@ import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/widgets/day_language_xps.dart';
+import 'package:codestats_flutter/widgets/day_of_year_xps.dart';
 import 'package:codestats_flutter/widgets/language_levels.dart';
 import 'package:codestats_flutter/widgets/profile_page.dart';
 import 'package:codestats_flutter/widgets/random_loading_animation.dart';
@@ -86,8 +87,9 @@ class DashBoardBody extends StatelessWidget {
                 userModel: userModel,
               );
             default:
-              // TODO Year view
-              return Container();
+              return DayOfYearXps(
+                userModel: userModel,
+              );
           }
         }
       },

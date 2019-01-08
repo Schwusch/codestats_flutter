@@ -40,61 +40,63 @@ class ProfilePage extends StatelessWidget {
     // sort the machines by level
     userModel.totalMachines.sort((a, b) => b.xp - a.xp);
 
-    return ListView(
-      children: [
-        TotalXp(totalXp: userModel.totalXp),
-        LevelProgressCircle(
-          formatter: formatter,
-          userModel: userModel,
-          bloc: bloc,
-          userName: userName,
-        ),
-        SubHeader(text: "Machines",),
-        LayoutBuilder(
-          builder: (context, BoxConstraints constraints) => Column(
-                children: userModel.totalMachines
-                    .map(
-                      (machine) => LevelPercentIndicator(
-                            width: constraints.maxWidth * 0.7,
-                            name: machine.name,
-                            xp: machine.xp,
-                            recent: recentMachines[machine.name]?.first?.xp,
-                          ),
-                    )
-                    .toList(),
-              ),
-        ),
-        SubHeader(text: "Total XP per hour of day",),
-        AspectRatio(
-          aspectRatio: 4 / 3,
-          child: LineChart(
-            lines: [
-              Line<MapEntry<int, int>, int, int>(
-                  data: hoursOfDayData,
-                  xFn: (datum) => datum.key,
-                  yFn: (datum) => datum.value,
-                  yAxis: ChartAxis<int>(
-                      tickGenerator:
-                          IntervalTickGenerator.byN((maxY / 5).floor()),
-                      span: IntSpan(minY, maxY),
-                      tickLabelFn: (value) => formatter.format(value)),
-                  xAxis: ChartAxis<int>(
-                    tickGenerator: IntervalTickGenerator.byN(6),
-                    span: IntSpan(0, 23),
-                  ),
-                  marker: MarkerOptions(
-                    shape: MarkerShapes.circle,
-                    paint: PaintOptions.fill(
-                      color: Colors.blue,
-                    ),
-                  ),
-                  stroke: PaintOptions.stroke(
-                      color: Colors.lightBlue, strokeWidth: 2)),
-            ],
-            chartPadding: EdgeInsets.fromLTRB(80, 20, 20, 30),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          TotalXp(totalXp: userModel.totalXp),
+          LevelProgressCircle(
+            formatter: formatter,
+            userModel: userModel,
+            bloc: bloc,
+            userName: userName,
           ),
-        ),
-      ],
+          SubHeader(text: "Machines",),
+          LayoutBuilder(
+            builder: (context, BoxConstraints constraints) => Column(
+                  children: userModel.totalMachines
+                      .map(
+                        (machine) => LevelPercentIndicator(
+                              width: constraints.maxWidth * 0.7,
+                              name: machine.name,
+                              xp: machine.xp,
+                              recent: recentMachines[machine.name]?.first?.xp,
+                            ),
+                      )
+                      .toList(),
+                ),
+          ),
+          SubHeader(text: "Total XP per hour of day",),
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: LineChart(
+              lines: [
+                Line<MapEntry<int, int>, int, int>(
+                    data: hoursOfDayData,
+                    xFn: (datum) => datum.key,
+                    yFn: (datum) => datum.value,
+                    yAxis: ChartAxis<int>(
+                        tickGenerator:
+                            IntervalTickGenerator.byN((maxY / 5).floor()),
+                        span: IntSpan(minY, maxY),
+                        tickLabelFn: (value) => formatter.format(value)),
+                    xAxis: ChartAxis<int>(
+                      tickGenerator: IntervalTickGenerator.byN(6),
+                      span: IntSpan(0, 23),
+                    ),
+                    marker: MarkerOptions(
+                      shape: MarkerShapes.circle,
+                      paint: PaintOptions.fill(
+                        color: Colors.blue,
+                      ),
+                    ),
+                    stroke: PaintOptions.stroke(
+                        color: Colors.lightBlue, strokeWidth: 2)),
+              ],
+              chartPadding: EdgeInsets.fromLTRB(80, 20, 20, 30),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

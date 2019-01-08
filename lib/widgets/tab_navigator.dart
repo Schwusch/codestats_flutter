@@ -75,12 +75,12 @@ class TabNavigator extends StatelessWidget {
             frontColor: Colors.purple[700],
             backColor: Colors.purple[300],
           ),
-          /*FlipBarItem(
+          FlipBarItem(
               icon: Icon(Icons.calendar_today),
-              text: Text("Year view"),
+              text: Text("Year"),
               frontColor: Colors.cyan.shade700,
               backColor: Colors.cyan.shade200,
-            ),*/
+            ),
         ],
         onIndexChanged: bloc.chosenTab.add,
       ),
