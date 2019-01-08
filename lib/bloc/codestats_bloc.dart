@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/state.dart';
+import 'package:codestats_flutter/hydrated.dart';
 import 'package:codestats_flutter/models/pulse/pulse.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
 import 'package:flutter/material.dart';
-import 'package:hydrated/hydrated.dart';
 import 'package:dio/dio.dart';
 import 'package:codestats_flutter/queries.dart' as queries;
 import 'package:codestats_flutter/utils.dart';
@@ -278,10 +278,12 @@ class UserBloc implements BlocBase {
 
   addUser(String newUser) async {
     var state = userStateController.value;
-    state.allUsers[newUser] = null;
-    userStateController.add(state);
+    if(!state.allUsers.containsKey(newUser)) {
+      state.allUsers[newUser] = null;
+      userStateController.add(state);
+      await fetchAllUsers();
+    }
     _currentUserController.add(newUser);
-    await fetchAllUsers();
   }
 
   removeUser(String username) {
