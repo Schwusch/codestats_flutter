@@ -1,7 +1,7 @@
 name: codestats_flutter
 description: View codestats in your phone
 
-version: 1.0.9+10
+version: 1.0.10+11
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -27,6 +27,7 @@ dependencies:
   rxdart: ^0.20.0
   rflutter_alert: ^1.0.2
   url_launcher: ^4.0.3
+  share: ^0.5.3
   auto_size_text: ^0.3.0
   random_color: ^1.0.3
   path_provider: ^0.4.1
