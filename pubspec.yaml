@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   package_info: ^0.3.2
-  cupertino_icons: ^0.1.2
   date_format: ^1.0.5
   charts_flutter: ^0.5.0
   superpower: ^0.4.0
@@ -25,7 +24,6 @@ dependencies:
   dio: ^1.0.13
   flutter_spinkit: ^3.1.0
   rxdart: ^0.20.0
-  rflutter_alert: ^1.0.2
   url_launcher: ^4.0.3
   share: ^0.5.3
   auto_size_text: ^0.3.0

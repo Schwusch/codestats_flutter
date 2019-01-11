@@ -1,20 +1,21 @@
-import 'dart:async';
-import 'dart:convert';
+import 'dart:async' show Stream, StreamSink;
+import 'dart:convert' show jsonEncode, jsonDecode;
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/hydrated.dart';
 import 'package:codestats_flutter/models/pulse/pulse.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
-import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+import 'package:flutter/material.dart' show Colors;
+import 'package:dio/dio.dart'
+    show Dio, Options, DioError, DioErrorType, Response;
 import 'package:codestats_flutter/queries.dart' as queries;
 import 'package:codestats_flutter/utils.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:superpower/superpower.dart';
-import 'package:rxdart/subjects.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:random_color/random_color.dart';
+import 'package:rxdart/subjects.dart' show PublishSubject, BehaviorSubject;
+import 'package:charts_flutter/flutter.dart' as charts show Color, ColorUtil;
+import 'package:random_color/random_color.dart' show RandomColor;
 
 enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 
@@ -47,7 +48,8 @@ class UserBloc implements BlocBase {
   HydratedSubject<String> _currentUserController =
       HydratedSubject<String>("currentUser", seedValue: "");
 
-  final HydratedSubject<int> recentLength = HydratedSubject<int>("recentLength", seedValue: 7);
+  final HydratedSubject<int> recentLength =
+      HydratedSubject<int>("recentLength", seedValue: 7);
 
   StreamSink<String> get selectUser => _currentUserController.sink;
 
@@ -203,8 +205,10 @@ class UserBloc implements BlocBase {
       var userNames = state.allUsers.keys.toList();
 
       try {
-        var response = await _dio.post("/profile-graph",
-            data: {"query": queries.profiles(userNames, DateTime.now(), recentLength.value)});
+        var response = await _dio.post("/profile-graph", data: {
+          "query":
+              queries.profiles(userNames, DateTime.now(), recentLength.value)
+        });
         if (response.statusCode == 200) {
           var data = response.data["data"];
 
@@ -278,7 +282,7 @@ class UserBloc implements BlocBase {
 
   addUser(String newUser) async {
     var state = userStateController.value;
-    if(!state.allUsers.containsKey(newUser)) {
+    if (!state.allUsers.containsKey(newUser)) {
       state.allUsers[newUser] = null;
       userStateController.add(state);
       await fetchAllUsers();

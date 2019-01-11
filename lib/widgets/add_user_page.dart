@@ -3,7 +3,6 @@ import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/random_loading_animation.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class AddUserPage extends StatelessWidget {
   @override
@@ -80,7 +79,6 @@ class AddUserPage extends StatelessWidget {
                 builder:
                     (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
                   if (snapshot.hasData) {
-                    final formatter = NumberFormat("#,###");
                     var totalXp = snapshot.data["total_xp"] ?? 0;
                     var userName = snapshot.data["user"];
 
@@ -89,7 +87,7 @@ class AddUserPage extends StatelessWidget {
                         title: Text(
                             snapshot.data["user"] ?? "Empty search result"),
                         subtitle: Text(
-                          "Level ${getLevel(totalXp)}, ${formatter.format(totalXp)} XP",
+                          "Level ${getLevel(totalXp)}, ${formatNumber(totalXp)} XP",
                           style: TextStyle(color: Colors.blueGrey),
                         ),
                         trailing: userName != null

@@ -6,18 +6,15 @@ import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
-import 'package:intl/intl.dart';
 
 class LevelProgressCircle extends StatefulWidget {
   const LevelProgressCircle({
     Key key,
-    @required this.formatter,
     @required this.userModel,
     @required this.bloc,
     @required this.userName,
   }) : super(key: key);
 
-  final NumberFormat formatter;
   final User userModel;
   final UserBloc bloc;
   final String userName;
@@ -130,7 +127,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
                   padding: EdgeInsets.only(top: 8),
                   child: Text.rich(
                     TextSpan(
-                        text: '${widget.formatter.format(thisLevelXpSoFar)}',
+                        text: '${formatNumber(thisLevelXpSoFar)}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.blueGrey.shade600,
@@ -139,7 +136,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
                         children: [
                           TextSpan(
                             text:
-                            ' / ${widget.formatter.format(thisLevelXpTotal)} XP',
+                            ' / ${formatNumber(thisLevelXpTotal)} XP',
                             style: TextStyle(fontWeight: FontWeight.normal),
                           )
                         ]),
@@ -153,7 +150,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
                       Text('12h '),
                       Icon(Icons.timer),
                       Text(
-                          ' +${widget.formatter.format(getRecentXp(widget.userModel))} XP'),
+                          ' +${formatNumber(getRecentXp(widget.userModel))} XP'),
                     ],
                   ),
                 )

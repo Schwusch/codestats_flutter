@@ -1,11 +1,34 @@
-import 'package:charts_common/common.dart';
+import 'package:charts_common/common.dart'
+    show
+        LinePointHighlighterFollowLineType,
+        SelectionTrigger,
+        SmallTickRendererSpec,
+        TickLabelAnchor,
+        TextStyleSpec,
+        LegendDefaultMeasure,
+        DayTickProviderSpec;
+import 'package:charts_flutter/flutter.dart' as charts
+    show
+        TimeSeriesChart,
+        Series,
+        BarRendererConfig,
+        BarGroupingType,
+        NumericAxisSpec,
+        BasicNumericTickFormatterSpec,
+        LinePointHighlighter,
+        DomainHighlighter,
+        SeriesLegend,
+        DateTimeAxisSpec,
+        ColorUtil,
+        BehaviorPosition,
+        OutsideJustification,
+        SelectNearest;
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/day_language_xps.dart';
 import 'package:codestats_flutter/models/user/user.dart';
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart' show groupBy;
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
 
 class DayLanguageXpsWidget extends StatelessWidget {
   const DayLanguageXpsWidget({

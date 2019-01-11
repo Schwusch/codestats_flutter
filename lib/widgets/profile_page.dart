@@ -2,6 +2,7 @@ import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
+import 'package:codestats_flutter/utils.dart' show formatNumber;
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:codestats_flutter/widgets/level_progress_circle.dart';
 import 'package:codestats_flutter/widgets/subheader.dart';
@@ -9,7 +10,6 @@ import 'package:codestats_flutter/widgets/total_xp_header.dart';
 import 'package:collection/collection.dart';
 import 'package:fcharts/fcharts.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -24,7 +24,6 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatter = NumberFormat("#,###");
     final UserBloc bloc = BlocProvider.of(context);
 
     var hoursOfDayData = $(userModel.hourOfDayXps.entries
@@ -45,7 +44,6 @@ class ProfilePage extends StatelessWidget {
         children: [
           TotalXp(totalXp: userModel.totalXp),
           LevelProgressCircle(
-            formatter: formatter,
             userModel: userModel,
             bloc: bloc,
             userName: userName,
@@ -78,7 +76,7 @@ class ProfilePage extends StatelessWidget {
                         tickGenerator:
                             IntervalTickGenerator.byN((maxY / 5).floor()),
                         span: IntSpan(minY, maxY),
-                        tickLabelFn: (value) => formatter.format(value)),
+                        tickLabelFn: (value) => formatNumber(value)),
                     xAxis: ChartAxis<int>(
                       tickGenerator: IntervalTickGenerator.byN(6),
                       span: IntSpan(0, 23),

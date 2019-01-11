@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' show File;
 import 'package:rxdart/rxdart.dart';
 import 'package:path_provider/path_provider.dart';
 

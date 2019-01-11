@@ -1,7 +1,6 @@
 import 'package:codestats_flutter/utils.dart';
 import 'package:codestats_flutter/widgets/linear_percent_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class LevelPercentIndicator extends StatelessWidget {
   const LevelPercentIndicator(
@@ -15,7 +14,6 @@ class LevelPercentIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatter = NumberFormat("#,###");
     var level = getLevel(xp);
     var previousLevelXp = getXp(level).toDouble();
     var nextLevelXp = getXp(level + 1);
@@ -36,7 +34,7 @@ class LevelPercentIndicator extends StatelessWidget {
           text: TextSpan(style: DefaultTextStyle.of(context).style, children: [
             TextSpan(text: name, style: TextStyle(fontWeight: FontWeight.bold)),
             TextSpan(
-              text: " level $level (${formatter.format(xp)} XP) ${recent != null ? '(+$recent)' : ''}",
+              text: " level $level (${formatNumber(xp)} XP) ${recent != null ? '(+$recent)' : ''}",
             ),
           ]),
         ),
