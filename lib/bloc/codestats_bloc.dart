@@ -238,7 +238,6 @@ class UserBloc implements BlocBase {
         }
       } on DioError catch (e) {
         setDataFetching.add(DataFetching.Error);
-        errors.add(e.toString());
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx and is also not 304.
         if (e.response != null) {
