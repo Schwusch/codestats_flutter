@@ -4,11 +4,11 @@ import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/widgets/day_language_xps.dart';
 import 'package:codestats_flutter/widgets/day_of_year_xps.dart';
 import 'package:codestats_flutter/widgets/language_levels.dart';
+import 'package:codestats_flutter/widgets/no_user.dart';
 import 'package:codestats_flutter/widgets/profile_page.dart';
 import 'package:codestats_flutter/widgets/random_loading_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class DashBoardBody extends StatelessWidget {
   @override
@@ -38,39 +38,7 @@ class DashBoardBody extends StatelessWidget {
           if (users != null && users.isNotEmpty) {
             bloc.selectUser.add(users.keys.first);
           }
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(bottom: 16),
-                  child: Text("No user chosen"),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 16.0),
-                  child: FloatingActionButton.extended(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed("/addUser");
-                    },
-                    icon: Icon(Icons.add),
-                    label: Text("Add user"),
-                  ),
-                ),
-                FloatingActionButton.extended(
-                  heroTag: null,
-                  icon: Icon(Icons.web),
-                  label: Text("Create profile"),
-                  onPressed: () async {
-                    const url = 'https://codestats.net/';
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    }
-                  },
-                )
-              ],
-            ),
-          );
+          return NoUser();
         } else {
           switch (tabIndex) {
             case 0:
