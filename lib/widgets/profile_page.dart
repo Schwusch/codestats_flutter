@@ -10,6 +10,7 @@ import 'package:codestats_flutter/widgets/total_xp_header.dart';
 import 'package:collection/collection.dart';
 import 'package:fcharts/fcharts.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -25,6 +26,12 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserBloc bloc = BlocProvider.of(context);
+    final formatter = DateFormat('MMMM d yyyy');
+
+    final DateTime registered = DateTime.parse(userModel.registered);
+
+    DateTime now = DateTime.now();
+    Duration userTime = now.difference(registered);
 
     var hoursOfDayData = $(userModel.hourOfDayXps.entries
         .map((entry) => MapEntry(int.parse(entry.key), entry.value)))
@@ -41,8 +48,11 @@ class ProfilePage extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TotalXp(totalXp: userModel.totalXp),
+          Text("XP since ${formatter.format(registered)}"),
+          Text("Average ${(userModel.totalXp / userTime.inDays).round()} XP per day"),
           LevelProgressCircle(
             userModel: userModel,
             bloc: bloc,

@@ -13,9 +13,20 @@ class User {
   final Map<String, int> hourOfDayXps;
   final Map<String, int> dayOfYearXps;
   final List<DayLanguageXps> dayLanguageXps;
+  final String registered;
   int totalXp;
 
-  User(this.totalMachines, this.totalLangs, this.recentMachines, this.recentLangs, this.hourOfDayXps, this.dayOfYearXps, this.dayLanguageXps, this.totalXp);
+  User(
+    this.totalMachines,
+    this.totalLangs,
+    this.recentMachines,
+    this.recentLangs,
+    this.hourOfDayXps,
+    this.dayOfYearXps,
+    this.dayLanguageXps,
+    this.totalXp,
+    this.registered,
+  );
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 

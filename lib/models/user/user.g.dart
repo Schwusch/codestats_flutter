@@ -33,7 +33,8 @@ User _$UserFromJson(Map<String, dynamic> json) {
               ? null
               : DayLanguageXps.fromJson(e as Map<String, dynamic>))
           ?.toList(),
-      json['totalXp'] as int);
+      json['totalXp'] as int,
+      json['registered'] as String);
 }
 
 Map<String, dynamic> _$UserToJson(User instance) =>
@@ -52,6 +53,7 @@ class _$UserJsonMapWrapper extends $JsonMapWrapper {
         'hourOfDayXps',
         'dayOfYearXps',
         'dayLanguageXps',
+        'registered',
         'totalXp'
       ];
 
@@ -73,6 +75,8 @@ class _$UserJsonMapWrapper extends $JsonMapWrapper {
           return _v.dayOfYearXps;
         case 'dayLanguageXps':
           return _v.dayLanguageXps;
+        case 'registered':
+          return _v.registered;
         case 'totalXp':
           return _v.totalXp;
       }

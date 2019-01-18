@@ -47,6 +47,7 @@ fragment ProfileInfo on Profile {
     }
     dayOfYearXps: dayOfYearXps
     hourOfDayXps: hourOfDayXps
+    registered: registered
   }
   """);
 

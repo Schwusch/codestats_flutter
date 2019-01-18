@@ -53,8 +53,9 @@ class _BreathingWidgetState extends State<BreathingWidget>
 
   @override
   void dispose() {
-    super.dispose();
     _breathingController.dispose();
+    _pulseController.dispose();
+    super.dispose();
   }
 
   @override
@@ -80,7 +81,7 @@ class PulsePainter extends CustomPainter {
         Offset.zero.translate(-(size.width * 2.5), -5 - (size.height * 2.5)) &
             (size * 6);
 
-    var dynamicColor = Colors.blueGrey.withOpacity(
+    var dynamicColor = Colors.grey.withOpacity(
       1.0 - (scale * 0.2 + 0.85).clamp(0.0, 1.0),
     );
 
