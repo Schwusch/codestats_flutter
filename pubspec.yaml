@@ -24,11 +24,11 @@ dependencies:
   dio: ^1.0.13
   flutter_spinkit: ^3.1.0
   rxdart: ^0.20.0
-  url_launcher: ^4.0.3
   share: ^0.5.3
   auto_size_text: ^0.3.0
   random_color: ^1.0.3
   path_provider: ^0.4.1
+  webview_flutter: ^0.2.0
   pimp_my_button:
     git:
       url: git://github.com/Norbert515/pimp_my_button.git

@@ -1,6 +1,6 @@
 import 'package:codestats_flutter/widgets/breathing_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class NoUser extends StatelessWidget {
   const NoUser({
@@ -35,10 +35,20 @@ class NoUser extends StatelessWidget {
             icon: Icon(Icons.web),
             label: Text("Create profile"),
             onPressed: () async {
-              const url = 'https://codestats.net/';
-              if (await canLaunch(url)) {
-                await launch(url);
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => Scaffold(
+                        appBar: AppBar(
+                          title: Text('New profile'),
+                        ),
+                        body: WebView(
+                          initialUrl: 'https://codestats.net/signup',
+                          javascriptMode: JavascriptMode.unrestricted,
+                        ),
+                      ),
+                ),
+              );
             },
           )
         ],
