@@ -1,6 +1,8 @@
 import 'package:codestats_flutter/widgets/breathing_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_inappbrowser/flutter_inappbrowser.dart';
+
+ChromeSafariBrowser browser = ChromeSafariBrowser(InAppBrowser());
 
 class NoUser extends StatelessWidget {
   const NoUser({
@@ -35,20 +37,9 @@ class NoUser extends StatelessWidget {
             icon: Icon(Icons.web),
             label: Text("Create profile"),
             onPressed: () async {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => Scaffold(
-                        appBar: AppBar(
-                          title: Text('New profile'),
-                        ),
-                        body: WebView(
-                          initialUrl: 'https://codestats.net/signup',
-                          javascriptMode: JavascriptMode.unrestricted,
-                        ),
-                      ),
-                ),
-              );
+              browser.open('https://codestats.net/signup', options: {
+                "addShareButton": true,
+              });
             },
           )
         ],

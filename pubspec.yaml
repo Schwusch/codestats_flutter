@@ -28,7 +28,10 @@ dependencies:
   auto_size_text: ^0.3.0
   random_color: ^1.0.3
   path_provider: ^0.4.1
-  webview_flutter: ^0.2.0
+  flutter_inappbrowser:
+    git:
+      url: git@github.com:pichillilorenzo/flutter_inappbrowser.git
+      ref: c34cdf55d52c35a759bf11ffba8fa090980d9744
   pimp_my_button:
     git:
       url: git://github.com/Norbert515/pimp_my_button.git
