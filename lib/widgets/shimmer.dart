@@ -139,7 +139,6 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
   }
 }
 
-@visibleForTesting
 class _Shimmer extends SingleChildRenderObjectWidget {
   final double percent;
   final ShimmerDirection direction;
@@ -159,7 +158,6 @@ class _Shimmer extends SingleChildRenderObjectWidget {
   }
 }
 
-@visibleForTesting
 class _ShimmerFilter extends RenderProxyBox {
   final _clearPaint = Paint();
   final Paint _gradientPaint;
