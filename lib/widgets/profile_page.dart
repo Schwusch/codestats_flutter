@@ -45,15 +45,6 @@ class _ProfilePageState extends State<ProfilePage>
 
     sequence = SequenceAnimationBuilder()
         .addAnimatable(
-          animatable: Tween<double>(
-            begin: 0,
-            end: 1,
-          ).chain(CurveTween(curve: Curves.fastOutSlowIn)),
-          from: Duration.zero,
-          to: Duration(milliseconds: 500),
-          tag: "totalXP",
-        )
-        .addAnimatable(
           animatable: Tween<Offset>(
             begin: Offset(-2.0, 0.0),
             end: Offset.zero,
@@ -127,10 +118,7 @@ class _ProfilePageState extends State<ProfilePage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ScaleTransition(
-            scale: sequence["totalXP"],
-            child: TotalXp(totalXp: widget.userModel.totalXp),
-          ),
+          TotalXp(totalXp: widget.userModel.totalXp),
           SlideTransition(
             position: sequence["totalXPtext"],
             child: Text("XP since ${formatter.format(registered)}"),

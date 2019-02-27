@@ -12,6 +12,7 @@ import 'package:dio/dio.dart'
 import 'package:codestats_flutter/queries.dart' as queries;
 import 'package:codestats_flutter/utils.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:superpower/superpower.dart';
 import 'package:rxdart/subjects.dart' show PublishSubject, BehaviorSubject;
 import 'package:charts_flutter/flutter.dart' as charts show Color, ColorUtil;
@@ -45,15 +46,15 @@ class UserBloc implements BlocBase {
     ),
   );
 
-  HydratedSubject<String> _currentUserController =
+  HydratedSubject<String> currentUserController =
       HydratedSubject<String>("currentUser", seedValue: "");
 
   final HydratedSubject<int> recentLength =
       HydratedSubject<int>("recentLength", seedValue: 7);
 
-  StreamSink<String> get selectUser => _currentUserController.sink;
+  StreamSink<String> get selectUser => currentUserController.sink;
 
-  Stream<String> get selectedUser => _currentUserController.stream;
+  Stream<String> get selectedUser => currentUserController.stream;
 
   HydratedSubject<UserState> userStateController;
 
@@ -82,6 +83,12 @@ class UserBloc implements BlocBase {
   BehaviorSubject<int> chosenTab = BehaviorSubject(seedValue: 0);
 
   final PublishSubject<String> errors = PublishSubject<String>();
+
+  Observable<User> get currentUser =>
+      userStateController.withLatestFrom(currentUserController, (state, user) {
+        Map<String, User> users = state?.allUsers ?? {};
+        return users[user];
+      });
 
   UserBloc() {
     userStateController = HydratedSubject<UserState>("userState",
@@ -286,7 +293,7 @@ class UserBloc implements BlocBase {
       userStateController.add(state);
       await fetchAllUsers();
     }
-    _currentUserController.add(newUser);
+    currentUserController.add(newUser);
   }
 
   removeUser(String username) {
@@ -296,7 +303,7 @@ class UserBloc implements BlocBase {
         .firstWhere((channel) => channel.topic == "users:$username",
             orElse: () => null)
         ?.leave();
-    if (_currentUserController.value == username || state.allUsers.isEmpty) {
+    if (currentUserController.value == username || state.allUsers.isEmpty) {
       if (state.allUsers.isNotEmpty) {
         selectUser.add(state.allUsers.keys.first);
       } else {
@@ -316,7 +323,7 @@ class UserBloc implements BlocBase {
 
   @override
   void dispose() {
-    _currentUserController.close();
+    currentUserController.close();
     userStateController.close();
     _userValidationSubject.close();
     _dataFetchingSubject.close();
