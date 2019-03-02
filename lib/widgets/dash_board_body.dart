@@ -57,6 +57,7 @@ class DashBoardBody extends StatelessWidget {
             default:
               return DayOfYearXps(
                 userModel: userModel,
+                scrollController: ScrollController(),
               );
           }
         }

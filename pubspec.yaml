@@ -4,19 +4,19 @@ description: View codestats in your phone
 version: 1.0.14+15
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+    version: <=1.2.1
   package_info: ^0.3.2
   date_format: ^1.0.5
   charts_flutter: ^0.5.0
   superpower: ^0.4.0
-  flip_box_bar: ^0.2.0
   flutter_circular_chart:
     git:
-      url: git@github.com:Schwusch/flutter_circular_chart.git
+      url: https://github.com/Schwusch/flutter_circular_chart.git
   fcharts: ^0.0.10
   intl: ^0.15.7
   json_annotation: ^2.0.0
@@ -33,6 +33,8 @@ dependencies:
       url: git@github.com:pichillilorenzo/flutter_inappbrowser.git
       ref: c34cdf55d52c35a759bf11ffba8fa090980d9744
   flip_panel: ^1.0.0
+  bubble_bottom_bar: ^1.0.0
+  draggable_scrollbar: ^0.0.4
 
 dev_dependencies:
   json_serializable: ^2.0.1

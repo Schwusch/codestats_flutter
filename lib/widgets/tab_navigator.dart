@@ -7,7 +7,7 @@ import 'package:codestats_flutter/widgets/random_loading_animation.dart';
 import 'package:codestats_flutter/widgets/reload_data.dart';
 import 'package:codestats_flutter/widgets/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flip_box_bar/flip_box_bar.dart';
+import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 
 class TabNavigator extends StatelessWidget {
   @override
@@ -45,44 +45,63 @@ class TabNavigator extends StatelessWidget {
         ),
       ),
       backLayer: Settings(),
-      bottomNavigationBar: FlipBoxBar(
-        animationDuration: Duration(milliseconds: 500),
-        items: [
-          FlipBarItem(
-            icon: Icon(Icons.person),
-            text: Text(
-              "Profile",
-              style: TextStyle(color: Colors.black),
+      bottomNavigationBar: StreamBuilder(
+        stream: bloc.chosenTab.startWith(0),
+        builder: (context, snapshot) => BubbleBottomBar(
+              currentIndex: snapshot.data,
+              opacity: .2,
+              items: [
+                BubbleBottomBarItem(
+                  backgroundColor: Colors.red,
+                  icon: Icon(
+                    Icons.person,
+                    color: Colors.black,
+                  ),
+                  activeIcon: Icon(
+                    Icons.person,
+                    color: Colors.red,
+                  ),
+                  title: Text("Profile"),
+                ),
+                BubbleBottomBarItem(
+                  backgroundColor: Colors.deepPurple,
+                  icon: Icon(
+                    Icons.timer,
+                    color: Colors.black,
+                  ),
+                  activeIcon: Icon(
+                    Icons.timer,
+                    color: Colors.deepPurple,
+                  ),
+                  title: Text("Recent"),
+                ),
+                BubbleBottomBarItem(
+                  backgroundColor: Colors.indigo,
+                  icon: Icon(
+                    Icons.translate,
+                    color: Colors.black,
+                  ),
+                  activeIcon: Icon(
+                    Icons.translate,
+                    color: Colors.indigo
+                  ),
+                  title: Text("Languages"),
+                ),
+                BubbleBottomBarItem(
+                  backgroundColor: Colors.green,
+                  icon: Icon(
+                    Icons.calendar_today,
+                    color: Colors.black,
+                  ),
+                  activeIcon: Icon(
+                    Icons.calendar_today,
+                    color: Colors.green
+                  ),
+                  title: Text("Year"),
+                ),
+              ],
+              onTap: bloc.chosenTab.add,
             ),
-            frontColor: Colors.amber[700],
-            backColor: Colors.amber[300],
-          ),
-          FlipBarItem(
-            icon: Icon(Icons.timer),
-            text: Text(
-              "Recent",
-              style: TextStyle(color: Colors.black),
-            ),
-            frontColor: Colors.green[800],
-            backColor: Colors.green[300],
-          ),
-          FlipBarItem(
-            icon: Icon(Icons.translate),
-            text: Text(
-              "Languages",
-              style: TextStyle(color: Colors.black),
-            ),
-            frontColor: Colors.purple[700],
-            backColor: Colors.purple[300],
-          ),
-          FlipBarItem(
-              icon: Icon(Icons.calendar_today),
-              text: Text("Year"),
-              frontColor: Colors.cyan.shade700,
-              backColor: Colors.cyan.shade200,
-            ),
-        ],
-        onIndexChanged: bloc.chosenTab.add,
       ),
       iconPosition: BackdropIconPosition.leading,
       actions: [
