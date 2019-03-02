@@ -48,7 +48,7 @@ class TabNavigator extends StatelessWidget {
       bottomNavigationBar: StreamBuilder(
         stream: bloc.chosenTab.startWith(0),
         builder: (context, snapshot) => BubbleBottomBar(
-              currentIndex: snapshot.data,
+              currentIndex: snapshot.data ?? 0,
               opacity: .2,
               items: [
                 BubbleBottomBarItem(
