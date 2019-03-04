@@ -51,8 +51,8 @@ class LevelPercentIndicator extends StatelessWidget {
           leading: Text("$level"),
           trailing: Text("${level + 1}"),
           alignment: MainAxisAlignment.center,
-          progressColor: Colors.green,
-          recentColor: Colors.amber,
+          progressColor: Colors.lightGreen[400],
+          recentColor: Colors.amber[600],
         ),
       ],
     );

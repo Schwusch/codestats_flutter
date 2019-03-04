@@ -84,7 +84,7 @@ class DayOfYearXps extends StatelessWidget {
                                   fontSize: 18 -
                                       xpStr.length *
                                           constraints.maxWidth *
-                                          .02),
+                                          .015),
                             ),
                           ],
                         ),
