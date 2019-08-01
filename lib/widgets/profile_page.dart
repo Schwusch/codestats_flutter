@@ -6,6 +6,7 @@ import 'package:codestats_flutter/sequence_animation.dart';
 import 'package:codestats_flutter/utils.dart' show formatNumber;
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:codestats_flutter/widgets/level_progress_circle.dart';
+import 'package:codestats_flutter/widgets/spotlight.dart';
 import 'package:codestats_flutter/widgets/subheader.dart';
 import 'package:codestats_flutter/widgets/total_xp_header.dart';
 import 'package:collection/collection.dart';
@@ -141,17 +142,17 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           LayoutBuilder(
             builder: (context, BoxConstraints constraints) => Column(
-                  children: widget.userModel.totalMachines
-                      .map(
-                        (machine) => LevelPercentIndicator(
-                              width: constraints.maxWidth * 0.7,
-                              name: machine.name,
-                              xp: machine.xp,
-                              recent: recentMachines[machine.name]?.first?.xp,
-                            ),
-                      )
-                      .toList(),
-                ),
+              children: widget.userModel.totalMachines
+                  .map(
+                    (machine) => LevelPercentIndicator(
+                      width: constraints.maxWidth * 0.7,
+                      name: machine.name,
+                      xp: machine.xp,
+                      recent: recentMachines[machine.name]?.first?.xp,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
           SlideTransition(
             position: sequence["hourofday"],

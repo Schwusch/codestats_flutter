@@ -69,25 +69,23 @@ class DayOfYearXps extends StatelessWidget {
                   aspectRatio: 1,
                   child: LayoutBuilder(
                     builder: (context, constraints) => Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              formatter.format(
-                                thenDate,
-                              ),
-                              style: style.copyWith(
-                                  fontSize: constraints.maxWidth * .2),
-                            ),
-                            Text(
-                              xpStr,
-                              style: style.copyWith(
-                                  fontSize: 18 -
-                                      xpStr.length *
-                                          constraints.maxWidth *
-                                          .015),
-                            ),
-                          ],
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          formatter.format(
+                            thenDate,
+                          ),
+                          style: style.copyWith(
+                              fontSize: constraints.maxWidth * .2),
                         ),
+                        Text(
+                          xpStr,
+                          style: style.copyWith(
+                              fontSize: 18 -
+                                  xpStr.length * constraints.maxWidth * .015),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

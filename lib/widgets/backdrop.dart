@@ -134,9 +134,16 @@ class _BackdropScaffoldState extends State<BackdropScaffold>
   }
 
   Widget _buildBackPanel() {
-    return Material(
-      color: Theme.of(context).primaryColor,
-      child: widget.backLayer,
+    var status = _controller.status;
+    return Visibility(
+      replacement: SizedBox.expand(),
+      visible: status == AnimationStatus.dismissed ||
+          status == AnimationStatus.reverse ||
+          status == AnimationStatus.forward,
+      child: Material(
+        color: Theme.of(context).primaryColor,
+        child: widget.backLayer,
+      ),
     );
   }
 
@@ -222,7 +229,7 @@ class BackdropToggleButton extends StatelessWidget {
         progress: Backdrop.of(context).controller.view,
       ),
       onPressed: () {
-        FocusScope.of(context).requestFocus(FocusNode());
+        //FocusScope.of(context).requestFocus(FocusNode());
         Backdrop.of(context).fling();
       },
     );

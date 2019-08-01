@@ -21,7 +21,12 @@ class CodeStatsAppState extends State<CodeStatsApp> with WidgetsBindingObserver 
   final UserBloc _bloc = UserBloc()..fetchAllUsers();
 
   getIntentLastPathSegment() async {
-    String user = await CodeStatsApp.platform.invokeMethod("getIntentLastPathSegment");
+    String user;
+    try {
+    user = await CodeStatsApp.platform.invokeMethod("getIntentLastPathSegment");
+    } catch(e) {
+
+    }
     print("getIntentLastPathSegment: $user");
     if(user != null && user != "users") {
       await _bloc.userStateController.hydrateSubject();

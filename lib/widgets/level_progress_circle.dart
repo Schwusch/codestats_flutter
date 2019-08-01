@@ -26,11 +26,17 @@ class LevelProgressCircle extends StatefulWidget {
   }
 }
 
-class LevelProgressCircleState extends State<LevelProgressCircle> {
+class LevelProgressCircleState extends State<LevelProgressCircle>
+    with SingleTickerProviderStateMixin {
   GlobalKey<AnimatedCircularChartState> chartKey =
       GlobalKey<AnimatedCircularChartState>();
   GlobalKey<WaveProgressState> waveKey = GlobalKey();
   StreamSubscription circularChartSubscription;
+  AnimationController _controller;
+  Animation<double> tilt;
+  Animation<double> depth;
+  double pitch = 0;
+  double yaw = 0;
 
   @override
   void initState() {
@@ -43,6 +49,17 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
         );
       }
     });
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 300), vsync: this)
+      ..addListener(() {
+        setState(() {
+          if (tilt != null) {
+            pitch *= tilt.value;
+            yaw *= tilt.value;
+          }
+        });
+      });
+    _controller.forward(from: 1.0);
   }
 
   CircularStackEntry createCircularStack(User userModel) {
@@ -87,6 +104,45 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
     circularChartSubscription.cancel();
   }
 
+  cancelPan() {
+    tilt = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(_controller);
+    depth = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Cubic(0.5, 0.0, 0.26, 1.0),
+      ),
+    );
+    _controller.forward();
+  }
+
+  startPan() {
+    tilt = null;
+    depth = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Cubic(1.0, 0.0, 1.0, 1.0),
+      ),
+    );
+    _controller.reverse();
+  }
+
+  updatePan(DragUpdateDetails drag) {
+    setState(() {
+      var size = MediaQuery.of(context).size;
+      pitch += drag.delta.dy * (1 / size.height);
+      yaw -= drag.delta.dx * (1 / size.width);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final level = getLevel(widget.userModel.totalXp);
@@ -98,84 +154,151 @@ class LevelProgressCircleState extends State<LevelProgressCircle> {
     chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
     waveKey.currentState?.update(thisLevelXpSoFar / thisLevelXpTotal);
 
-    return LayoutBuilder(
-      builder: (context, constraints) => AnimatedCircularChart(
-            duration: Duration(seconds: 1),
-            key: chartKey,
-            size: Size.square(constraints.maxWidth * 2 / 3),
-            edgeStyle: SegmentEdgeStyle.round,
-            initialChartData: [],
-            holeLabel: SizedBox.fromSize(
-              size: Size.square(constraints.maxWidth * 2 / 3 - 73),
+    var z = depth?.value ?? 0;
+    var textShadow = Shadow(
+      color: Colors.grey.withAlpha((z * 50 + 100).toInt()),
+      offset: Offset(yaw * 14, -pitch * 14),
+      blurRadius: z * 4,
+    );
+
+    return GestureDetector(
+      onPanUpdate: updatePan,
+      onPanEnd: (_) => cancelPan(),
+      onPanCancel: cancelPan,
+      onPanDown: (_) => startPan(),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Stack(
+          alignment: Alignment.center,
+          children: [
+            AnimatedCircularChart(
+              duration: Duration(seconds: 1),
+              key: chartKey,
+              size: Size.square(constraints.maxWidth * 3 / 4),
+              edgeStyle: SegmentEdgeStyle.round,
+              initialChartData: [],
+              holeLabel: Container(),
+            ),
+            SizedBox.fromSize(
+              size: Size.square(constraints.maxWidth * 3 / 4 - 76),
               child: Material(
                 elevation: 4,
                 color: Colors.grey.shade100,
                 shape: CircleBorder(),
-                child: Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    WaveProgress(
-                      constraints.maxWidth * 2 / 3,
-                      Colors.blueGrey.shade200.withAlpha(100),
-                      thisLevelXpSoFar / thisLevelXpTotal,
-                      key: waveKey,
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'LEVEL',
-                          style: TextStyle(
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          '$level',
-                          style: TextStyle(
-                            fontSize: 32,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Text.rich(
-                            TextSpan(
-                                text: '${formatNumber(thisLevelXpSoFar)}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text:
-                                        ' / ${formatNumber(thisLevelXpTotal)} XP',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.normal),
-                                  )
-                                ]),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('12h ', style: TextStyle(color: Colors.black),),
-                              Icon(Icons.timer),
-                              Text(
-                                  ' +${formatNumber(getRecentXp(widget.userModel))} XP', style: TextStyle(color: Colors.black),),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
+                child: Stack(alignment: AlignmentDirectional.center, children: [
+                  WaveProgress(
+                    constraints.maxWidth * 2 / 3,
+                    Colors.blueGrey.shade200.withAlpha(100),
+                    thisLevelXpSoFar / thisLevelXpTotal,
+                    key: waveKey,
+                  ),
+                ]),
               ),
             ),
-          ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'LEVEL',
+                  style: TextStyle(
+                    color: Colors.black,
+                    shadows: [
+                      if ((depth?.value ?? 0) > 0)
+                        textShadow
+                    ],
+                  ),
+                ),
+                Text(
+                  '$level',
+                  style: TextStyle(
+                    fontSize: 32,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    shadows: [
+                      if ((depth?.value ?? 0) > 0)
+                        textShadow
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text.rich(
+                    TextSpan(
+                        text: '${formatNumber(thisLevelXpSoFar)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            if ((depth?.value ?? 0) > 0)
+                              textShadow
+                          ],
+                        ),
+                        children: [
+                          TextSpan(
+                            text: ' / ${formatNumber(thisLevelXpTotal)} XP',
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              shadows: [
+                                if ((depth?.value ?? 0) > 0)
+                                  textShadow
+                              ],
+                            ),
+                          )
+                        ]),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '12h ',
+                        style: TextStyle(
+                          color: Colors.black,
+                          shadows: [
+                            if ((depth?.value ?? 0) > 0)
+                              textShadow
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.timer),
+                      Text(
+                        ' +${formatNumber(getRecentXp(widget.userModel))} XP',
+                        style: TextStyle(
+                          color: Colors.black,
+                          shadows: [
+                            if ((depth?.value ?? 0) > 0)
+                              textShadow
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ]
+              .asMap()
+              .map(
+                (i, element) => MapEntry(
+                  i,
+                  Transform(
+                    transform: Matrix4.identity()
+                      ..setEntry(3, 2, 0.001)
+                      ..rotateX(pitch)
+                      ..rotateY(yaw)
+                      ..translate(-yaw * i * 50, pitch * i * 50, 0)
+                      ..scale((depth?.value ?? 0) * (i + 1) * 0.05 + 1),
+                    child: element,
+                    alignment: FractionalOffset.center,
+                  ),
+                ),
+              )
+              .values
+              .toList(),
+        ),
+      ),
     );
   }
 }

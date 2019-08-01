@@ -13,7 +13,7 @@ class TabNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Attempt to hide keyboard, if shown
-    FocusScope.of(context).requestFocus(FocusNode());
+    //FocusScope.of(context).requestFocus(FocusNode());
     UserBloc bloc = BlocProvider.of(context);
 
     return BackdropScaffold(
@@ -48,60 +48,54 @@ class TabNavigator extends StatelessWidget {
       bottomNavigationBar: StreamBuilder(
         stream: bloc.chosenTab.startWith(0),
         builder: (context, snapshot) => BubbleBottomBar(
-              currentIndex: snapshot.data ?? 0,
-              opacity: .2,
-              items: [
-                BubbleBottomBarItem(
-                  backgroundColor: Colors.red,
-                  icon: Icon(
-                    Icons.person,
-                    color: Colors.black,
-                  ),
-                  activeIcon: Icon(
-                    Icons.person,
-                    color: Colors.red,
-                  ),
-                  title: Text("Profile"),
-                ),
-                BubbleBottomBarItem(
-                  backgroundColor: Colors.deepPurple,
-                  icon: Icon(
-                    Icons.timer,
-                    color: Colors.black,
-                  ),
-                  activeIcon: Icon(
-                    Icons.timer,
-                    color: Colors.deepPurple,
-                  ),
-                  title: Text("Recent"),
-                ),
-                BubbleBottomBarItem(
-                  backgroundColor: Colors.indigo,
-                  icon: Icon(
-                    Icons.translate,
-                    color: Colors.black,
-                  ),
-                  activeIcon: Icon(
-                    Icons.translate,
-                    color: Colors.indigo
-                  ),
-                  title: Text("Languages"),
-                ),
-                BubbleBottomBarItem(
-                  backgroundColor: Colors.green,
-                  icon: Icon(
-                    Icons.calendar_today,
-                    color: Colors.black,
-                  ),
-                  activeIcon: Icon(
-                    Icons.calendar_today,
-                    color: Colors.green
-                  ),
-                  title: Text("Year"),
-                ),
-              ],
-              onTap: bloc.chosenTab.add,
+          currentIndex: snapshot.data ?? 0,
+          opacity: .2,
+          items: [
+            BubbleBottomBarItem(
+              backgroundColor: Colors.red,
+              icon: Icon(
+                Icons.person,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.person,
+                color: Colors.red,
+              ),
+              title: Text("Profile"),
             ),
+            BubbleBottomBarItem(
+              backgroundColor: Colors.deepPurple,
+              icon: Icon(
+                Icons.timer,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(
+                Icons.timer,
+                color: Colors.deepPurple,
+              ),
+              title: Text("Recent"),
+            ),
+            BubbleBottomBarItem(
+              backgroundColor: Colors.indigo,
+              icon: Icon(
+                Icons.translate,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(Icons.translate, color: Colors.indigo),
+              title: Text("Languages"),
+            ),
+            BubbleBottomBarItem(
+              backgroundColor: Colors.green,
+              icon: Icon(
+                Icons.calendar_today,
+                color: Colors.black,
+              ),
+              activeIcon: Icon(Icons.calendar_today, color: Colors.green),
+              title: Text("Year"),
+            ),
+          ],
+          onTap: bloc.chosenTab.add,
+        ),
       ),
       iconPosition: BackdropIconPosition.leading,
       actions: [
