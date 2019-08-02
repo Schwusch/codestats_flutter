@@ -31,7 +31,7 @@ class DayOfYearXps extends StatelessWidget {
     var doyx = userModel.dayOfYearXps
         .map((key, value) => MapEntry(int.parse(key), value));
 
-    var maxXp = $(doyx.values).max();
+    var maxXp = $(doyx.values).max().clamp(1, double.maxFinite);
 
     doyx.keys.forEach((day) {
       var date = DateTime(2000).add(Duration(days: day - 1));

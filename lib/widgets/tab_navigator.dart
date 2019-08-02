@@ -3,7 +3,6 @@ import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/widgets/backdrop.dart';
 import 'package:codestats_flutter/widgets/choose_user_menu.dart';
 import 'package:codestats_flutter/widgets/dash_board_body.dart';
-import 'package:codestats_flutter/widgets/random_loading_animation.dart';
 import 'package:codestats_flutter/widgets/reload_data.dart';
 import 'package:codestats_flutter/widgets/settings.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,6 @@ import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 class TabNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Attempt to hide keyboard, if shown
-    //FocusScope.of(context).requestFocus(FocusNode());
     UserBloc bloc = BlocProvider.of(context);
 
     return BackdropScaffold(
@@ -22,19 +19,7 @@ class TabNavigator extends StatelessWidget {
         builder: (context, snapshot) => Text(snapshot.data ?? ""),
       ),
       frontLayer: Container(
-        child: StreamBuilder(
-          stream: bloc.dataFetching,
-          initialData: DataFetching.Done,
-          builder: (context, snapshot) {
-            if (snapshot.data == DataFetching.Loading) {
-              return Center(
-                child: RandomLoadingAnimation(),
-              );
-            }
-
-            return DashBoardBody();
-          },
-        ),
+        child: DashBoardBody(),
         decoration: BoxDecoration(
           gradient: RadialGradient(
             colors: [

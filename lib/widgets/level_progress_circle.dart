@@ -157,8 +157,8 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
     var z = depth?.value ?? 0;
     var textShadow = Shadow(
       color: Colors.grey.withAlpha((z * 50 + 100).toInt()),
-      offset: Offset(yaw * 14, -pitch * 14),
-      blurRadius: z * 4,
+      offset: Offset(yaw * 14, -pitch * 14 + 5),
+      blurRadius: z * 4 + 1,
     );
 
     return GestureDetector(
@@ -179,7 +179,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
               holeLabel: Container(),
             ),
             SizedBox.fromSize(
-              size: Size.square(constraints.maxWidth * 3 / 4 - 76),
+              size: Size.square(constraints.maxWidth * 3 / 4 - 80),
               child: Material(
                 elevation: 4,
                 color: Colors.grey.shade100,
@@ -202,7 +202,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                   style: TextStyle(
                     color: Colors.black,
                     shadows: [
-                      if ((depth?.value ?? 0) > 0)
+                      if ((depth?.value ?? 0) > 0.1)
                         textShadow
                     ],
                   ),
@@ -214,7 +214,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                     shadows: [
-                      if ((depth?.value ?? 0) > 0)
+                      if ((depth?.value ?? 0) > 0.1)
                         textShadow
                     ],
                   ),
@@ -229,7 +229,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           shadows: [
-                            if ((depth?.value ?? 0) > 0)
+                            if ((depth?.value ?? 0) > 0.1)
                               textShadow
                           ],
                         ),
@@ -239,7 +239,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                             style: TextStyle(
                               fontWeight: FontWeight.normal,
                               shadows: [
-                                if ((depth?.value ?? 0) > 0)
+                                if ((depth?.value ?? 0) > 0.1)
                                   textShadow
                               ],
                             ),
@@ -257,7 +257,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                         style: TextStyle(
                           color: Colors.black,
                           shadows: [
-                            if ((depth?.value ?? 0) > 0)
+                            if ((depth?.value ?? 0) > 0.1)
                               textShadow
                           ],
                         ),
@@ -268,7 +268,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                         style: TextStyle(
                           color: Colors.black,
                           shadows: [
-                            if ((depth?.value ?? 0) > 0)
+                            if ((depth?.value ?? 0) > 0.1)
                               textShadow
                           ],
                         ),
