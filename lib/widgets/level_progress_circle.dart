@@ -4,6 +4,7 @@ import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/utils.dart';
+import 'package:codestats_flutter/widgets/tiltable_stack.dart';
 import 'package:codestats_flutter/widgets/wave_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_circular_chart/flutter_circular_chart.dart';
@@ -21,22 +22,14 @@ class LevelProgressCircle extends StatefulWidget {
   final String userName;
 
   @override
-  LevelProgressCircleState createState() {
-    return LevelProgressCircleState();
-  }
+  LevelProgressCircleState createState() => LevelProgressCircleState();
 }
 
 class LevelProgressCircleState extends State<LevelProgressCircle>
     with SingleTickerProviderStateMixin {
-  GlobalKey<AnimatedCircularChartState> chartKey =
-      GlobalKey<AnimatedCircularChartState>();
+  GlobalKey<AnimatedCircularChartState> chartKey = GlobalKey();
   GlobalKey<WaveProgressState> waveKey = GlobalKey();
   StreamSubscription circularChartSubscription;
-  AnimationController _controller;
-  Animation<double> tilt;
-  Animation<double> depth;
-  double pitch = 0;
-  double yaw = 0;
 
   @override
   void initState() {
@@ -49,17 +42,6 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
         );
       }
     });
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 300), vsync: this)
-      ..addListener(() {
-        setState(() {
-          if (tilt != null) {
-            pitch *= tilt.value;
-            yaw *= tilt.value;
-          }
-        });
-      });
-    _controller.forward(from: 1.0);
   }
 
   CircularStackEntry createCircularStack(User userModel) {
@@ -104,45 +86,6 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
     circularChartSubscription.cancel();
   }
 
-  cancelPan() {
-    tilt = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(_controller);
-    depth = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Cubic(0.5, 0.0, 0.26, 1.0),
-      ),
-    );
-    _controller.forward();
-  }
-
-  startPan() {
-    tilt = null;
-    depth = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Cubic(1.0, 0.0, 1.0, 1.0),
-      ),
-    );
-    _controller.reverse();
-  }
-
-  updatePan(DragUpdateDetails drag) {
-    setState(() {
-      var size = MediaQuery.of(context).size;
-      pitch += drag.delta.dy * (1 / size.height);
-      yaw -= drag.delta.dx * (1 / size.width);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final level = getLevel(widget.userModel.totalXp);
@@ -154,150 +97,102 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
     chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
     waveKey.currentState?.update(thisLevelXpSoFar / thisLevelXpTotal);
 
-    var z = depth?.value ?? 0;
+    /*var z = depth?.value ?? 0;
     var textShadow = Shadow(
       color: Colors.grey.withAlpha((z * 50 + 100).toInt()),
-      offset: Offset(yaw * 14, -pitch * 14 + 5),
-      blurRadius: z * 4 + 1,
-    );
+      offset: Offset(yaw * 20, -pitch * 20 + 5),
+      blurRadius: z.clamp(0.0, double.maxFinite) * 4 + 1,
+    );*/
 
-    return GestureDetector(
-      onPanUpdate: updatePan,
-      onPanEnd: (_) => cancelPan(),
-      onPanCancel: cancelPan,
-      onPanDown: (_) => startPan(),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Stack(
-          alignment: Alignment.center,
-          children: [
-            AnimatedCircularChart(
-              duration: Duration(seconds: 1),
-              key: chartKey,
-              size: Size.square(constraints.maxWidth * 3 / 4),
-              edgeStyle: SegmentEdgeStyle.round,
-              initialChartData: [],
-              holeLabel: Container(),
+    return LayoutBuilder(
+      builder: (context, constraints) => TiltableStack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedCircularChart(
+            duration: Duration(seconds: 1),
+            key: chartKey,
+            size: Size.square(constraints.maxWidth * 3 / 4),
+            edgeStyle: SegmentEdgeStyle.round,
+            initialChartData: [],
+            holeLabel: Container(),
+          ),
+          SizedBox.fromSize(
+            size: Size.square(constraints.maxWidth * 3 / 4 - 80),
+            child: Material(
+              elevation: 4,
+              color: Colors.grey.shade100,
+              shape: CircleBorder(),
+              child: Stack(alignment: AlignmentDirectional.center, children: [
+                WaveProgress(
+                  constraints.maxWidth * 2 / 3,
+                  Colors.blueGrey.shade200.withAlpha(100),
+                  thisLevelXpSoFar / thisLevelXpTotal,
+                  key: waveKey,
+                ),
+              ]),
             ),
-            SizedBox.fromSize(
-              size: Size.square(constraints.maxWidth * 3 / 4 - 80),
-              child: Material(
-                elevation: 4,
-                color: Colors.grey.shade100,
-                shape: CircleBorder(),
-                child: Stack(alignment: AlignmentDirectional.center, children: [
-                  WaveProgress(
-                    constraints.maxWidth * 2 / 3,
-                    Colors.blueGrey.shade200.withAlpha(100),
-                    thisLevelXpSoFar / thisLevelXpTotal,
-                    key: waveKey,
-                  ),
-                ]),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'LEVEL',
+                style: TextStyle(
+                  color: Colors.black,
+                ),
               ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'LEVEL',
-                  style: TextStyle(
-                    color: Colors.black,
-                    shadows: [
-                      if ((depth?.value ?? 0) > 0.1)
-                        textShadow
-                    ],
-                  ),
+              Text(
+                '$level',
+                style: TextStyle(
+                  fontSize: 32,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  '$level',
-                  style: TextStyle(
-                    fontSize: 32,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    shadows: [
-                      if ((depth?.value ?? 0) > 0.1)
-                        textShadow
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text.rich(
-                    TextSpan(
-                        text: '${formatNumber(thisLevelXpSoFar)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            if ((depth?.value ?? 0) > 0.1)
-                              textShadow
-                          ],
-                        ),
-                        children: [
-                          TextSpan(
-                            text: ' / ${formatNumber(thisLevelXpTotal)} XP',
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              shadows: [
-                                if ((depth?.value ?? 0) > 0.1)
-                                  textShadow
-                              ],
-                            ),
-                          )
-                        ]),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '12h ',
-                        style: TextStyle(
-                          color: Colors.black,
-                          shadows: [
-                            if ((depth?.value ?? 0) > 0.1)
-                              textShadow
-                          ],
-                        ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text.rich(
+                  TextSpan(
+                      text: '${formatNumber(thisLevelXpSoFar)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Icon(Icons.timer),
-                      Text(
-                        ' +${formatNumber(getRecentXp(widget.userModel))} XP',
-                        style: TextStyle(
-                          color: Colors.black,
-                          shadows: [
-                            if ((depth?.value ?? 0) > 0.1)
-                              textShadow
-                          ],
-                        ),
+                      children: [
+                        TextSpan(
+                          text: ' / ${formatNumber(thisLevelXpTotal)} XP',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ]),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '12h ',
+                      style: TextStyle(
+                        color: Colors.black,
                       ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ]
-              .asMap()
-              .map(
-                (i, element) => MapEntry(
-                  i,
-                  Transform(
-                    transform: Matrix4.identity()
-                      ..setEntry(3, 2, 0.001)
-                      ..rotateX(pitch)
-                      ..rotateY(yaw)
-                      ..translate(-yaw * i * 50, pitch * i * 50, 0)
-                      ..scale((depth?.value ?? 0) * (i + 1) * 0.05 + 1),
-                    child: element,
-                    alignment: FractionalOffset.center,
-                  ),
+                    ),
+                    Icon(Icons.timer),
+                    Text(
+                      ' +${formatNumber(getRecentXp(widget.userModel))} XP',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
               )
-              .values
-              .toList(),
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }

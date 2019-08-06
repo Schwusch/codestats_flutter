@@ -22,6 +22,15 @@ enum ValidUser { Unknown, Loading, Valid, Invalid, Error }
 
 enum DataFetching { Done, Loading, Error }
 
+enum TabSource { BottomNavigation, Swipe }
+
+class TabEvent {
+  final int tab;
+  final TabSource source;
+
+  TabEvent(this.tab, this.source);
+}
+
 class UserBloc implements BlocBase {
   static const baseUrl = "https://codestats.net";
   static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
@@ -80,7 +89,7 @@ class UserBloc implements BlocBase {
 
   StreamSink<String> get searchUser => _searchUserSubject;
 
-  BehaviorSubject<int> chosenTab = BehaviorSubject(seedValue: 0);
+  BehaviorSubject<TabEvent> chosenTab = BehaviorSubject(seedValue: TabEvent(0, TabSource.BottomNavigation));
 
   final PublishSubject<String> errors = PublishSubject<String>();
 

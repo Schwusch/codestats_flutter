@@ -10,23 +10,50 @@ import 'package:codestats_flutter/widgets/random_loading_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-class DashBoardBody extends StatelessWidget {
+class DashBoardBody extends StatefulWidget {
+  final UserBloc bloc;
+
+  const DashBoardBody({Key key, @required this.bloc}) : super(key: key);
+
+  @override
+  _DashBoardBodyState createState() => _DashBoardBodyState();
+}
+
+class _DashBoardBodyState extends State<DashBoardBody> {
+  PageController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = PageController(initialPage: widget.bloc.chosenTab.value.tab);
+    widget.bloc.chosenTab.listen((data) {
+      if (data.source == TabSource.BottomNavigation)
+        controller.animateToPage(
+          data.tab,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+        );
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    UserBloc bloc = BlocProvider.of(context);
-
     return StreamBuilder(
       stream: CombineLatestStream(
-        [bloc.userStateController as Stream, bloc.selectedUser, bloc.chosenTab],
+        [widget.bloc.userStateController as Stream, widget.bloc.selectedUser],
         (values) => values,
       ),
-      initialData: [null, null, 0],
+      initialData: [null, null],
       builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         String currentUser = snapshot.data[1] ?? "";
         Map<String, User> users = snapshot.data[0]?.allUsers ?? {};
         User userModel = users[currentUser];
-
-        int tabIndex = snapshot.data[2];
 
         if (currentUser != null &&
             currentUser.isNotEmpty &&
@@ -36,30 +63,31 @@ class DashBoardBody extends StatelessWidget {
           );
         } else if (currentUser == null || currentUser.isEmpty) {
           if (users != null && users.isNotEmpty) {
-            bloc.selectUser.add(users.keys.first);
+            widget.bloc.selectUser.add(users.keys.first);
           }
           return NoUser();
         } else {
-          switch (tabIndex) {
-            case 0:
-              return ProfilePage(
+          return PageView(
+            controller: controller,
+            onPageChanged: (tab) =>
+                widget.bloc.chosenTab.add(TabEvent(tab, TabSource.Swipe)),
+            children: [
+              ProfilePage(
                 userModel: userModel,
                 userName: currentUser,
-              );
-            case 1:
-              return DayLanguageXpsWidget(
+              ),
+              DayLanguageXpsWidget(
                 userModel: userModel,
-              );
-            case 2:
-              return LanguageLevelPage(
+              ),
+              LanguageLevelPage(
                 userModel: userModel,
-              );
-            default:
-              return DayOfYearXps(
+              ),
+              DayOfYearXps(
                 userModel: userModel,
                 scrollController: ScrollController(),
-              );
-          }
+              )
+            ],
+          );
         }
       },
     );

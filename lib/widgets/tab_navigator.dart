@@ -19,7 +19,7 @@ class TabNavigator extends StatelessWidget {
         builder: (context, snapshot) => Text(snapshot.data ?? ""),
       ),
       frontLayer: Container(
-        child: DashBoardBody(),
+        child: DashBoardBody(bloc: bloc,),
         decoration: BoxDecoration(
           gradient: RadialGradient(
             colors: [
@@ -31,9 +31,9 @@ class TabNavigator extends StatelessWidget {
       ),
       backLayer: Settings(),
       bottomNavigationBar: StreamBuilder(
-        stream: bloc.chosenTab.startWith(0),
-        builder: (context, snapshot) => BubbleBottomBar(
-          currentIndex: snapshot.data ?? 0,
+        stream: bloc.chosenTab.startWith(TabEvent(0, TabSource.BottomNavigation)),
+        builder: (context, AsyncSnapshot<TabEvent> snapshot) => BubbleBottomBar(
+          currentIndex: snapshot.data.tab ?? 0,
           opacity: .2,
           items: [
             BubbleBottomBarItem(
@@ -79,7 +79,7 @@ class TabNavigator extends StatelessWidget {
               title: Text("Year"),
             ),
           ],
-          onTap: bloc.chosenTab.add,
+          onTap: (tab) => bloc.chosenTab.add(TabEvent(tab, TabSource.BottomNavigation)),
         ),
       ),
       iconPosition: BackdropIconPosition.leading,
