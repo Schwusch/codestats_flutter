@@ -27,7 +27,7 @@ class _DashBoardBodyState extends State<DashBoardBody> {
     super.initState();
     controller = PageController(initialPage: widget.bloc.chosenTab.value.tab);
     widget.bloc.chosenTab.listen((data) {
-      if (data.source == TabSource.BottomNavigation)
+      if (data.source == TabSource.BottomNavigation && controller.hasClients)
         controller.animateToPage(
           data.tab,
           duration: const Duration(milliseconds: 200),
