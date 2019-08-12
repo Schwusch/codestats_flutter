@@ -138,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage>
           SlideTransition(
             position: sequence["average"],
             child: Text(
-                "Average ${(widget.userModel?.totalXp ?? 0 / (userTime.inDays == 0 ? 0.5 : userTime.inDays))?.round() ?? 0} XP per day"),
+                "Average ${(widget.userModel?.totalXp ?? 0 / (userTime.inDays == 0 ? 1 : userTime.inDays))?.round() ?? 0} XP per day"),
           ),
           LevelProgressCircle(
             userModel: widget.userModel,

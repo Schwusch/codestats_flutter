@@ -1,9 +1,12 @@
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
+import 'package:codestats_flutter/widgets/bouncable.dart';
 import 'package:flip_panel/flip_panel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_midi/flutter_midi.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:superpower/superpower.dart';
+import 'package:tonic/tonic.dart';
 
 class TotalXp extends StatelessWidget {
   const TotalXp({
@@ -16,18 +19,25 @@ class TotalXp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final UserBloc bloc = BlocProvider.of(context);
+    final scale =
+        ScalePattern.findByName('Harmonic Minor').at(PitchClass(integer: 4));
+    List<int> midis = [];
 
     final xpStr = "$totalXp";
     var digitWidgits = List<Widget>();
 
     $(xpStr.split('')).forEachIndexed(
       (char, index) {
+        midis.add(name2midi(scale.pitchClasses[index]
+            .toPitch(octave: index > 4 ? 4 : 3)
+            .toString()));
         digitWidgits.add(
           Expanded(
-            child: Container(
-              margin: EdgeInsets.all(4.0),
+            child: Bouncable(
+              onTap: () => FlutterMidi.playMidiNote(midi: midis[index]),
               child: LayoutBuilder(
                 builder: (context, constraints) => Container(
+                  margin: EdgeInsets.all(4.0),
                   decoration: ShapeDecoration(
                     shadows: [
                       BoxShadow(

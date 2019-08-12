@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
@@ -68,8 +67,7 @@ class _TiltableStackState extends State<TiltableStack>
     stream.add(true);
   }
 
-  SpringDescription get spring =>
-      SpringDescription(mass: 1, stiffness: 400, damping: 6);
+  SpringDescription spring = SpringDescription(mass: 1, stiffness: 400, damping: 6);
 
   cancelPan() {
     tilt.animateWith(SpringSimulation(spring, 1, 0, tilt.velocity));
@@ -101,6 +99,7 @@ class _TiltableStackState extends State<TiltableStack>
       onLongPressMoveUpdate: updatePan,
       onLongPressStart: (_) => startPan(),
       onLongPressEnd: (_) => cancelPan(),
+      onTapDown: (_) => depth.animateWith(SpringSimulation(spring, depth.value, 0, -5)),
       child: StreamBuilder<bool>(
         stream: stream.stream,
         builder: (context, snap) => TiltedStack(
@@ -182,6 +181,6 @@ class TiltedStack extends StatelessWidget {
               },
             )
             .values
-            .toList(),
+            .toList(growable: false),
       );
 }

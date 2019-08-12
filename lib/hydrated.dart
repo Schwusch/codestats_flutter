@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show File;
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -67,7 +68,6 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
       Observable<T> observable,
       this._wrapper,
       ) : super(controller, observable) {
-    hydrateSubject();
   }
 
   factory HydratedSubject(
@@ -147,7 +147,7 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
     else if (T == String)
       val = await file.readAsString();
     else if (this._hydrate != null)
-      val = this._hydrate(await file.readAsString());
+      val = await compute(this._hydrate, await file.readAsString());
     else
       Exception(
         "HydratedSubject – shared_preferences returned an invalid type",
@@ -170,7 +170,7 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
     if (val is int || val is double || val is bool || val is String)
       await file.writeAsString('$val');
     else if (this._persist != null)
-      await file.writeAsString(this._persist(val));
+      await file.writeAsString(await compute(this._persist, val));
     else
       Exception(
         "HydratedSubject – value must be int, double, bool, String, or List<String>",

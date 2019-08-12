@@ -2,7 +2,6 @@ package se.bocker.codestatsflutter
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.MethodChannel

@@ -25,6 +25,7 @@ class BackdropScaffold extends StatefulWidget {
   final double headerHeight;
   final BorderRadius frontLayerBorderRadius;
   final BackdropIconPosition iconPosition;
+  final TabBar appbarBottom;
 
   BackdropScaffold({
     this.controller,
@@ -38,7 +39,7 @@ class BackdropScaffold extends StatefulWidget {
       topRight: Radius.circular(16.0),
     ),
     this.iconPosition = BackdropIconPosition.leading,
-    this.bottomNavigationBar,
+    this.bottomNavigationBar, this.appbarBottom,
   });
 
   @override
@@ -182,6 +183,7 @@ class _BackdropScaffoldState extends State<BackdropScaffold>
           leading: widget.iconPosition == BackdropIconPosition.leading
               ? BackdropToggleButton()
               : null,
+          bottom: widget.appbarBottom,
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {

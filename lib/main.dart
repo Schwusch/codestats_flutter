@@ -4,6 +4,7 @@ import 'package:codestats_flutter/widgets/add_user_page.dart';
 import 'package:codestats_flutter/widgets/tab_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_midi/flutter_midi.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
@@ -18,7 +19,7 @@ class CodeStatsApp extends StatefulWidget{
 }
 
 class CodeStatsAppState extends State<CodeStatsApp> with WidgetsBindingObserver {
-  final UserBloc _bloc = UserBloc()..fetchAllUsers();
+  final UserBloc _bloc = UserBloc();
 
   getIntentLastPathSegment() async {
     String user;
@@ -28,17 +29,23 @@ class CodeStatsAppState extends State<CodeStatsApp> with WidgetsBindingObserver 
 
     }
     print("getIntentLastPathSegment: $user");
+    await _bloc.userStateController.hydrateSubject();
     if(user != null && user != "users") {
-      await _bloc.userStateController.hydrateSubject();
       _bloc.addUser(user);
-    } else {
-      _bloc.userStateController.hydrateSubject();
     }
+  }
+
+  void loadMidi(String asset) async {
+    print("Loading File...");
+    FlutterMidi.unmute();
+    ByteData _byte = await rootBundle.load(asset);
+    FlutterMidi.prepare(sf2: _byte, name: asset.replaceAll("midi/", ""));
   }
 
   @override
   void initState() {
     super.initState();
+    loadMidi("midi/zelda.sf2");
     getIntentLastPathSegment();
     WidgetsBinding.instance.addObserver(this);
   }

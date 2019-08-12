@@ -20,28 +20,6 @@ class DashBoardBody extends StatefulWidget {
 }
 
 class _DashBoardBodyState extends State<DashBoardBody> {
-  PageController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = PageController(initialPage: widget.bloc.chosenTab.value.tab);
-    widget.bloc.chosenTab.listen((data) {
-      if (data.source == TabSource.BottomNavigation && controller.hasClients)
-        controller.animateToPage(
-          data.tab,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeInOut,
-        );
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    controller.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -67,10 +45,7 @@ class _DashBoardBodyState extends State<DashBoardBody> {
           }
           return NoUser();
         } else {
-          return PageView(
-            controller: controller,
-            onPageChanged: (tab) =>
-                widget.bloc.chosenTab.add(TabEvent(tab, TabSource.Swipe)),
+          return TabBarView(
             children: [
               ProfilePage(
                 userModel: userModel,

@@ -1,4 +1,5 @@
 import 'package:codestats_flutter/models/user/user.dart';
+import 'package:codestats_flutter/widgets/Snappable.dart';
 import 'package:codestats_flutter/widgets/subheader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -63,28 +64,31 @@ class DayOfYearXps extends StatelessWidget {
 
               var xpStr = month.daysXp[day].toString();
 
-              return Container(
-                color: Colors.black.withOpacity(xpPercent),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          formatter.format(
-                            thenDate,
+              return Snappable(
+                snapOnTap: true,
+                child: Container(
+                  color: Colors.black.withOpacity(xpPercent),
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            formatter.format(
+                              thenDate,
+                            ),
+                            style: style.copyWith(
+                                fontSize: constraints.maxWidth * .2),
                           ),
-                          style: style.copyWith(
-                              fontSize: constraints.maxWidth * .2),
-                        ),
-                        Text(
-                          xpStr,
-                          style: style.copyWith(
-                              fontSize: 18 -
-                                  xpStr.length * constraints.maxWidth * .015),
-                        ),
-                      ],
+                          Text(
+                            xpStr,
+                            style: style.copyWith(
+                                fontSize: 18 -
+                                    xpStr.length * constraints.maxWidth * .015),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

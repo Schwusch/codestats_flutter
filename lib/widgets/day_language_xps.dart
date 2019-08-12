@@ -28,9 +28,10 @@ import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/day_language_xps.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:collection/collection.dart' show groupBy;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class DayLanguageXpsWidget extends StatelessWidget {
+class DayLanguageXpsWidget extends StatefulWidget {
   const DayLanguageXpsWidget({
     Key key,
     @required this.userModel,
@@ -39,77 +40,88 @@ class DayLanguageXpsWidget extends StatelessWidget {
   final User userModel;
 
   @override
+  _DayLanguageXpsWidgetState createState() => _DayLanguageXpsWidgetState();
+}
+
+class _DayLanguageXpsWidgetState extends State<DayLanguageXpsWidget> {
+  bool animate = false;
+
+  @override
+  void didUpdateWidget(DayLanguageXpsWidget oldWidget) {
+    animate = true;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final UserBloc bloc = BlocProvider.of(context);
-
-    Map<String, List<DayLanguageXps>> languages = groupBy(
-      userModel.dayLanguageXps,
-      (DayLanguageXps element) => element.language,
-    );
-
-    if (languages.isEmpty) {
+    if (widget.userModel.dayLanguageXps.isEmpty) {
       return Center(
         child: Text("No recent activity :("),
       );
     }
 
+    var series =
+        groupBy(widget.userModel.dayLanguageXps, (elem) => elem.language)
+            .values
+            .map((dlx) => charts.Series<DayLanguageXps, DateTime>(
+                  id: dlx.first.language,
+                  domainFn: domainFn,
+                  measureFn: measureFn,
+                  data: dlx,
+                  colorFn: (elem, _) => bloc.languageColor(elem.language),
+                ))
+            .toList();
+
     return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: charts.TimeSeriesChart(
-        languages.values
-            .map(
-              (dlx) => charts.Series<DayLanguageXps, DateTime>(
-                    id: dlx.first.language,
-                    domainFn: (DayLanguageXps elem, _) =>
-                        DateTime.parse(elem.date),
-                    measureFn: (DayLanguageXps elem, _) => elem.xp,
-                    data: dlx,
-                    colorFn: (elem, _) => bloc.languageColor(elem.language),
-                  ),
-            )
-            .toList(),
-        animate: true,
-        animationDuration: Duration(milliseconds: 800),
-        defaultInteractions: false,
-        defaultRenderer: charts.BarRendererConfig<DateTime>(
-          groupingType: charts.BarGroupingType.stacked,
-        ),
-        primaryMeasureAxis: charts.NumericAxisSpec(
-          tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-              (value) => "${value.round()} XP"),
-        ),
-        domainAxis: charts.DateTimeAxisSpec(
-          usingBarRenderer: true,
-          renderSpec: SmallTickRendererSpec<DateTime>(
-            labelAnchor: TickLabelAnchor.centered,
-            labelOffsetFromTickPx: 0,
+        padding: EdgeInsets.all(8.0),
+        child: charts.TimeSeriesChart(
+          series,
+          animate: animate,
+          animationDuration: Duration(milliseconds: 800),
+          defaultInteractions: false,
+          defaultRenderer: charts.BarRendererConfig<DateTime>(
+            groupingType: charts.BarGroupingType.stacked,
           ),
-          tickProviderSpec: DayTickProviderSpec(
-            increments: [1],
+          primaryMeasureAxis: charts.NumericAxisSpec(
+            tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
+                (value) => "${value.round()} XP"),
           ),
-        ),
-        behaviors: [
-          charts.LinePointHighlighter(
-              showHorizontalFollowLine:
-                  LinePointHighlighterFollowLineType.nearest),
-          charts.SelectNearest(
-            eventTrigger: SelectionTrigger.tapAndDrag,
-          ),
-          charts.DomainHighlighter(),
-          charts.SeriesLegend(
-            entryTextStyle: TextStyleSpec(
-              color: charts.ColorUtil.fromDartColor(Colors.black),
+          domainAxis: charts.DateTimeAxisSpec(
+            usingBarRenderer: true,
+            renderSpec: SmallTickRendererSpec<DateTime>(
+              labelAnchor: TickLabelAnchor.centered,
+              labelOffsetFromTickPx: 0,
             ),
-            measureFormatter: (xp) => xp != null ? "${xp?.round()} XP" : "",
-            legendDefaultMeasure: LegendDefaultMeasure.sum,
-            showMeasures: true,
-            position: charts.BehaviorPosition.top,
-            outsideJustification: charts.OutsideJustification.start,
-            horizontalFirst: false,
-            desiredMaxRows: (languages.keys.length / 2).ceil(),
+            tickProviderSpec: DayTickProviderSpec(
+              increments: [1],
+            ),
           ),
-        ],
-      ),
-    );
+          behaviors: [
+            charts.LinePointHighlighter(
+                showHorizontalFollowLine:
+                    LinePointHighlighterFollowLineType.nearest),
+            charts.SelectNearest(
+              eventTrigger: SelectionTrigger.tapAndDrag,
+            ),
+            charts.DomainHighlighter(),
+            charts.SeriesLegend(
+              entryTextStyle: TextStyleSpec(
+                color: charts.ColorUtil.fromDartColor(Colors.black),
+              ),
+              measureFormatter: (xp) => xp != null ? "${xp?.round()} XP" : "",
+              legendDefaultMeasure: LegendDefaultMeasure.sum,
+              showMeasures: true,
+              position: charts.BehaviorPosition.top,
+              outsideJustification: charts.OutsideJustification.start,
+              horizontalFirst: false,
+              desiredMaxRows: (series.length / 2).ceil(),
+            ),
+          ],
+        ));
   }
 }
+
+DateTime domainFn(DayLanguageXps elem, int _) => DateTime.parse(elem.date);
+
+num measureFn(DayLanguageXps elem, int _) => elem.xp;

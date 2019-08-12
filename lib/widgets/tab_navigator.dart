@@ -1,3 +1,4 @@
+import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/widgets/backdrop.dart';
@@ -6,87 +7,55 @@ import 'package:codestats_flutter/widgets/dash_board_body.dart';
 import 'package:codestats_flutter/widgets/reload_data.dart';
 import 'package:codestats_flutter/widgets/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:bubble_bottom_bar/bubble_bottom_bar.dart';
 
 class TabNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserBloc bloc = BlocProvider.of(context);
 
-    return BackdropScaffold(
-      title: StreamBuilder(
-        stream: bloc.selectedUser,
-        builder: (context, snapshot) => Text(snapshot.data ?? ""),
-      ),
-      frontLayer: Container(
-        child: DashBoardBody(bloc: bloc,),
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            colors: [
-              Colors.white,
-              Colors.grey.shade100,
-            ],
+    var tabs = [
+      Tab(text: "Profile"),
+      Tab(text: "Recent"),
+      Tab(text: "Languages"),
+      Tab(text: "Year",)
+    ];
+
+    return DefaultTabController(
+      child: BackdropScaffold(
+        title: StreamBuilder(
+          stream: bloc.selectedUser,
+          builder: (context, snapshot) => Text(snapshot.data ?? ""),
+        ),
+        appbarBottom: TabBar(
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicator: BubbleTabIndicator(
+            indicatorHeight: 25.0,
+            indicatorColor: Colors.blueGrey.shade600,
+            tabBarIndicatorSize: TabBarIndicatorSize.tab,
+          ),
+          tabs: tabs,
+        ),
+        frontLayer: Container(
+          child: DashBoardBody(
+            bloc: bloc,
+          ),
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              colors: [
+                Colors.white,
+                Colors.grey.shade100,
+              ],
+            ),
           ),
         ),
+        backLayer: Settings(),
+        iconPosition: BackdropIconPosition.leading,
+        actions: [
+          ReloadData(),
+          ChooseUserMenu(),
+        ],
       ),
-      backLayer: Settings(),
-      bottomNavigationBar: StreamBuilder(
-        stream: bloc.chosenTab.startWith(TabEvent(0, TabSource.BottomNavigation)),
-        builder: (context, AsyncSnapshot<TabEvent> snapshot) => BubbleBottomBar(
-          currentIndex: snapshot.data?.tab ?? 0,
-          opacity: .2,
-          items: [
-            BubbleBottomBarItem(
-              backgroundColor: Colors.red,
-              icon: Icon(
-                Icons.person,
-                color: Colors.black,
-              ),
-              activeIcon: Icon(
-                Icons.person,
-                color: Colors.red,
-              ),
-              title: Text("Profile"),
-            ),
-            BubbleBottomBarItem(
-              backgroundColor: Colors.deepPurple,
-              icon: Icon(
-                Icons.timer,
-                color: Colors.black,
-              ),
-              activeIcon: Icon(
-                Icons.timer,
-                color: Colors.deepPurple,
-              ),
-              title: Text("Recent"),
-            ),
-            BubbleBottomBarItem(
-              backgroundColor: Colors.indigo,
-              icon: Icon(
-                Icons.translate,
-                color: Colors.black,
-              ),
-              activeIcon: Icon(Icons.translate, color: Colors.indigo),
-              title: Text("Languages"),
-            ),
-            BubbleBottomBarItem(
-              backgroundColor: Colors.green,
-              icon: Icon(
-                Icons.calendar_today,
-                color: Colors.black,
-              ),
-              activeIcon: Icon(Icons.calendar_today, color: Colors.green),
-              title: Text("Year"),
-            ),
-          ],
-          onTap: (tab) => bloc.chosenTab.add(TabEvent(tab, TabSource.BottomNavigation)),
-        ),
-      ),
-      iconPosition: BackdropIconPosition.leading,
-      actions: [
-        ReloadData(),
-        ChooseUserMenu(),
-      ],
+      length: tabs.length,
     );
   }
 }

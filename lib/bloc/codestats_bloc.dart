@@ -6,9 +6,10 @@ import 'package:codestats_flutter/hydrated.dart';
 import 'package:codestats_flutter/models/pulse/pulse.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:dio/dio.dart'
-    show Dio, Options, DioError, DioErrorType, Response;
+    show Dio, DioError, DioErrorType, Response;
 import 'package:codestats_flutter/queries.dart' as queries;
 import 'package:codestats_flutter/utils.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
@@ -50,10 +51,7 @@ class UserBloc implements BlocBase {
   );
 
   final _dio = Dio(
-    Options(
-      baseUrl: baseUrl,
-    ),
-  );
+  )..options.baseUrl = baseUrl;
 
   HydratedSubject<String> currentUserController =
       HydratedSubject<String>("currentUser", seedValue: "");
@@ -74,7 +72,7 @@ class UserBloc implements BlocBase {
 
   StreamSink<ValidUser> get setUserValidation => _userValidationSubject.sink;
 
-  PublishSubject<DataFetching> _dataFetchingSubject = PublishSubject();
+  BehaviorSubject<DataFetching> _dataFetchingSubject = BehaviorSubject();
 
   Stream<DataFetching> get dataFetching =>
       _dataFetchingSubject.stream.startWith(DataFetching.Done);
@@ -89,8 +87,6 @@ class UserBloc implements BlocBase {
 
   StreamSink<String> get searchUser => _searchUserSubject;
 
-  BehaviorSubject<TabEvent> chosenTab = BehaviorSubject(seedValue: TabEvent(0, TabSource.BottomNavigation));
-
   final PublishSubject<String> errors = PublishSubject<String>();
 
   Observable<User> get currentUser =>
@@ -101,16 +97,9 @@ class UserBloc implements BlocBase {
 
   UserBloc() {
     userStateController = HydratedSubject<UserState>("userState",
-        hydrate: (s) {
-          try {
-            return UserState.fromJson(jsonDecode(s));
-          } catch (e) {
-            return UserState.empty();
-          }
-        },
+        hydrate: decodeUserState,
         seedValue: UserState.empty(),
-        persist: (state) => jsonEncode(state.toJson()),
-        onHydrate: fetchAllUsers);
+        persist: encodeUserStare,);
 
     _searchUserSubject
         .distinct()
@@ -229,10 +218,10 @@ class UserBloc implements BlocBase {
           var data = response.data["data"];
 
           if (data != null) {
-            userNames.forEach((user) {
+            userNames.forEach((user) async {
               var userMap = data[user];
               if (userMap != null) {
-                state.allUsers[user] = User.fromJson(userMap);
+                state.allUsers[user] = await compute(decodeUsers, userMap);
               }
             });
 
@@ -338,8 +327,21 @@ class UserBloc implements BlocBase {
     _dataFetchingSubject.close();
     _searchResultSubject.close();
     _searchUserSubject.close();
-    chosenTab.close();
     errors.close();
     recentLength.close();
   }
 }
+
+String encodeUserStare(UserState state) {
+  return jsonEncode(state.toJson());
+}
+
+UserState decodeUserState(String data) {
+  try {
+    return UserState.fromJson(jsonDecode(data));
+  } catch (e) {
+    return UserState.empty();
+  }
+}
+
+User decodeUsers(dynamic data) => User.fromJson(data);

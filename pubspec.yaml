@@ -1,7 +1,7 @@
 name: codestats_flutter
 description: View codestats in your phone
 
-version: 1.0.19+20
+version: 1.0.20+21
 
 environment:
   sdk: '>=2.2.2 <3.0.0'
@@ -22,20 +22,24 @@ dependencies:
   intl: ^0.15.7
   json_annotation: ^2.0.0
   phoenix_wings: ^0.2.1
-  dio: ^1.0.13
+  dio: 2.1.13
   flutter_spinkit: ^3.1.0
   rxdart: ^0.20.0
   share: ^0.5.3
   auto_size_text: ^0.3.0
   random_color: ^1.0.3
-  path_provider: ^0.4.1
+  path_provider: ^1.0.0
   flutter_inappbrowser:
     git:
       url: git@github.com:pichillilorenzo/flutter_inappbrowser.git
       ref: c34cdf55d52c35a759bf11ffba8fa090980d9744
   flip_panel: ^1.0.0
-  bubble_bottom_bar: ^1.0.0
   draggable_scrollbar: ^0.0.4
+  bubble_tab_indicator: ^0.1.4
+  image: ^2.1.4
+  # Music related
+  tonic: 0.2.3
+  flutter_midi: ^1.0.0
 
 dev_dependencies:
   json_serializable: ^2.0.1
@@ -45,6 +49,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/ic_launcher.png
+    - midi/zelda.sf2
 
   fonts:
     - family: OCRAEXT

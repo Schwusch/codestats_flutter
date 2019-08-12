@@ -18,48 +18,7 @@ String formatNumber(num num) => _formatter.format(num);
 
 setupDebugLog(Dio dio) {
   assert((){
-    dio.interceptor.request.onSend = logRequest;
-    dio.interceptor.response.onSuccess = logResponse;
-    dio.interceptor.response.onError = logError;
+    dio.interceptors.add(LogInterceptor(responseBody: true));
     return true;
   }());
-}
-
-Options logRequest(Options options) {
-  debugPrint(""" BEGIN HTTP REQUEST
-${buildRequestString(options)}
-""", wrapWidth: 1024);
-  return options;
-}
-
-String buildRequestString(Options options) => """URL:
-${options?.baseUrl}${options?.path}
-HEADERS:
-${options?.headers}
-DATA:
-${options?.data}""";
-
-Response logResponse(Response response) {
-  debugPrint(""" BEGIN HTTP RESPONSE
-${buildResponseString(response)}
-""", wrapWidth: 1024);
-  return response;
-}
-
-String buildResponseString(Response response) => """URL:
-${response?.request?.baseUrl}${response?.request?.path}
-HEADERS:
-${response?.headers}
-${response?.data.toString()}""";
-
-DioError logError(DioError error) {
-  debugPrint(""" BEGIN HTTP ERROR
-${error?.message}
-${error?.type.toString()}
-REQUEST:
-${buildRequestString(error?.response?.request)}
-RESPONSE:
-${buildResponseString(error?.response)}
-  """, wrapWidth: 1024);
-  return error;
 }
