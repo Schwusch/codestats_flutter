@@ -33,7 +33,7 @@ class _LevelPercentIndicatorState extends State<LevelPercentIndicator>
         value: 0,
         vsync: this,
         duration: Duration(hours: 1),
-        lowerBound: -double.maxFinite,
+        lowerBound: 0,
         upperBound: double.maxFinite);
     super.initState();
   }
@@ -66,12 +66,10 @@ class _LevelPercentIndicatorState extends State<LevelPercentIndicator>
       constraints: BoxConstraints(maxHeight: 50),
       child: Listener(
         onPointerDown: (details) {
-          print("ANIMATING");
           ctrl.animateWith(PassThroughSimulation());
         },
         onPointerUp: (details) {
-          print("ANIMATING STOP");
-          ctrl.value = 0;
+          ctrl.animateWith(PassThroughSimulation(reverse: ctrl.value/2));
         },
         child: AnimatedBuilder(
           animation: ctrl,
