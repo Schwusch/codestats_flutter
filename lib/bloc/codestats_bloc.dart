@@ -9,9 +9,8 @@ import 'package:codestats_flutter/models/user/xp.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:dio/dio.dart'
-    show Dio, DioError, DioErrorType, Response;
+    show Dio, DioError, DioErrorType, LogInterceptor, Response;
 import 'package:codestats_flutter/queries.dart' as queries;
-import 'package:codestats_flutter/utils.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:superpower/superpower.dart';
@@ -32,6 +31,13 @@ class TabEvent {
   TabEvent(this.tab, this.source);
 }
 
+class UserWrap {
+  final String name;
+  final User data;
+
+  UserWrap({this.name, this.data});
+}
+
 class UserBloc implements BlocBase {
   static const baseUrl = "https://codestats.net";
   static const wsBaseUrl = "wss://codestats.net/live_update_socket/websocket";
@@ -50,8 +56,7 @@ class UserBloc implements BlocBase {
     ),
   );
 
-  final _dio = Dio(
-  )..options.baseUrl = baseUrl;
+  final _dio = Dio()..options.baseUrl = baseUrl;
 
   HydratedSubject<String> currentUserController =
       HydratedSubject<String>("currentUser", seedValue: "");
@@ -59,9 +64,9 @@ class UserBloc implements BlocBase {
   final HydratedSubject<int> recentLength =
       HydratedSubject<int>("recentLength", seedValue: 7);
 
-  StreamSink<String> get selectUser => currentUserController.sink;
+  StreamSink<String> get selectUser => currentUserController;
 
-  Stream<String> get selectedUser => currentUserController.stream;
+  Stream<String> get selectedUser => currentUserController;
 
   HydratedSubject<UserState> userStateController;
 
@@ -89,17 +94,25 @@ class UserBloc implements BlocBase {
 
   final PublishSubject<String> errors = PublishSubject<String>();
 
-  Observable<User> get currentUser =>
-      userStateController.withLatestFrom(currentUserController, (state, user) {
+  Observable<UserWrap> get currentUser =>
+      Observable.combineLatest2(userStateController, currentUserController,
+          (state, user) {
         Map<String, User> users = state?.allUsers ?? {};
-        return users[user];
+        return UserWrap(name: user, data: users[user]);
       });
 
   UserBloc() {
-    userStateController = HydratedSubject<UserState>("userState",
-        hydrate: decodeUserState,
-        seedValue: UserState.empty(),
-        persist: encodeUserStare,);
+    userStateController = HydratedSubject<UserState>(
+      "userState",
+      hydrate: decodeUserState,
+      seedValue: UserState.empty(),
+      persist: encodeUserStare,
+    );
+
+    assert(() {
+      _dio.interceptors.add(LogInterceptor(responseBody: true));
+      return true;
+    }());
 
     _searchUserSubject
         .distinct()
@@ -107,7 +120,6 @@ class UserBloc implements BlocBase {
         .where((s) => s.trim().isNotEmpty)
         .map((s) => s.trim())
         .listen(this._onSearchUser);
-    setupDebugLog(_dio);
 
     socket.onError((e) {
       _debugPrint("SOCKET_ERROR: $e");
@@ -158,7 +170,7 @@ class UserBloc implements BlocBase {
 
           var totalNew = $(pulse.xps).sumBy((xp) => xp.amount).floor();
 
-          user.totalXp = user.totalXp + totalNew;
+          user.totalXp += totalNew;
 
           if (recentMachine != null) {
             recentMachine.xp = recentMachine.xp + totalNew;
@@ -218,12 +230,8 @@ class UserBloc implements BlocBase {
           var data = response.data["data"];
 
           if (data != null) {
-            userNames.forEach((user) async {
-              var userMap = data[user];
-              if (userMap != null) {
-                state.allUsers[user] = await compute(decodeUsers, userMap);
-              }
-            });
+            state.allUsers =
+                await compute(decodeUsers, data as Map<String, dynamic>);
 
             _refreshChannels(state);
             userStateController.add(state);
@@ -286,12 +294,21 @@ class UserBloc implements BlocBase {
 
   addUser(String newUser) async {
     var state = userStateController.value;
-    if (!state.allUsers.containsKey(newUser)) {
-      state.allUsers[newUser] = null;
-      userStateController.add(state);
-      await fetchAllUsers();
-    }
+
+    state.allUsers[newUser] = null;
+    userStateController.add(state);
+    await fetchAllUsers();
+
     currentUserController.add(newUser);
+  }
+
+  selectNextUser() {
+    var state = userStateController.value;
+    if (state.allUsers.isNotEmpty) {
+      selectUser.add(state.allUsers.keys.first);
+    } else if (currentUserController.value.isNotEmpty) {
+      selectUser.add("");
+    }
   }
 
   removeUser(String username) {
@@ -301,14 +318,7 @@ class UserBloc implements BlocBase {
         .firstWhere((channel) => channel.topic == "users:$username",
             orElse: () => null)
         ?.leave();
-    if (currentUserController.value == username || state.allUsers.isEmpty) {
-      if (state.allUsers.isNotEmpty) {
-        selectUser.add(state.allUsers.keys.first);
-      } else {
-        selectUser.add("");
-      }
-    }
-
+    selectNextUser();
     userStateController.sink.add(state);
   }
 
@@ -340,8 +350,10 @@ UserState decodeUserState(String data) {
   try {
     return UserState.fromJson(jsonDecode(data));
   } catch (e) {
+    print("Unable to decode UserState");
     return UserState.empty();
   }
 }
 
-User decodeUsers(dynamic data) => User.fromJson(data);
+Map<String, User> decodeUsers(Map<String, dynamic> data) =>
+    data.map((str, dyn) => MapEntry(str, User.fromJson(dyn)));

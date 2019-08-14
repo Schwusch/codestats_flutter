@@ -62,8 +62,12 @@ class TotalXp extends StatelessWidget {
                             Duration(milliseconds: 250),
                           ),
                         ),
-                        bloc.currentUser
-                            .map((user) => "${user?.totalXp}"[index]),
+                        bloc.currentUser.map((user) {
+                          if(user.data?.totalXp != null && "${user.data.totalXp}".length > index)
+                            return "${user.data.totalXp}"[index];
+                          else
+                            return "0";
+                        }),
                       ],
                     ),
                     itemBuilder: (context, value) => Container(

@@ -1,6 +1,5 @@
 import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
-import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
 import 'package:codestats_flutter/sequence_animation.dart';
 import 'package:codestats_flutter/utils.dart' show formatNumber;
@@ -15,13 +14,11 @@ import 'package:intl/intl.dart';
 import 'package:superpower/superpower.dart';
 
 class ProfilePage extends StatefulWidget {
-  final User userModel;
-  final String userName;
+  final UserWrap user;
 
   const ProfilePage({
     Key key,
-    @required this.userModel,
-    @required this.userName,
+    @required this.user,
   }) : super(key: key);
 
   @override
@@ -96,12 +93,16 @@ class _ProfilePageState extends State<ProfilePage>
     final UserBloc bloc = BlocProvider.of(context);
     final formatter = DateFormat('MMMM d yyyy');
 
-    final DateTime registered = DateTime.parse(widget.userModel.registered);
+    DateTime registered;
+    try {
+      registered = DateTime.parse(widget.user.data.registered);
+    } catch(e) {
+      return Container();
+    }
 
-    DateTime now = DateTime.now();
-    Duration userTime = now.difference(registered);
+    Duration userTime = DateTime.now().difference(registered);
 
-    var hoursOfDayData = $(widget.userModel.hourOfDayXps.entries
+    var hoursOfDayData = $(widget.user.data.hourOfDayXps.entries
         .map((entry) => MapEntry(int.parse(entry.key), entry.value)))
       ..sort((a, b) => a.key - b.key);
 
@@ -109,10 +110,10 @@ class _ProfilePageState extends State<ProfilePage>
     var maxY = hoursOfDayData.maxBy((elem) => elem?.value ?? 0)?.value ?? 0;
 
     Map<String, List<Xp>> recentMachines =
-        groupBy(widget.userModel.recentMachines, (Xp element) => element.name);
+        groupBy(widget.user.data.recentMachines, (Xp element) => element.name);
 
     // sort the machines by level
-    widget.userModel.totalMachines.sort((a, b) => b.xp - a.xp);
+    widget.user.data.totalMachines.sort((a, b) => b.xp - a.xp);
 
     List<Color> gradientColors = [
       Colors.blueGrey.shade300,
@@ -130,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TotalXp(totalXp: widget.userModel.totalXp),
+          TotalXp(totalXp: widget.user.data.totalXp),
           SlideTransition(
             position: sequence["totalXPtext"],
             child: Text("XP since ${formatter.format(registered)}"),
@@ -138,14 +139,13 @@ class _ProfilePageState extends State<ProfilePage>
           SlideTransition(
             position: sequence["average"],
             child: Text(
-                "Average ${((widget.userModel?.totalXp ?? 0) / (userTime.inDays == 0 ? 1 : userTime.inDays))?.round() ?? 0} XP per day"),
+                "Average ${((widget.user.data?.totalXp ?? 0) / (userTime.inDays == 0 ? 1 : userTime.inDays))?.round() ?? 0} XP per day"),
           ),
           LevelProgressCircle(
-            userModel: widget.userModel,
+            user: widget.user,
             bloc: bloc,
-            userName: widget.userName,
           ),
-          if (widget.userModel.totalMachines.isNotEmpty)
+          if (widget.user.data.totalMachines.isNotEmpty)
             SlideTransition(
               position: sequence["machines"],
               child: SubHeader(
@@ -154,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
           LayoutBuilder(
             builder: (context, BoxConstraints constraints) => Column(
-              children: widget.userModel.totalMachines
+              children: widget.user.data.totalMachines
                   .map(
                     (machine) => LevelPercentIndicator(
                       width: constraints.maxWidth * 0.7,

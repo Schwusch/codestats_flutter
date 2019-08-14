@@ -69,7 +69,7 @@ class _LevelPercentIndicatorState extends State<LevelPercentIndicator>
           ctrl.animateWith(PassThroughSimulation());
         },
         onPointerUp: (details) {
-          ctrl.animateWith(PassThroughSimulation(reverse: ctrl.value/2));
+          ctrl.animateWith(PassThroughSimulation(reverse: ctrl.value / 2));
         },
         child: AnimatedBuilder(
           animation: ctrl,
@@ -80,8 +80,10 @@ class _LevelPercentIndicatorState extends State<LevelPercentIndicator>
               child: Transform(
                 alignment: FractionalOffset.center,
                 transform: Matrix4.identity()
-                  ..translate(sin(ctrl.value * xFreq) * ctrl.value,
-                      sin(ctrl.value * yfreq) * ctrl.value)
+                  ..translate(
+                    sin(ctrl.value * xFreq) * ctrl.value,
+                    sin(ctrl.value * yfreq) * ctrl.value,
+                  )
                   ..rotateZ(sin(ctrl.value * rotFreq) * ctrl.value * 0.005),
                 child: Column(
                   children: [
@@ -114,8 +116,10 @@ class _LevelPercentIndicatorState extends State<LevelPercentIndicator>
                       leading: Text("$level"),
                       trailing: Text("${level + 1}"),
                       alignment: MainAxisAlignment.center,
-                      progressColor: Color.lerp(Colors.lightGreen.shade400, Colors.red, (ctrl.value/5).clamp(0.0, 1.0)),
-                      recentColor: Color.lerp(Colors.amber.shade600, Colors.red, (ctrl.value/5).clamp(0.0, 1.0)),
+                      progressColor: Color.lerp(Colors.lightGreen.shade400,
+                          Colors.red, (ctrl.value / 5).clamp(0.0, 1.0)),
+                      recentColor: Color.lerp(Colors.amber.shade600, Colors.red,
+                          (ctrl.value / 5).clamp(0.0, 1.0)),
                     ),
                   ],
                 ),

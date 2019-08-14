@@ -12,14 +12,12 @@ import 'package:flutter_circular_chart/flutter_circular_chart.dart';
 class LevelProgressCircle extends StatefulWidget {
   const LevelProgressCircle({
     Key key,
-    @required this.userModel,
     @required this.bloc,
-    @required this.userName,
+    @required this.user,
   }) : super(key: key);
 
-  final User userModel;
   final UserBloc bloc;
-  final String userName;
+  final UserWrap user;
 
   @override
   LevelProgressCircleState createState() => LevelProgressCircleState();
@@ -35,10 +33,10 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
   void initState() {
     super.initState();
     circularChartSubscription =
-        widget.bloc.userStateController.listen((UserState state) {
-      if (state.allUsers[widget.userName] != null) {
+        widget.bloc.currentUser.listen((UserWrap state) {
+      if (state.data != null) {
         chartKey.currentState.updateData(
-          [createCircularStack(state.allUsers[widget.userName])],
+          [createCircularStack(state.data)],
         );
       }
     });
@@ -88,13 +86,13 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
 
   @override
   Widget build(BuildContext context) {
-    final level = getLevel(widget.userModel.totalXp);
+    final level = getLevel(widget.user.data.totalXp);
     final previousLevelXp = getXp(level).toDouble();
     final nextLevelXp = getXp(level + 1);
-    final thisLevelXpSoFar = widget.userModel.totalXp - previousLevelXp;
+    final thisLevelXpSoFar = widget.user.data.totalXp - previousLevelXp;
     final thisLevelXpTotal = nextLevelXp - previousLevelXp;
 
-    chartKey.currentState?.updateData([createCircularStack(widget.userModel)]);
+    chartKey.currentState?.updateData([createCircularStack(widget.user.data)]);
     waveKey.currentState?.update(thisLevelXpSoFar / thisLevelXpTotal);
 
     /*var z = depth?.value ?? 0;
@@ -182,7 +180,7 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
                     ),
                     Icon(Icons.timer),
                     Text(
-                      ' +${formatNumber(getRecentXp(widget.userModel))} XP',
+                      ' +${formatNumber(getRecentXp(widget.user.data))} XP',
                       style: TextStyle(
                         color: Colors.black,
                       ),
