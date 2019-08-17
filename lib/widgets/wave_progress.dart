@@ -6,8 +6,10 @@ class WaveProgress extends StatefulWidget {
   final double size;
   final Color fillColor;
   final double progress;
+  final int frequency;
 
-  WaveProgress(this.size, this.fillColor, this.progress, {Key key})
+  WaveProgress(this.size, this.fillColor, this.progress,
+      {Key key, this.frequency = 0})
       : super(key: key);
 
   @override
@@ -74,11 +76,8 @@ class WaveProgressState extends State<WaveProgress>
           animation: waveController,
           builder: (BuildContext context, Widget child) {
             return CustomPaint(
-              painter: WaveProgressPainter(
-                heightTween.animate(heightAnimation),
-                waveController,
-                widget.fillColor,
-              ),
+              painter: WaveProgressPainter(heightTween.animate(heightAnimation),
+                  waveController, widget.fillColor, widget.frequency),
             );
           },
         ),
@@ -91,21 +90,24 @@ class WaveProgressPainter extends CustomPainter {
   Animation<double> _waveAnimation;
   Animation<double> _heightAnimation;
   Color fillColor;
+  final int frequency;
 
   WaveProgressPainter(
     this._heightAnimation,
     this._waveAnimation,
     this.fillColor,
+    this.frequency,
   ) : super(repaint: _waveAnimation);
 
   @override
   void paint(Canvas canvas, Size size) {
     // draw small wave
-    Paint wave2Paint = Paint()..color = fillColor.withOpacity(0.5);
     double p = _heightAnimation.value;
+    double baseHeight = (1 - p) * size.height;
+
+    Paint wave2Paint = Paint()..color = fillColor.withOpacity(0.5);
     double n = 4.2;
     double amp = 4.0;
-    double baseHeight = (1 - p) * size.height;
 
     Path path = Path();
     path.moveTo(0.0, baseHeight);
@@ -126,7 +128,7 @@ class WaveProgressPainter extends CustomPainter {
 
     // draw big wave
     Paint wave1Paint = Paint()..color = fillColor;
-    n = 2.2;
+    n = frequency < 1 ? 2.2 : frequency.toDouble() / 300;
     amp = 10.0;
 
     path = Path();

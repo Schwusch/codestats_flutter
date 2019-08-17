@@ -43,7 +43,8 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
 
   T Function(String value) _hydrate;
   String Function(T value) _persist;
-  void Function() _onHydrate;
+  void Function() onHydrate;
+  bool isHydrated = false;
 
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
@@ -63,11 +64,12 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
       this._seedValue,
       this._hydrate,
       this._persist,
-      this._onHydrate,
+      this.onHydrate,
       StreamController<T> controller,
       Observable<T> observable,
       this._wrapper,
       ) : super(controller, observable) {
+    hydrateSubject();
   }
 
   factory HydratedSubject(
@@ -158,9 +160,9 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
     if (val != null && val != _seedValue) {
       add(val);
     }
-
-    if (_onHydrate != null) {
-      this._onHydrate();
+    isHydrated = true;
+    if (onHydrate != null) {
+      this.onHydrate();
     }
   }
 

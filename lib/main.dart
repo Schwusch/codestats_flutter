@@ -11,27 +11,35 @@ void main() {
       .then((_) => runApp(CodeStatsApp()));
 }
 
-class CodeStatsApp extends StatefulWidget{
+class CodeStatsApp extends StatefulWidget {
   static const platform = MethodChannel('app.channel.shared.data');
 
   @override
   CodeStatsAppState createState() => CodeStatsAppState();
 }
 
-class CodeStatsAppState extends State<CodeStatsApp> with WidgetsBindingObserver {
+class CodeStatsAppState extends State<CodeStatsApp>
+    with WidgetsBindingObserver {
   final UserBloc _bloc = UserBloc();
 
   getIntentLastPathSegment() async {
     String user;
     try {
-    user = await CodeStatsApp.platform.invokeMethod("getIntentLastPathSegment");
-    } catch(e) {
-
-    }
+      user =
+          await CodeStatsApp.platform.invokeMethod("getIntentLastPathSegment");
+    } catch (e) {}
     print("getIntentLastPathSegment: $user");
-    await _bloc.userStateController.hydrateSubject();
-    if(user != null && user != "users") {
+
+    var addUser = () {
       _bloc.addUser(user);
+    };
+
+    if (user != null && user != "users") {
+      if (_bloc.currentUserController.isHydrated) {
+        addUser();
+      } else {
+        _bloc.currentUserController.onHydrate = addUser;
+      }
     }
   }
 
@@ -59,7 +67,7 @@ class CodeStatsAppState extends State<CodeStatsApp> with WidgetsBindingObserver 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if(state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed) {
       getIntentLastPathSegment();
     }
   }

@@ -29,10 +29,7 @@ dependencies:
   auto_size_text: ^0.3.0
   random_color: ^1.0.3
   path_provider: ^1.0.0
-  flutter_inappbrowser:
-    git:
-      url: git@github.com:pichillilorenzo/flutter_inappbrowser.git
-      ref: c34cdf55d52c35a759bf11ffba8fa090980d9744
+  flutter_inappbrowser: ^1.2.1
   flip_panel: ^1.0.0
   draggable_scrollbar: ^0.0.4
   bubble_tab_indicator: ^0.1.4
