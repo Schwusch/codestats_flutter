@@ -162,7 +162,7 @@ class TiltedStack extends StatelessWidget {
                         child: element,
                         alignment: FractionalOffset.center,
                       ),
-                      if (i == 1 && (data.depth ?? 0) > 0)
+                      if (element.key is ValueKey && (data.depth ?? 0) > 0)
                         Opacity(
                           child: Transform(
                             transform: Matrix4.identity()

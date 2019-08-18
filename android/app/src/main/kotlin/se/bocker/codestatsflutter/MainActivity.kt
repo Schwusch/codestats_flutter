@@ -88,7 +88,11 @@ class MainActivity : FlutterActivity() {
         disposable.add(src.observeOn(Schedulers.newThread())
                 .map(Yin::getPitch)
                 .subscribe({ freq ->
-                    val note = round(12 * log2(freq / (440 * (2.0.pow(-4.75))))).toInt() % 12
+                    val note = if(freq > -1) {
+                        round(12 * log2(freq / (440 * (2.0.pow(-4.75))))).toInt() % 12
+                    } else {
+                        -1
+                    }
                     GlobalScope.launch(Dispatchers.Main) {
                         eventSink?.success(note)
                     }
