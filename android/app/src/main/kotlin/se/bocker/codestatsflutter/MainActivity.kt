@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.paramsen.noise.Noise
 
 import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.EventChannel
@@ -19,6 +18,9 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.math.log2
+import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.sqrt
 
 class MainActivity : FlutterActivity() {
@@ -85,36 +87,19 @@ class MainActivity : FlutterActivity() {
      */
     private fun start() {
         val src = AudioSource().stream()
-        val noise = Noise.real().optimized().init(size, false)
 
-
-        //FFTView
         disposable.add(src.observeOn(Schedulers.newThread())
-                .map {
-                    for (i in 0 until it.size)
-                        it[i] *= 2.0f
-                    return@map it
-                }
-                .map { noise.fft(it, FloatArray(size + 2)) }
-                .subscribe({ fft ->
-                    eventSink?.let { eventSink ->
-                        fft.asIterable()
-                                .zipWithNext()
-                                .map { sqrt(it.first * it.first + it.second * it.second) }
-                                .toList()
-                                .let { buckets ->
-                                    val windowFactors = triang(bands + 1)
-                                    val frequencies = buckets
-                                            .chunked(buckets.size / bands) { it.average() }
-                                            .mapIndexed { i, amp -> amp * windowFactors[i] }
-                                    val loudestFreq = (RATE_HZ / (2 * bands)) * frequencies.indexOf(frequencies.max())
-                                    GlobalScope.launch(Dispatchers.Main) {
-                                        eventSink.success(loudestFreq)
-                                    }
-                                }
+                .map(Yin::getPitch)
+                .subscribe({ freq ->
+                    val note = round(12 * log2(freq / (440 * (2.0.pow(-4.75))))).toInt() % 12
+                    GlobalScope.launch(Dispatchers.Main) {
+                        eventSink?.success(note)
                     }
+
                 }, { e ->
-                    eventSink?.error("FourierError", e.message, e)
+                    GlobalScope.launch(Dispatchers.Main) {
+                        eventSink?.error("FourierError", e.message, e)
+                    }
                     Log.e("Fourier", e.message)
                 }))
     }
@@ -142,101 +127,5 @@ class MainActivity : FlutterActivity() {
                 Log.d("Permissions", "Permission denied")
             }
         }
-    }
-
-    /**
-     * Triangular window of size N
-     * @see [MATLAB reference](https://www.mathworks.com/help/signal/ref/triang.html)
-     */
-    private fun triang(N: Int): DoubleArray {
-        val w = DoubleArray(N)
-
-        var n = 0
-        if (N % 2 == 1) {
-            while (n < (N + 1) / 2) {
-                w[n] = 2.0 * (n + 1) / (N + 1)
-                n++
-            }
-            while (n < N) {
-                w[n] = 2 - 2.0 * (n + 1) / (N + 1)
-                n++
-            }
-        } else {
-            while (n < N / 2) {
-                w[n] = (2.0 * (n + 1) - 1) / N
-                n++
-            }
-            while (n < N) {
-                w[n] = 2 - (2.0 * (n + 1) - 1) / N
-                n++
-            }
-        }
-
-        return w
-    }
-
-    /**
-     * Bartlett window of size N
-     * Basically a triangle
-     * @see [MATLAB reference](https://www.mathworks.com/help/signal/ref/bartlett.html)
-     */
-    private fun bartlett(N: Int): DoubleArray {
-        val w = DoubleArray(N)
-
-        var n = 0
-        while (n <= (N - 1) / 2) {
-            w[n] = 2.0 * n / (N - 1)
-            n++
-        }
-        while (n < N) {
-            w[n] = 2 - 2.0 * n / (N - 1)
-            n++
-        }
-
-        return w
-    }
-
-    /**
-     * Hanning window of size N
-     * Somewhat like Parzen & Hamming window
-     * @see [MATLAB reference](https://www.mathworks.com/help/signal/ref/hann.html)
-     */
-    private fun hann(N: Int): DoubleArray {
-        val w = DoubleArray(N)
-
-        for (n in 0 until N) {
-            w[n] = 0.5 * (1 - Math.cos(2.0 * Math.PI * (n / (N - 1.0))))
-        }
-
-        return w
-    }
-
-    /**
-     * Hamming window of size N
-     * Somewhat like Hanning & Parzen
-     * @see [MATLAB reference](https://www.mathworks.com/help/signal/ref/hamming.html)
-     */
-    private fun hamming(N: Int): DoubleArray {
-        val w = DoubleArray(N)
-
-        for (n in 0 until N) {
-            w[n] = 0.54 - 0.46 * Math.cos(2.0 * Math.PI * (n / (N - 1.0)))
-        }
-
-        return w
-    }
-
-    /**
-     * Blackman window of size N
-     * @see [MATLAB reference](https://www.mathworks.com/help/signal/ref/blackman.html)
-     */
-    private fun blackman(N: Int): DoubleArray {
-        val w = DoubleArray(N)
-
-        for (n in 0 until N) {
-            w[n] = 0.42 - 0.5 * Math.cos(2.0 * Math.PI * n.toDouble() / (N - 1)) + 0.08 * Math.cos(4.0 * Math.PI * n.toDouble() / (N - 1))
-        }
-
-        return w
     }
 }

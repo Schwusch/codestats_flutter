@@ -97,102 +97,98 @@ class LevelProgressCircleState extends State<LevelProgressCircle>
     waveKey.currentState?.update(thisLevelXpSoFar / thisLevelXpTotal);
 
     return LayoutBuilder(
-      builder: (context, constraints) => StreamBuilder<dynamic>(
-          stream: channel.receiveBroadcastStream(),
-          builder: (context, snapshot) {
-            int frequency = 0;
-            if (snapshot.hasData) {
-              frequency = snapshot.data;
-            }
-            return TiltableStack(
-              alignment: Alignment.center,
-              children: [
-                AnimatedCircularChart(
-                  duration: Duration(seconds: 1),
-                  key: chartKey,
-                  size: Size.square(constraints.maxWidth * 3 / 4),
-                  edgeStyle: SegmentEdgeStyle.round,
-                  initialChartData: [],
-                  holeLabel: Container(),
-                ),
-                SizedBox.fromSize(
-                  size: Size.square(constraints.maxWidth * 3 / 4 - 80),
-                  child: Material(
-                    elevation: 4,
-                    color: Colors.grey.shade100,
-                    shape: CircleBorder(),
-                    child: WaveProgress(
+      builder: (context, constraints) => TiltableStack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedCircularChart(
+            duration: Duration(seconds: 1),
+            key: chartKey,
+            size: Size.square(constraints.maxWidth * 3 / 4),
+            edgeStyle: SegmentEdgeStyle.round,
+            initialChartData: [],
+            holeLabel: Container(),
+          ),
+          SizedBox.fromSize(
+            size: Size.square(constraints.maxWidth * 3 / 4 - 80),
+            child: Material(
+              elevation: 4,
+              color: Colors.grey.shade100,
+              shape: CircleBorder(),
+              child: StreamBuilder<dynamic>(
+                  stream: channel.receiveBroadcastStream(),
+                  builder: (context, snapshot) {
+                    return WaveProgress(
                       constraints.maxWidth * 2 / 3,
                       Colors.blueGrey.shade200.withAlpha(100),
                       thisLevelXpSoFar / thisLevelXpTotal,
                       key: waveKey,
-                      frequency: frequency,
-                    ),
-                  ),
+                      frequency: snapshot.data ?? 0,
+                    );
+                  }),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'LEVEL',
+                style: TextStyle(
+                  color: Colors.black,
                 ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'LEVEL',
+              ),
+              Text(
+                '$level',
+                style: TextStyle(
+                  fontSize: 32,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text.rich(
+                  TextSpan(
+                      text: '${formatNumber(thisLevelXpSoFar)}',
                       style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                    Text(
-                      '$level',
-                      style: TextStyle(
-                        fontSize: 32,
+                        fontSize: 12,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Text.rich(
+                      children: [
                         TextSpan(
-                            text: '${formatNumber(thisLevelXpSoFar)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: ' / ${formatNumber(thisLevelXpTotal)} XP',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              )
-                            ]),
+                          text: ' / ${formatNumber(thisLevelXpTotal)} XP',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ]),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '12h ',
+                      style: TextStyle(
+                        color: Colors.black,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '12h ',
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                          Icon(Icons.timer),
-                          Text(
-                            ' +${formatNumber(getRecentXp(widget.user.data))} XP',
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
+                    Icon(Icons.timer),
+                    Text(
+                      ' +${formatNumber(getRecentXp(widget.user.data))} XP',
+                      style: TextStyle(
+                        color: Colors.black,
                       ),
-                    )
+                    ),
                   ],
                 ),
-              ],
-            );
-          }),
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

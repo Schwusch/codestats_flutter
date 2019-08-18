@@ -118,8 +118,8 @@ class _BackdropScaffoldState extends State<BackdropScaffold>
   }
 
   Widget _buildInactiveLayer(BuildContext context) {
-    return Offstage(
-      offstage: isTopPanelVisible,
+    return Visibility(
+      visible: _controller.status == AnimationStatus.dismissed,
       child: GestureDetector(
         onTap: () => fling(),
         behavior: HitTestBehavior.opaque,
