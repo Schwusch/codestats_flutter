@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:codestats_flutter/main.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -76,6 +77,7 @@ class _TiltableStackState extends State<TiltableStack>
   }
 
   startPan() {
+    CodeStatsApp.platform.invokeMethod("startFourier");
     depth.animateWith(SpringSimulation(spring, depth.value, 1, depth.velocity));
   }
 

@@ -21,15 +21,12 @@ import kotlinx.coroutines.launch
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.round
-import kotlin.math.sqrt
 
 class MainActivity : FlutterActivity() {
     private var intentData: String? = null
     val disposable: CompositeDisposable = CompositeDisposable()
     private var eventSink: EventChannel.EventSink? = null
 
-    private val bands = 64
-    private val size = 4096
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +42,12 @@ class MainActivity : FlutterActivity() {
                     result.success(intentData)
                     intentData = null
                 }
+                "startFourier" -> {
+                    if (disposable.size() == 0 && requestAudio()) {
+                        start()
+                        Log.d("Fourier", "Started")
+                    }
+                }
             }
         }
 
@@ -52,16 +55,10 @@ class MainActivity : FlutterActivity() {
         EventChannel(flutterView, "fourierStream").setStreamHandler(object : EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
                 this@MainActivity.eventSink = eventSink
-                if (requestAudio() && disposable.size() == 0) {
-                    start()
-                    Log.d("Fourier", "Started")
-                }
             }
 
             override fun onCancel(arguments: Any?) {
                 this@MainActivity.eventSink = null
-                stop()
-                Log.d("Fourier", "Stopped")
             }
 
         })
