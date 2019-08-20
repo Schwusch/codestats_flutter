@@ -2,6 +2,11 @@
 
 <a href='https://play.google.com/store/apps/details?id=se.bocker.codestatsflutter&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img height="80" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'/></a>
 
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/Schwusch/codestats_flutter.svg)](https://starchart.cc/Schwusch/codestats_flutter)
+
 ![](screenshots/year.png) | ![](screenshots/profile.png)  |  ![](screenshots/recent.png)
 | ------------------------- | ------------------------- | -----------
 ![](screenshots/languages.png) | ![](screenshots/settings.png)  |  ![](screenshots/adduser.png)

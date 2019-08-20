@@ -13,6 +13,7 @@ import io.flutter.app.FlutterActivity
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,8 @@ class MainActivity : FlutterActivity() {
     }
 
 
+    class ValueCounter(var count: Int, var value: Int)
+
     /**
      * Subscribe to microphone
      */
@@ -87,20 +90,29 @@ class MainActivity : FlutterActivity() {
 
         disposable.add(src.observeOn(Schedulers.newThread())
                 .map(Yin::getPitch)
-                .subscribe({ freq ->
-                    val note = if(freq > -1) {
+                .map { freq ->
+                    if (freq > -1) {
                         round(12 * log2(freq / (440 * (2.0.pow(-4.75))))).toInt() % 12
                     } else {
                         -1
                     }
-                    GlobalScope.launch(Dispatchers.Main) {
-                        eventSink?.success(note)
+                }
+                .scan(ValueCounter(0, 0)) { counter, note ->
+                    if (counter.value == note) {
+                        counter.count++
+                    } else {
+                        counter.value = note
+                        counter.count = 1
                     }
-
+                    counter
+                }
+                .filter { it.count > 2 }
+                .map { it.value }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ note ->
+                    eventSink?.success(note)
                 }, { e ->
-                    GlobalScope.launch(Dispatchers.Main) {
-                        eventSink?.error("FourierError", e.message, e)
-                    }
+                    eventSink?.error("FourierError", e.message, e)
                     Log.e("Fourier", e.message)
                 }))
     }
