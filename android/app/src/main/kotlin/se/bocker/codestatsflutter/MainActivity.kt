@@ -16,18 +16,15 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.round
 
 class MainActivity : FlutterActivity() {
     private var intentData: String? = null
-    val disposable: CompositeDisposable = CompositeDisposable()
+    private val disposable: CompositeDisposable = CompositeDisposable()
     private var eventSink: EventChannel.EventSink? = null
-
+    private val chromagram: Chromagram = Chromagram(inputAudioFrameSize = SAMPLE_SIZE, samplingFrequency = RATE_HZ)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,31 +86,13 @@ class MainActivity : FlutterActivity() {
         val src = AudioSource().stream()
 
         disposable.add(src.observeOn(Schedulers.newThread())
-                .map(Yin::getPitch)
-                .map { freq ->
-                    if (freq > -1) {
-                        round(12 * log2(freq / (440 * (2.0.pow(-4.75))))).toInt() % 12
-                    } else {
-                        -1
-                    }
-                }
-                .scan(ValueCounter(0, 0)) { counter, note ->
-                    if (counter.value == note) {
-                        counter.count++
-                    } else {
-                        counter.value = note
-                        counter.count = 1
-                    }
-                    counter
-                }
-                .filter { it.count > 2 }
-                .map { it.value }
+                .map(chromagram::processAudioFrame)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ note ->
-                    eventSink?.success(note)
+                .subscribe({ chromagram ->
+                    eventSink?.success(chromagram)
                 }, { e ->
-                    eventSink?.error("FourierError", e.message, e)
-                    Log.e("Fourier", e.message)
+                    eventSink?.error("Chromagram", e.message, e)
+                    Log.e("Chromagram", e.message)
                 }))
     }
 
