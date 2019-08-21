@@ -106,7 +106,7 @@ class WaveProgressPainter extends CustomPainter {
     double baseHeight = (1 - p) * size.height;
 
     Paint wave2Paint = Paint()..color = fillColor.withOpacity(0.5);
-    double n = frequency < 1 ? 4.2 : frequency.toDouble();
+    double n = 4.2;
     double amp = 4.0;
 
     Path path = Path();
@@ -128,7 +128,7 @@ class WaveProgressPainter extends CustomPainter {
 
     // draw big wave
     Paint wave1Paint = Paint()..color = fillColor;
-    n = frequency < 1 ? 2.2 : frequency.toDouble();
+    n = 2.2;
     amp = 10.0;
 
     path = Path();

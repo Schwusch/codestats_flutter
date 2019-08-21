@@ -1,11 +1,9 @@
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:codestats_flutter/models/user/xp.dart';
-import 'package:codestats_flutter/sequence_animation.dart';
 import 'package:codestats_flutter/widgets/level_percent_indicator.dart';
 import 'package:collection/collection.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
-import 'package:superpower/superpower.dart';
 
 class LanguageLevelPage extends StatefulWidget {
   final User userModel;
