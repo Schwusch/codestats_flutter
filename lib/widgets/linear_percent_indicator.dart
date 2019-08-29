@@ -80,9 +80,7 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
 
   @override
   void dispose() {
-    if (_animationController != null) {
-      _animationController.dispose();
-    }
+    _animationController?.dispose();
     super.dispose();
   }
 
@@ -189,6 +187,7 @@ class LinearPainter extends CustomPainter {
   final Color progressColor;
   final Color backgroundColor;
   final LinearStrokeCap linearStrokeCap;
+  final Animation<double> animation;
 
   LinearPainter({
     this.recent,
@@ -199,7 +198,8 @@ class LinearPainter extends CustomPainter {
     this.progressColor,
     this.backgroundColor,
     this.linearStrokeCap = LinearStrokeCap.butt,
-  }) {
+    this.animation,
+  }) : super(repaint: animation) {
     _paintBackground.color = backgroundColor;
     _paintBackground.style = PaintingStyle.stroke;
     _paintBackground.strokeWidth = lineWidth;
@@ -233,16 +233,16 @@ class LinearPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    //print("Linear.....   Text = ${(center as Text).data == "0" ? "0.00" : (center as Text).data} - Progress $progress");
 
     final start = Offset(0.0, size.height / 2);
     final end = Offset(size.width, size.height / 2);
     canvas.drawLine(start, end, _paintBackground);
     if (recent != null) {
+      var _recent = recent * (animation?.value ?? 1);
       canvas.drawLine(
           start,
           Offset(
-            size.width * recent,
+            size.width * _recent,
             size.height / 2,
           ),
           _paintRecentLine);
@@ -267,7 +267,5 @@ class LinearPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
