@@ -94,6 +94,8 @@ class UserBloc implements BlocBase {
 
   final PublishSubject<String> errors = PublishSubject<String>();
 
+  final PublishSubject<String> pulses = PublishSubject();
+
   Observable<UserWrap> get currentUser =>
       Observable.combineLatest2(userStateController, currentUserController,
           (state, user) {
@@ -163,6 +165,10 @@ class UserBloc implements BlocBase {
       try {
         Pulse pulse = Pulse.fromJson(payload);
         if (user != null && pulse != null) {
+          if(currentUserController.value == name) {
+            pulses.add(pulse.xps.join("\n"));
+          }
+
           var recentMachine =
               user.recentMachines?.firstWhere((xp) => xp.name == pulse.machine);
           var machine =
@@ -208,7 +214,7 @@ class UserBloc implements BlocBase {
     userChannel.join();
   }
 
-  _refreshChannels(UserState state) async {
+  refreshChannels(UserState state) async {
     await socket.connect();
     state?.allUsers?.forEach(_createChannel);
   }
@@ -233,7 +239,7 @@ class UserBloc implements BlocBase {
             state.allUsers =
                 await compute(decodeUsers, data as Map<String, dynamic>);
 
-            _refreshChannels(state);
+            refreshChannels(state);
             userStateController.add(state);
             setDataFetching.add(DataFetching.Done);
           } else {
@@ -338,6 +344,7 @@ class UserBloc implements BlocBase {
     _searchResultSubject.close();
     _searchUserSubject.close();
     errors.close();
+    pulses.close();
     recentLength.close();
   }
 }

@@ -22,11 +22,12 @@ class CodeStatsAppState extends State<CodeStatsApp>
     with WidgetsBindingObserver {
   final UserBloc _bloc = UserBloc();
 
-  getIntentLastPathSegment() async {
+  getIntentLastPathSegment({bool fetchAll = false}) async {
     String user;
     try {
       user =
           await CodeStatsApp.platform.invokeMethod("getIntentLastPathSegment");
+
     } catch (e) {}
     print("getIntentLastPathSegment: $user");
 
@@ -39,6 +40,14 @@ class CodeStatsAppState extends State<CodeStatsApp>
         addUser();
       } else {
         _bloc.currentUserController.onHydrate = addUser;
+      }
+    } else if(fetchAll) {
+      if (_bloc.currentUserController.isHydrated) {
+      _bloc.fetchAllUsers();
+      } else {
+        _bloc.currentUserController.onHydrate = () {
+          _bloc.fetchAllUsers();
+        };
       }
     }
   }
@@ -54,7 +63,7 @@ class CodeStatsAppState extends State<CodeStatsApp>
   void initState() {
     super.initState();
     loadMidi("midi/zelda.sf2");
-    getIntentLastPathSegment();
+    getIntentLastPathSegment(fetchAll: true);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -68,7 +77,7 @@ class CodeStatsAppState extends State<CodeStatsApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      getIntentLastPathSegment();
+      getIntentLastPathSegment(fetchAll: true);
     }
   }
 

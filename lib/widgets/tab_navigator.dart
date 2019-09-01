@@ -4,6 +4,7 @@ import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/widgets/backdrop.dart';
 import 'package:codestats_flutter/widgets/choose_user_menu.dart';
 import 'package:codestats_flutter/widgets/dash_board_body.dart';
+import 'package:codestats_flutter/widgets/pulse_notification.dart';
 import 'package:codestats_flutter/widgets/reload_data.dart';
 import 'package:codestats_flutter/widgets/settings.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class TabNavigator extends StatelessWidget {
       Tab(text: "Profile"),
       Tab(text: "Recent"),
       Tab(text: "Languages"),
-      Tab(text: "Year",)
+      Tab(text: "Year")
     ];
 
     return DefaultTabController(
@@ -36,8 +37,14 @@ class TabNavigator extends StatelessWidget {
           tabs: tabs,
         ),
         frontLayer: Container(
-          child: DashBoardBody(
-            bloc: bloc,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              DashBoardBody(
+                bloc: bloc,
+              ),
+              PulseNotification(bloc: bloc)
+            ],
           ),
           decoration: BoxDecoration(
             gradient: RadialGradient(

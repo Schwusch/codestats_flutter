@@ -95,29 +95,21 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
           _animationController,
         ),
         curve: Curves.bounceOut,
-      )..addListener(() {
-          setState(() {
-            _percent = widget.percent * _animation.value;
-            if (widget.recent != null) {
-              _recent = widget.recent * _animation.value;
-            } else {
-              _recent = 0.0;
-            }
-          });
-        });
+      );
       _animationController.forward();
-    } else {
-      _updateProgress();
     }
+
+    _percent = widget.percent;
+    _recent = widget.recent;
     super.initState();
   }
 
   @override
   void didUpdateWidget(LinearPercentIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.percent != widget.percent) {
+    if (oldWidget.percent != widget.percent || oldWidget.recent != widget.recent) {
       if (_animationController != null) {
-        _animationController.forward(from: 0.0);
+        _animationController.forward(from: 0);
       } else {
         _updateProgress();
       }
@@ -128,6 +120,7 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
     setState(() {
       _recent = widget.recent;
       _percent = widget.percent;
+      _animationController.forward(from: 0);
     });
   }
 
@@ -144,6 +137,7 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
         padding: widget.padding,
         child: CustomPaint(
           painter: LinearPainter(
+              animation: _animation,
               progress: _percent,
               recent: _recent,
               center: widget.center,
@@ -233,33 +227,24 @@ class LinearPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-
     final start = Offset(0.0, size.height / 2);
     final end = Offset(size.width, size.height / 2);
     canvas.drawLine(start, end, _paintBackground);
-    if (recent != null) {
-      var _recent = recent * (animation?.value ?? 1);
-      canvas.drawLine(
-          start,
-          Offset(
-            size.width * _recent,
-            size.height / 2,
-          ),
-          _paintRecentLine);
-    } else {
-      canvas.drawLine(
+
+    var _percent = progress * (animation?.value ?? 1);
+    var _recent = (recent ?? 0) * (animation?.value ?? 1);
+
+    canvas.drawLine(
         start,
         Offset(
-          size.width * 0,
+          size.width * (_recent ?? 0),
           size.height / 2,
         ),
-        _paintRecentLine,
-      );
-    }
+        _paintRecentLine);
     canvas.drawLine(
       start,
       Offset(
-        size.width * progress,
+        size.width * _percent,
         size.height / 2,
       ),
       _paintLine,

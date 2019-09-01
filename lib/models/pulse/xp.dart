@@ -12,4 +12,7 @@ class PulseXp {
   factory PulseXp.fromJson(Map<String, dynamic> json) => _$PulseXpFromJson(json);
 
   Map<String, dynamic> toJson() => _$PulseXpToJson(this);
+
+  @override
+  String toString() => "${language}: ${amount} XP";
 }
