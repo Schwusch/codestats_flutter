@@ -41,7 +41,7 @@ class Settings extends StatelessWidget {
               color: Colors.white,
               icon: Icon(Icons.add_circle_outline),
               onPressed: () {
-                Navigator.of(context).pushNamed("/addUser");
+                Navigator.of(context).pushNamed("addUser");
               },
             ),
           ),

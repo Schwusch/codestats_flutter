@@ -25,7 +25,7 @@ class NoUser extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 16.0),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  Navigator.of(context).pushNamed("/addUser");
+                  Navigator.of(context).pushNamed("addUser");
                 },
                 icon: Icon(Icons.add),
                 label: Text("Add user"),

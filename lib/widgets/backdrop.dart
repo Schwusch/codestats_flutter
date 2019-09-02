@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class Backdrop extends InheritedWidget {
-  final _BackdropScaffoldState data;
+  final BackdropScaffoldState data;
 
   Backdrop({Key key, @required this.data, @required Widget child})
       : super(key: key, child: child);
 
-  static _BackdropScaffoldState of(BuildContext context) =>
+  static BackdropScaffoldState of(BuildContext context) =>
       (context.inheritFromWidgetOfExactType(Backdrop) as Backdrop).data;
 
   @override
@@ -28,6 +28,7 @@ class BackdropScaffold extends StatefulWidget {
   final TabBar appbarBottom;
 
   BackdropScaffold({
+    Key key,
     this.controller,
     this.title,
     this.backLayer,
@@ -40,13 +41,13 @@ class BackdropScaffold extends StatefulWidget {
     ),
     this.iconPosition = BackdropIconPosition.leading,
     this.bottomNavigationBar, this.appbarBottom,
-  });
+  }) : super(key: key);
 
   @override
-  _BackdropScaffoldState createState() => _BackdropScaffoldState();
+  BackdropScaffoldState createState() => BackdropScaffoldState();
 }
 
-class _BackdropScaffoldState extends State<BackdropScaffold>
+class BackdropScaffoldState extends State<BackdropScaffold>
     with SingleTickerProviderStateMixin {
   bool shouldDisposeController = false;
   AnimationController _controller;

@@ -94,10 +94,10 @@ class CodeStatsAppState extends State<CodeStatsApp>
               displayColor: Colors.blueGrey[600]),
           primarySwatch: Colors.blueGrey,
         ),
-        initialRoute: "/",
+        initialRoute: "home",
         routes: {
-          "/": (_) => TabNavigator(),
-          "/addUser": (_) => AddUserPage(),
+          "home": (_) => TabNavigator(bloc: _bloc,),
+          "addUser": (_) => AddUserPage(),
         },
       ),
     );
