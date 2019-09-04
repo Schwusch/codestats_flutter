@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -10,16 +11,19 @@ class GlassCrack extends StatelessWidget {
   const GlassCrack({Key key, this.child}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) => ClipRect(
-          child: CustomPaint(
-            isComplex: true,
-            willChange: false,
-            child: child,
-            size: child == null
-                ? Size(constraints.maxWidth, constraints.maxHeight)
-                : Size.zero,
-            painter: GlassCrackPainter(),
+  Widget build(BuildContext context) => RepaintBoundary(
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) =>
+              ClipRect(
+            child: CustomPaint(
+              isComplex: true,
+              willChange: false,
+              child: child,
+              size: child == null
+                  ? Size(constraints.maxWidth, constraints.maxHeight)
+                  : Size.zero,
+              painter: GlassCrackPainter(),
+            ),
           ),
         ),
       );
@@ -106,12 +110,46 @@ class GlassCrackPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     lines ??= findCrackEffectPaths(size);
     canvas.drawColor(Colors.black.withOpacity(0.1), BlendMode.srcOver);
+    renderLcdArtifacts(canvas, size);
     for (var line in lines) {
       renderCrackEffectReflect(canvas, line);
       renderCrackEffectFractures(canvas, line);
       renderCrackEffectMainLine(canvas, line);
       renderCrackEffectNoise(canvas, line);
     }
+  }
+
+  void renderLcdArtifacts(Canvas canvas, Size size) {
+    var gradients = [
+      LinearGradient(
+        colors: [
+          Colors.purpleAccent.shade100.withOpacity(0.8),
+          Colors.purpleAccent.shade100,
+          Colors.purpleAccent.shade100.withOpacity(0.8)
+        ],
+        stops: [0, 0.5, 1],
+      ),
+      LinearGradient(
+        colors: [
+          Colors.greenAccent.shade100.withOpacity(0.8),
+          Colors.greenAccent.shade100,
+          Colors.greenAccent.shade100.withOpacity(0.8),
+        ],
+        stops: [0, 0.5, 1],
+      )
+    ];
+    
+    for (Gradient gradient in gradients) {
+      var xpos = random.nextDouble();
+      var start = Offset(size.width * xpos, 0);
+      var stop = Offset(size.width * xpos, size.height);
+      var paint = Paint()
+        ..color = Colors.purple
+        ..strokeWidth = 10
+        ..shader = gradient.createShader(
+            Rect.fromPoints(start.translate(-5, 0), stop.translate(5, 0)));
+      canvas.drawLine(start, stop, paint);
+    };
   }
 
   void renderCrackEffectReflect(Canvas canvas, Line line) {
@@ -159,7 +197,7 @@ class GlassCrackPainter extends CustomPainter {
     if (fractureCache[line] == null) {
       List<PaintPathPair> cacheList = [];
       var dl = line.desc.deltaLength;
-      var mp = dl / 2;
+      var mp = dl / 10;
       var cma = line.desc.cma;
       var mpl1 = line.desc.mpl1;
       var mpl2 = line.desc.mpl2;
@@ -170,7 +208,7 @@ class GlassCrackPainter extends CustomPainter {
       var sy = line.desc.vectorS.dy;
       var sz = 33;
 
-      for (var s = 0.0; s < dl; s++) {
+      for (var s = 0.0; s < dl; s = s + 16) {
         var c;
         if (s < mpp * dl) {
           c = cma * (1 - pow((mpl1 - s) / mpl1, 2));

@@ -7,8 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_midi/flutter_midi.dart';
 
 void main() {
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) => runApp(CodeStatsApp()));
+  runApp(CodeStatsApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
 class CodeStatsApp extends StatefulWidget {

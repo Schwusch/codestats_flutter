@@ -28,74 +28,63 @@ class _TabNavigatorState extends State<TabNavigator> {
 
   GlobalKey<BackdropScaffoldState> backdropKey = GlobalKey();
 
-  bool glassCracked = false;
+  bool breakGlass = false;
 
   @override
   Widget build(BuildContext context) {
-    Widget body = DefaultTabController(
-      child: BackdropScaffold(
-        key: backdropKey,
-        title: StreamBuilder(
-          stream: widget.bloc.selectedUser,
-          builder: (context, snapshot) => Text(snapshot.data ?? ""),
-        ),
-        appbarBottom: TabBar(
-          indicatorSize: TabBarIndicatorSize.tab,
-          indicator: BubbleTabIndicator(
-            indicatorHeight: 25.0,
-            indicatorColor: Colors.blueGrey.shade600,
-            tabBarIndicatorSize: TabBarIndicatorSize.tab,
-          ),
-          tabs: tabs,
-        ),
-        frontLayer: Container(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              DashBoardBody(
-                bloc: widget.bloc,
-              ),
-              PulseNotification(bloc: widget.bloc)
-            ],
-          ),
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              colors: [
-                Colors.white,
-                Colors.grey.shade100,
-              ],
-            ),
-          ),
-        ),
-        backLayer: Settings(),
-        iconPosition: BackdropIconPosition.leading,
-        actions: [
-          ReloadData(),
-          ChooseUserMenu(),
-        ],
-      ),
-      length: tabs.length,
-    );
-    if (glassCracked) {
-      body = Transform(
-        transform: Matrix4.identity()
-          ..rotateZ(0.02)
-          ..rotateX(0.3)
-          ..rotateY(0.3),
-        child: body,
-        alignment: Alignment.center,
-      );
-    }
     return WillPopScope(
       child: Stack(
         children: [
-          body,
-          if (glassCracked)
+          DefaultTabController(
+            child: BackdropScaffold(
+              key: backdropKey,
+              title: StreamBuilder(
+                stream: widget.bloc.selectedUser,
+                builder: (context, snapshot) => Text(snapshot.data ?? ""),
+              ),
+              appbarBottom: TabBar(
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BubbleTabIndicator(
+                  indicatorHeight: 25.0,
+                  indicatorColor: Colors.blueGrey.shade600,
+                  tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                ),
+                tabs: tabs,
+              ),
+              frontLayer: Container(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    DashBoardBody(
+                      bloc: widget.bloc,
+                    ),
+                    PulseNotification(bloc: widget.bloc)
+                  ],
+                ),
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.grey.shade100,
+                    ],
+                  ),
+                ),
+              ),
+              backLayer: Settings(),
+              iconPosition: BackdropIconPosition.leading,
+              actions: [
+                ReloadData(),
+                ChooseUserMenu(),
+              ],
+            ),
+            length: tabs.length,
+          ),
+          if (breakGlass)
             Positioned.fill(
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    glassCracked = false;
+                    breakGlass = false;
                   });
                 },
                 child: GlassCrack(),
@@ -104,11 +93,11 @@ class _TabNavigatorState extends State<TabNavigator> {
         ],
       ),
       onWillPop: () async {
-        if (glassCracked ||
+        if (breakGlass ||
             (backdropKey.currentState?.isBackPanelVisible ?? false))
           return true;
         setState(() {
-          glassCracked = true;
+          breakGlass = true;
         });
         return false;
       },
