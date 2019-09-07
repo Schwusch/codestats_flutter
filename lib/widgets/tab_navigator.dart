@@ -27,80 +27,72 @@ class _TabNavigatorState extends State<TabNavigator> {
   ];
 
   GlobalKey<BackdropScaffoldState> backdropKey = GlobalKey();
-
   bool breakGlass = false;
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      child: Stack(
-        children: [
-          DefaultTabController(
-            child: BackdropScaffold(
-              key: backdropKey,
-              title: StreamBuilder(
-                stream: widget.bloc.selectedUser,
-                builder: (context, snapshot) => Text(snapshot.data ?? ""),
-              ),
-              appbarBottom: TabBar(
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BubbleTabIndicator(
-                  indicatorHeight: 25.0,
-                  indicatorColor: Colors.blueGrey.shade600,
-                  tabBarIndicatorSize: TabBarIndicatorSize.tab,
+    return DefaultTabController(
+      length: tabs.length,
+      child: WillPopScope(
+        child: Stack(
+          children: [
+            PulseNotification(
+              bloc: widget.bloc,
+              child: BackdropScaffold(
+                key: backdropKey,
+                title: StreamBuilder(
+                  stream: widget.bloc.selectedUser,
+                  builder: (context, snapshot) => Text(snapshot.data ?? ""),
                 ),
-                tabs: tabs,
-              ),
-              frontLayer: Container(
-                child: Stack(
+                appbarBottom: TabBar(
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BubbleTabIndicator(
+                    indicatorHeight: 25.0,
+                    indicatorColor: Colors.blueGrey.shade600,
+                    tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                  ),
+                  tabs: tabs,
+                ),
+                frontLayer: Stack(
                   alignment: Alignment.center,
                   children: [
                     DashBoardBody(
                       bloc: widget.bloc,
                     ),
-                    PulseNotification(bloc: widget.bloc)
                   ],
                 ),
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.grey.shade100,
-                    ],
-                  ),
+                backLayer: Settings(),
+                iconPosition: BackdropIconPosition.leading,
+                actions: [
+                  ReloadData(),
+                  ChooseUserMenu(),
+                ],
+              ),
+            ),
+            if (breakGlass)
+              Positioned.fill(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      breakGlass = false;
+                    });
+                  },
+                  child: GlassCrack(),
                 ),
               ),
-              backLayer: Settings(),
-              iconPosition: BackdropIconPosition.leading,
-              actions: [
-                ReloadData(),
-                ChooseUserMenu(),
-              ],
-            ),
-            length: tabs.length,
-          ),
-          if (breakGlass)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    breakGlass = false;
-                  });
-                },
-                child: GlassCrack(),
-              ),
-            ),
-        ],
+          ],
+        ),
+        onWillPop: () async {
+          if (breakGlass ||
+              (backdropKey.currentState?.isBackPanelVisible ?? false)) {
+            return true;
+          }
+          setState(() {
+            breakGlass = true;
+          });
+          return false;
+        },
       ),
-      onWillPop: () async {
-        if (breakGlass ||
-            (backdropKey.currentState?.isBackPanelVisible ?? false))
-          return true;
-        setState(() {
-          breakGlass = true;
-        });
-        return false;
-      },
     );
   }
 }

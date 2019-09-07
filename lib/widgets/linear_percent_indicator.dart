@@ -108,20 +108,12 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
   void didUpdateWidget(LinearPercentIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.percent != widget.percent || oldWidget.recent != widget.recent) {
-      if (_animationController != null) {
-        _animationController.forward(from: 0);
-      } else {
-        _updateProgress();
-      }
+      setState(() {
+        _recent = widget.recent;
+        _percent = widget.percent;
+        _animationController?.forward(from: 0);
+      });
     }
-  }
-
-  _updateProgress() {
-    setState(() {
-      _recent = widget.recent;
-      _percent = widget.percent;
-      _animationController.forward(from: 0);
-    });
   }
 
   @override

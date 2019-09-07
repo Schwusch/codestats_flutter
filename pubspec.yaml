@@ -37,6 +37,8 @@ dependencies:
   # Music related
   tonic: 0.2.3
   flutter_midi: ^1.0.0
+  # ???
+  confetti: ^0.1.0
 
 dev_dependencies:
   json_serializable: ^2.0.1

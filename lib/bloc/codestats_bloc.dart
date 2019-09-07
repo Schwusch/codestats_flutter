@@ -34,8 +34,20 @@ class TabEvent {
 class UserWrap {
   final String name;
   final User data;
-
   UserWrap({this.name, this.data});
+}
+
+class OnlyOnceData<T> {
+  final T _value;
+  bool used = false;
+
+  T get value {
+    if(used) return null;
+
+    used = true;
+    return _value;
+  }
+  OnlyOnceData(this._value);
 }
 
 class UserBloc implements BlocBase {
@@ -94,7 +106,7 @@ class UserBloc implements BlocBase {
 
   final PublishSubject<String> errors = PublishSubject<String>();
 
-  final PublishSubject<String> pulses = PublishSubject();
+  final PublishSubject<OnlyOnceData<String>> pulses = PublishSubject();
 
   Observable<UserWrap> get currentUser =>
       Observable.combineLatest2(userStateController, currentUserController,
@@ -166,7 +178,7 @@ class UserBloc implements BlocBase {
         Pulse pulse = Pulse.fromJson(payload);
         if (user != null && pulse != null) {
           if(currentUserController.value == name) {
-            pulses.add(pulse.xps.join("\n"));
+            pulses.add(OnlyOnceData(pulse.xps.join("\n")));
           }
 
           var recentMachine =
