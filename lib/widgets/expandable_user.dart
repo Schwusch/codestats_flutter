@@ -3,7 +3,7 @@ import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/utils.dart' show formatNumber, getLevel;
 import 'package:codestats_flutter/widgets/backdrop.dart';
 import 'package:flutter/material.dart';
-import 'package:share/share.dart';
+//import 'package:share/share.dart';
 
 class ExpandableUser {
   final String user;
@@ -16,13 +16,13 @@ class ExpandableUser {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        IconButton(
+        /*IconButton(
           color: Colors.white,
           icon: Icon(
             Icons.share,
           ),
           onPressed: () => Share.share("https://codestats.net/users/$user"),
-        ),
+        ),*/
         IconButton(
           color: Colors.white,
           icon: Icon(Icons.delete),

@@ -4,7 +4,7 @@ import 'package:codestats_flutter/widgets/add_user_page.dart';
 import 'package:codestats_flutter/widgets/tab_navigator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_midi/flutter_midi.dart';
+//import 'package:flutter_midi/flutter_midi.dart';
 
 void main() {
   runApp(CodeStatsApp());
@@ -54,9 +54,9 @@ class CodeStatsAppState extends State<CodeStatsApp>
 
   void loadMidi(String asset) async {
     print("Loading File...");
-    FlutterMidi.unmute();
+    //FlutterMidi.unmute();
     ByteData _byte = await rootBundle.load(asset);
-    FlutterMidi.prepare(sf2: _byte, name: asset.replaceAll("midi/", ""));
+    //FlutterMidi.prepare(sf2: _byte, name: asset.replaceAll("midi/", ""));
   }
 
   @override

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:path_provider/path_provider.dart';
+//import 'package:path_provider/path_provider.dart';
 
 /// A [BehaviorSubject] that automatically persists its values and hydrates on creation.
 ///
@@ -46,16 +46,16 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
   void Function() onHydrate;
   bool isHydrated = false;
 
-  Future<String> get _localPath async {
+  /*Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
 
     return directory.path;
-  }
+  }*/
 
-  Future<File> get _localFile async {
+  /*Future<File> get _localFile async {
     final path = await _localPath;
     return File('$path/$_key.txt');
-  }
+  }*/
 
 
 
@@ -136,7 +136,7 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
   ///
   /// Must be called to retreive values stored on the device.
   Future<void> hydrateSubject() async {
-    final file = await _localFile;
+    /*final file = await _localFile;
 
     var val;
 
@@ -160,6 +160,8 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
     if (val != null && val != _seedValue) {
       add(val);
     }
+
+     */
     isHydrated = true;
     if (onHydrate != null) {
       this.onHydrate();
@@ -167,7 +169,7 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
   }
 
   _persistValue(T val) async {
-    final file = await _localFile;
+    /*final file = await _localFile;
 
     if (val is int || val is double || val is bool || val is String)
       await file.writeAsString('$val');
@@ -177,6 +179,7 @@ class HydratedSubject<T> extends Subject<T> implements ValueObservable<T> {
       Exception(
         "HydratedSubject – value must be int, double, bool, String, or List<String>",
       );
+     */
   }
 
   /// A unique key that references a storage container for a value persisted on the device.

@@ -10,10 +10,9 @@ dependencies:
   flutter:
     sdk: flutter
     version: <=1.2.1
-  package_info: ^0.3.2
+  #package_info: ^0.3.2
   date_format: ^1.0.5
-  charts_flutter:
-    path: ../charts/charts_flutter
+  charts_flutter: 0.8.1
   superpower: ^0.4.0
   flutter_circular_chart:
     git:
@@ -25,18 +24,18 @@ dependencies:
   dio: 2.1.13
   flutter_spinkit: ^3.1.0
   rxdart: ^0.20.0
-  share: ^0.5.3
+  #share: ^0.5.3
   auto_size_text: ^0.3.0
   random_color: ^1.0.3
-  path_provider: ^1.0.0
-  flutter_inappbrowser: ^1.2.1
+  #path_provider: ^1.0.0
+  #flutter_inappbrowser: ^1.2.1
   flip_panel: ^1.0.0
   draggable_scrollbar: ^0.0.4
   bubble_tab_indicator: ^0.1.4
   image: ^2.1.4
   # Music related
-  tonic: 0.2.3
-  flutter_midi: ^1.0.0
+  #tonic: 0.2.3
+  #flutter_midi: ^1.0.0
   # ???
   confetti: ^0.1.0
 

@@ -88,7 +88,6 @@ class _DayLanguageXpsWidgetState extends State<DayLanguageXpsWidget> {
                 (value) => "${value.round()} XP"),
           ),
           domainAxis: charts.DateTimeAxisSpec(
-            usingBarRenderer: true,
             renderSpec: SmallTickRendererSpec<DateTime>(
               labelAnchor: TickLabelAnchor.centered,
               labelOffsetFromTickPx: 0,

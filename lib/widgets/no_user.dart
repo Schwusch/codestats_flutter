@@ -1,8 +1,8 @@
 import 'package:codestats_flutter/widgets/breathing_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappbrowser/flutter_inappbrowser.dart';
+//import 'package:flutter_inappbrowser/flutter_inappbrowser.dart';
 
-ChromeSafariBrowser browser = ChromeSafariBrowser(InAppBrowser());
+//ChromeSafariBrowser browser = ChromeSafariBrowser(InAppBrowser());
 
 class NoUser extends StatelessWidget {
   const NoUser({
@@ -32,7 +32,7 @@ class NoUser extends StatelessWidget {
               ),
             ),
           ),
-          FloatingActionButton.extended(
+          /*FloatingActionButton.extended(
             heroTag: null,
             icon: Icon(Icons.web),
             label: Text("Create profile"),
@@ -41,7 +41,7 @@ class NoUser extends StatelessWidget {
                 "addShareButton": true,
               });
             },
-          )
+          )*/
         ],
       ),
     );

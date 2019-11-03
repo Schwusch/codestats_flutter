@@ -5,7 +5,7 @@ import 'package:codestats_flutter/widgets/expandable_user_list.dart';
 import 'package:codestats_flutter/widgets/recent_period_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:superpower/superpower.dart';
-import 'package:package_info/package_info.dart';
+//import 'package:package_info/package_info.dart';
 
 class Settings extends StatelessWidget {
   @override
@@ -60,7 +60,7 @@ class Settings extends StatelessWidget {
           ),
           ListTile(
             onTap: () async {
-              PackageInfo packageInfo = await PackageInfo.fromPlatform();
+              //PackageInfo packageInfo = await PackageInfo.fromPlatform();
               showAboutDialog(
                 context: context,
                 applicationIcon: CircleAvatar(
@@ -71,8 +71,8 @@ class Settings extends StatelessWidget {
                   Text("The Code::Stats logo is licensed with CC BY-NC 4.0"),
                   Text("Copyright © 2016, Mikko Ahlroth"),
                 ],
-                applicationVersion: packageInfo.version,
-                applicationName: packageInfo.appName,
+                //applicationVersion: packageInfo.version,
+                //applicationName: packageInfo.appName,
               );
             },
             leading: Icon(
