@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 class ExpandableUserList extends StatefulWidget {
   final List<String> users;
 
-  const ExpandableUserList({Key key, this.users}) : super(key: key);
+  const ExpandableUserList({Key? key, required this.users}) : super(key: key);
 
   @override
   _ExpandableUserListState createState() => _ExpandableUserListState();
 }
 
 class _ExpandableUserListState extends State<ExpandableUserList> {
-  List<ExpandableUser> expandableUsers;
+  late List<ExpandableUser> expandableUsers;
 
   @override
   void initState() {
@@ -30,15 +30,15 @@ class _ExpandableUserListState extends State<ExpandableUserList> {
         cardColor: Colors.blueGrey[500],
       ),
       child: Padding(
-        padding: EdgeInsets.only(top: 12, bottom: 12),
+        padding: const EdgeInsets.only(top: 12, bottom: 12),
         child: ExpansionPanelList(
           children: expandableUsers
               .map(
                 (expUser) => ExpansionPanel(
-                      isExpanded: expUser.isExpanded,
-                      headerBuilder: expUser.headerBuilder,
-                      body: expUser.build(context),
-                    ),
+                  isExpanded: expUser.isExpanded,
+                  headerBuilder: expUser.headerBuilder,
+                  body: expUser.build(context),
+                ),
               )
               .toList(),
           expansionCallback: (int index, bool isExpanded) {

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class BreathingWidget extends StatefulWidget {
   final Widget child;
 
-  const BreathingWidget({Key key, @required this.child}) : super(key: key);
+  const BreathingWidget({Key? key, required this.child}) : super(key: key);
 
   @override
   _BreathingWidgetState createState() => _BreathingWidgetState();
@@ -11,9 +11,9 @@ class BreathingWidget extends StatefulWidget {
 
 class _BreathingWidgetState extends State<BreathingWidget>
     with TickerProviderStateMixin {
-  AnimationController _breathingController;
-  AnimationController _pulseController;
-  Animation _animation;
+  late AnimationController _breathingController;
+  late AnimationController _pulseController;
+  late Animation _animation;
   var _breathe = 0.0;
 
   @override
@@ -22,7 +22,7 @@ class _BreathingWidgetState extends State<BreathingWidget>
     _breathingController =
         AnimationController(vsync: this, duration: Duration(seconds: 1));
     _pulseController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 1500));
+        vsync: this, duration: const Duration(milliseconds: 1500));
 
     _breathingController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {

@@ -23,21 +23,20 @@ import 'package:charts_flutter/flutter.dart' as charts
         BehaviorPosition,
         OutsideJustification,
         SelectNearest;
-import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/models/user/day_language_xps.dart';
 import 'package:codestats_flutter/models/user/user.dart';
 import 'package:collection/collection.dart' show groupBy;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DayLanguageXpsWidget extends StatefulWidget {
   const DayLanguageXpsWidget({
-    Key key,
-    @required this.userModel,
+    Key? key,
+    required this.userModel,
   }) : super(key: key);
 
-  final User userModel;
+  final User? userModel;
 
   @override
   _DayLanguageXpsWidgetState createState() => _DayLanguageXpsWidgetState();
@@ -54,41 +53,40 @@ class _DayLanguageXpsWidgetState extends State<DayLanguageXpsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final UserBloc bloc = BlocProvider.of(context);
-    if (widget.userModel.dayLanguageXps.isEmpty) {
-      return Center(
+    final bloc = context.read<UserBloc>();
+    if (widget.userModel?.dayLanguageXps.isEmpty ?? true) {
+      return const Center(
         child: Text("No recent activity :("),
       );
     }
 
-    var series =
-        groupBy(widget.userModel.dayLanguageXps, (elem) => elem.language)
-            .values
-            .map((dlx) => charts.Series<DayLanguageXps, DateTime>(
-                  id: dlx.first.language,
-                  domainFn: domainFn,
-                  measureFn: measureFn,
-                  data: dlx,
-                  colorFn: (elem, _) => bloc.languageColor(elem.language),
-                ))
-            .toList();
+    var series = groupBy<DayLanguageXps, String>(
+            widget.userModel!.dayLanguageXps, (elem) => elem.language)
+        .values
+        .map((dlx) => charts.Series<DayLanguageXps, DateTime>(
+              id: dlx.first.language,
+              domainFn: domainFn,
+              measureFn: measureFn,
+              data: dlx,
+              colorFn: (elem, _) => bloc.languageColor(elem.language),
+            ))
+        .toList();
 
     return Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: charts.TimeSeriesChart(
           series,
           animate: animate,
-          animationDuration: Duration(milliseconds: 800),
+          animationDuration: const Duration(milliseconds: 800),
           defaultInteractions: false,
           defaultRenderer: charts.BarRendererConfig<DateTime>(
             groupingType: charts.BarGroupingType.stacked,
           ),
           primaryMeasureAxis: charts.NumericAxisSpec(
             tickFormatterSpec: charts.BasicNumericTickFormatterSpec(
-                (value) => "${value.round()} XP"),
+                (value) => "${value?.round()} XP"),
           ),
-          domainAxis: charts.DateTimeAxisSpec(
-            usingBarRenderer: true,
+          domainAxis: const charts.DateTimeAxisSpec(
             renderSpec: SmallTickRendererSpec<DateTime>(
               labelAnchor: TickLabelAnchor.centered,
               labelOffsetFromTickPx: 0,
@@ -109,7 +107,7 @@ class _DayLanguageXpsWidgetState extends State<DayLanguageXpsWidget> {
               entryTextStyle: TextStyleSpec(
                 color: charts.ColorUtil.fromDartColor(Colors.black),
               ),
-              measureFormatter: (xp) => xp != null ? "${xp?.round()} XP" : "",
+              measureFormatter: (xp) => xp != null ? "${xp.round()} XP" : "",
               legendDefaultMeasure: LegendDefaultMeasure.sum,
               showMeasures: true,
               position: charts.BehaviorPosition.top,
@@ -122,6 +120,6 @@ class _DayLanguageXpsWidgetState extends State<DayLanguageXpsWidget> {
   }
 }
 
-DateTime domainFn(DayLanguageXps elem, int _) => DateTime.parse(elem.date);
+DateTime domainFn(DayLanguageXps elem, int? _) => DateTime.parse(elem.date);
 
-num measureFn(DayLanguageXps elem, int _) => elem.xp;
+int measureFn(DayLanguageXps elem, int? _) => elem.xp;

@@ -8,6 +8,40 @@ scalar Date
 """RFC3339 time with timezone"""
 scalar Datetime
 
+"""A singular flow state with local time"""
+type Flow {
+  duration: Int
+  languages: FlowLanguages
+  startTimeLocal: NaiveDatetime
+  xp: Int
+}
+
+"""A date and its amount of minutes spent in flow state"""
+type FlowDate {
+  date: Date
+  mins: Int
+}
+
+"""Map of languages and their XP in flow"""
+scalar FlowLanguages
+
+"""Map of the top notable flow states and other metadata"""
+type FlowMetaInfo {
+  averageDuration: Float
+  averageXp: Float
+  longest: Flow
+  mostProlific: Flow
+  strongest: Flow
+}
+
+"""
+Map where key is language name and value contains various stats about flows in given language
+"""
+scalar FlowTopLanguages
+
+"""ISO 8601 naive datetime"""
+scalar NaiveDatetime
+
 """User profile public data"""
 type Profile {
   """User's dates when they have been active and their XP"""
@@ -24,11 +58,14 @@ type Profile {
   """User's XP by day of year"""
   dayOfYearXps: ProfileDayOfYearXp
 
+  """User's minutes spent in flow state by day"""
+  flowMinsByDay(since: Date): [FlowDate]
+
   """User's XP by hour of day (in 24 hour format)"""
   hourOfDayXps: ProfileHourOfDayXp
 
   """User's languages and their XP"""
-  languages(since: Datetime): [ProfileLanguage]
+  languages(noCache: Boolean, since: Datetime): [ProfileLanguage]
 
   """User's machines and their XP"""
   machines(since: Datetime): [ProfileMachine]
@@ -36,8 +73,17 @@ type Profile {
   """Timestamp when user registered into service"""
   registered: Datetime
 
+  """User's top languages in flow states"""
+  topFlowLanguages: FlowTopLanguages
+
+  """User's top notable flow states"""
+  topFlows: FlowMetaInfo
+
   """Total amount of XP of user"""
   totalXp: Int
+
+  """User's languages before aliasing and their XP"""
+  unaliasedLanguages: [ProfileLanguage]
 }
 
 """Date when user was active and its total XP for a profile"""

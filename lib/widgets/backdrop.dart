@@ -5,34 +5,34 @@ import 'package:flutter/material.dart';
 class Backdrop extends InheritedWidget {
   final BackdropScaffoldState data;
 
-  Backdrop({Key key, @required this.data, @required Widget child})
+  const Backdrop({Key? key, required this.data, required Widget child})
       : super(key: key, child: child);
 
   static BackdropScaffoldState of(BuildContext context) =>
-      (context.inheritFromWidgetOfExactType(Backdrop) as Backdrop).data;
+      context.dependOnInheritedWidgetOfExactType<Backdrop>()!.data;
 
   @override
-  bool updateShouldNotify(Backdrop old) => true;
+  bool updateShouldNotify(Backdrop oldWidget) => true;
 }
 
 class BackdropScaffold extends StatefulWidget {
-  final AnimationController controller;
+  final AnimationController? controller;
   final Widget title;
   final Widget backLayer;
   final Widget frontLayer;
-  final Widget bottomNavigationBar;
+  final Widget? bottomNavigationBar;
   final List<Widget> actions;
   final double headerHeight;
   final BorderRadius frontLayerBorderRadius;
   final BackdropIconPosition iconPosition;
   final TabBar appbarBottom;
 
-  BackdropScaffold({
-    Key key,
+  const BackdropScaffold({
+    Key? key,
     this.controller,
-    this.title,
-    this.backLayer,
-    this.frontLayer,
+    required this.title,
+    required this.backLayer,
+    required this.frontLayer,
     this.actions = const <Widget>[],
     this.headerHeight = 32.0,
     this.frontLayerBorderRadius = const BorderRadius.only(
@@ -40,7 +40,8 @@ class BackdropScaffold extends StatefulWidget {
       topRight: Radius.circular(16.0),
     ),
     this.iconPosition = BackdropIconPosition.leading,
-    this.bottomNavigationBar, this.appbarBottom,
+    this.bottomNavigationBar,
+    required this.appbarBottom,
   }) : super(key: key);
 
   @override
@@ -50,7 +51,7 @@ class BackdropScaffold extends StatefulWidget {
 class BackdropScaffoldState extends State<BackdropScaffold>
     with SingleTickerProviderStateMixin {
   bool shouldDisposeController = false;
-  AnimationController _controller;
+  late AnimationController _controller;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   AnimationController get controller => _controller;
@@ -61,9 +62,9 @@ class BackdropScaffoldState extends State<BackdropScaffold>
     if (widget.controller == null) {
       shouldDisposeController = true;
       _controller = AnimationController(
-          vsync: this, duration: Duration(milliseconds: 100), value: 1.0);
+          vsync: this, duration: const Duration(milliseconds: 100), value: 1.0);
     } else {
-      _controller = widget.controller;
+      _controller = widget.controller!;
     }
   }
 
@@ -111,7 +112,7 @@ class BackdropScaffoldState extends State<BackdropScaffold>
 
     return RelativeRectTween(
       begin: RelativeRect.fromLTRB(0.0, backPanelHeight, 0.0, frontPanelHeight),
-      end: RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
+      end: const RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
     ).animate(CurvedAnimation(
       parent: controller,
       curve: Curves.linear,
@@ -138,7 +139,7 @@ class BackdropScaffoldState extends State<BackdropScaffold>
   Widget _buildBackPanel() {
     var status = _controller.status;
     return Visibility(
-      replacement: SizedBox.expand(),
+      replacement: const SizedBox.expand(),
       visible: status == AnimationStatus.dismissed ||
           status == AnimationStatus.reverse ||
           status == AnimationStatus.forward,
@@ -165,7 +166,7 @@ class BackdropScaffoldState extends State<BackdropScaffold>
   Future<bool> _willPopCallback(BuildContext context) async {
     if (isBackPanelVisible) {
       showFrontLayer();
-      return null;
+      return false;
     }
     return true;
   }
@@ -178,26 +179,24 @@ class BackdropScaffoldState extends State<BackdropScaffold>
         appBar: AppBar(
           title: widget.title,
           actions: widget.iconPosition == BackdropIconPosition.action
-              ? <Widget>[BackdropToggleButton()] + widget.actions
+              ? <Widget>[const BackdropToggleButton()] + widget.actions
               : widget.actions,
           elevation: 0.0,
           leading: widget.iconPosition == BackdropIconPosition.leading
-              ? BackdropToggleButton()
+              ? const BackdropToggleButton()
               : null,
           bottom: widget.appbarBottom,
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
-            return Container(
-              child: Stack(
-                children: <Widget>[
-                  _buildBackPanel(),
-                  PositionedTransition(
-                    rect: getPanelAnimation(context, constraints),
-                    child: _buildFrontPanel(context),
-                  ),
-                ],
-              ),
+            return Stack(
+              children: <Widget>[
+                _buildBackPanel(),
+                PositionedTransition(
+                  rect: getPanelAnimation(context, constraints),
+                  child: _buildFrontPanel(context),
+                ),
+              ],
             );
           },
         ),
@@ -221,8 +220,9 @@ class BackdropToggleButton extends StatelessWidget {
   final AnimatedIconData icon;
 
   const BackdropToggleButton({
+    Key? key,
     this.icon = AnimatedIcons.close_menu,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -231,10 +231,7 @@ class BackdropToggleButton extends StatelessWidget {
         icon: icon,
         progress: Backdrop.of(context).controller.view,
       ),
-      onPressed: () {
-        //FocusScope.of(context).requestFocus(FocusNode());
-        Backdrop.of(context).fling();
-      },
+      onPressed: () => Backdrop.of(context).fling(),
     );
   }
 }

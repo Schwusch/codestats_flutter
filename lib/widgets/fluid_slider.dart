@@ -63,12 +63,12 @@ class FluidSlider extends StatefulWidget {
   /// )
   /// ```
   ///
-  final Widget start;
+  final Widget? start;
 
   ///The widget to be displayed as the max label. For eg: an Icon can be displayed.
   ///
   ///If not provided the [max] value is displayed as text.
-  final Widget end;
+  final Widget? end;
 
   /// Called during a drag when the user is selecting a new value for the slider
   /// by dragging.
@@ -79,56 +79,53 @@ class FluidSlider extends StatefulWidget {
   ///
   /// If null, the slider will be displayed as disabled.
 
-  final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChanged;
 
   /// Called when the user starts selecting a new value for the slider.
   ///
   /// The value passed will be the last [value] that the slider had before the
   /// change began.
-  final ValueChanged<double> onChangeStart;
+  final ValueChanged<double>? onChangeStart;
 
   /// Called when the user is done selecting a new value for the slider.
-  final ValueChanged<double> onChangeEnd;
+  final ValueChanged<double>? onChangeEnd;
 
   ///The styling of the min and max text that gets displayed on the slider
   ///
   ///If not provided the ancestor [Theme]'s [accentTextTheme] text style will be applied.
-  final TextStyle labelsTextStyle;
+  final TextStyle? labelsTextStyle;
 
   ///The styling of the current value text that gets displayed on the slider
   ///
   ///If not provided the ancestor [Theme]'s [textTheme.title] text style
   ///with bold will be applied .
-  final TextStyle valueTextStyle;
+  final TextStyle? valueTextStyle;
 
   ///The color of the slider.
   ///
   ///If not provided the ancestor [Theme]'s [primaryColor] will be applied.
-  final Color sliderColor;
+  final Color? sliderColor;
 
   ///The color of the thumb.
   ///
   ///If not provided the [Colors.white] will be applied.
-  final Color thumbColor;
+  final Color? thumbColor;
 
   const FluidSlider({
-    Key key,
-    @required this.value,
+    Key? key,
+    required this.value,
     this.min = 0.0,
     this.max = 1.0,
     this.start,
     this.end,
-    @required this.onChanged,
+    required this.onChanged,
     this.labelsTextStyle,
     this.valueTextStyle,
     this.onChangeStart,
     this.onChangeEnd,
     this.sliderColor,
     this.thumbColor,
-  })  : assert(value != null),
-        assert(min != null),
-        assert(max != null),
-        assert(min <= max),
+  })  : assert(min <= max),
         assert(value >= min && value <= max),
         super(key: key);
   @override
@@ -137,16 +134,16 @@ class FluidSlider extends StatefulWidget {
 
 class _FluidSliderState extends State<FluidSlider>
     with SingleTickerProviderStateMixin {
-  double _sliderWidth;
+  double? _sliderWidth;
   double _currX = 0.0;
-  AnimationController _animationController;
-  CurvedAnimation _thumbAnimation;
+  late AnimationController _animationController;
+  late CurvedAnimation _thumbAnimation;
 
   @override
   initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400),
       vsync: this,
     );
 
@@ -175,50 +172,33 @@ class _FluidSliderState extends State<FluidSlider>
 
   void _onHorizontalDragStart(DragStartDetails details) {
     if (_isInteractive) {
-      if (widget.onChangeStart != null) {
-        _handleDragStart(widget.value);
-      }
-      _currX = _getGlobalToLocal(details.globalPosition).dx / _sliderWidth;
+      widget.onChangeStart?.call(widget.value);
+      _currX =
+          _getGlobalToLocal(details.globalPosition).dx / (_sliderWidth ?? 1);
     }
   }
 
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
     if (_isInteractive) {
-      final double valueDelta = details.primaryDelta / _sliderWidth;
+      final double valueDelta =
+          (details.primaryDelta ?? 0) / (_sliderWidth ?? 1);
       _currX += valueDelta;
 
-      _handleChanged(_clamp(_currX));
+      final double lerpValue = _lerp(_currX);
+      if (lerpValue != widget.value) {
+        widget.onChanged?.call(lerpValue);
+      }
     }
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
-    if (widget.onChangeEnd != null) {
-      _handleDragEnd(_clamp(_currX));
-    }
+    widget.onChangeEnd?.call(_lerp(_clamp(_currX)));
     _currX = 0.0;
     _animationController.reverse();
   }
 
   double _clamp(double value) {
     return value.clamp(0.0, 1.0);
-  }
-
-  void _handleChanged(double value) {
-    assert(widget.onChanged != null);
-    final double lerpValue = _lerp(value);
-    if (lerpValue != widget.value) {
-      widget.onChanged(lerpValue);
-    }
-  }
-
-  void _handleDragStart(double value) {
-    assert(widget.onChangeStart != null);
-    widget.onChangeStart((value));
-  }
-
-  void _handleDragEnd(double value) {
-    assert(widget.onChangeEnd != null);
-    widget.onChangeEnd((_lerp(value)));
   }
 
   // Returns a number between min and max, proportional to value, which must
@@ -250,16 +230,19 @@ class _FluidSliderState extends State<FluidSlider>
     if (_isInteractive) {
       return widget.thumbColor ?? Colors.white;
     } else {
-      return Colors.grey[300];
+      return Colors.grey.shade300;
     }
   }
 
   bool get _isInteractive => widget.onChanged != null;
 
   Widget _buildMinMaxLabels(BuildContext context,
-      {Widget custom, double value, Alignment alignment, EdgeInsets padding}) {
+      {Widget? custom,
+      required double value,
+      required Alignment alignment,
+      required EdgeInsets padding}) {
     final TextStyle textStyle =
-        widget.labelsTextStyle ?? Theme.of(context).accentTextTheme.title;
+        widget.labelsTextStyle ?? Theme.of(context).textTheme.titleMedium!;
 
     return Padding(
       padding: padding,
@@ -272,7 +255,10 @@ class _FluidSliderState extends State<FluidSlider>
 
   TextStyle _currentValTextStyle(BuildContext context) {
     return widget.valueTextStyle ??
-        Theme.of(context).textTheme.title.copyWith(fontWeight: FontWeight.bold);
+        Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(fontWeight: FontWeight.bold);
   }
 
   @override
@@ -280,9 +266,9 @@ class _FluidSliderState extends State<FluidSlider>
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         //The radius of the slider thumb control
-        final double thumbDiameter = 60.0;
+        const thumbDiameter = 60.0;
         //The offset of the thumb so that it does not touch the slider border when at min/max position.
-        final double thumbPadding = 8.0;
+        const thumbPadding = 8.0;
         //The value by which the thum positions should interpolate.
         final double thumbPosFactor = _unlerp(widget.value);
         double remainingWidth;
@@ -291,18 +277,18 @@ class _FluidSliderState extends State<FluidSlider>
         //This is used to compute the thumb position and also
         //calculate the delta drag value in the horizontal drag handlers.
         _sliderWidth =
-        constraints.hasBoundedWidth ? constraints.maxWidth : 200.0;
+            constraints.hasBoundedWidth ? constraints.maxWidth : 200.0;
 
         //The width remaining for the thumb to be dragged upto.
-        remainingWidth = _sliderWidth - thumbDiameter - 2 * thumbPadding;
+        remainingWidth = _sliderWidth! - thumbDiameter - 2 * thumbPadding;
 
         //The position of the thumb control of the slider from max value.
         final double thumbPositionLeft =
-        lerpDouble(thumbPadding, remainingWidth, thumbPosFactor);
+            lerpDouble(thumbPadding, remainingWidth, thumbPosFactor)!;
 
         //The position of the thumb control of the slider from min value.
         final double thumbPositionRight =
-        lerpDouble(remainingWidth, thumbPadding, thumbPosFactor);
+            lerpDouble(remainingWidth, thumbPadding, thumbPosFactor)!;
 
         //Start position of slider thumb.
         final RelativeRect beginRect = RelativeRect.fromLTRB(
@@ -360,9 +346,7 @@ class _FluidSliderState extends State<FluidSlider>
                     onHorizontalDragUpdate: _onHorizontalDragUpdate,
                     onHorizontalDragEnd: _onHorizontalDragEnd,
                     onTapUp: (details) {
-                      if (widget.onChangeEnd != null) {
-                        _handleDragEnd(_clamp(_currX));
-                      }
+                      widget.onChangeEnd?.call(_lerp(_clamp(_currX)));
                       _currX = 0.0;
                       _animationController.reverse();
                     },
@@ -404,10 +388,13 @@ class ThumbSplashPainter extends CustomPainter {
   final Animation showContact;
   //This is passed to calculate and compensate the value
   //of x for drawing the sticky fluid
-  final thumbPadding;
+  final double thumbPadding;
   final Color splashColor;
 
-  ThumbSplashPainter({this.thumbPadding, this.showContact, this.splashColor});
+  ThumbSplashPainter(
+      {required this.thumbPadding,
+      required this.showContact,
+      required this.splashColor});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -432,4 +419,4 @@ class ThumbSplashPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
-} 
+}

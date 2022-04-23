@@ -1,12 +1,12 @@
 import 'package:codestats_flutter/widgets/breathing_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappbrowser/flutter_inappbrowser.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-ChromeSafariBrowser browser = ChromeSafariBrowser(InAppBrowser());
+ChromeSafariBrowser browser = ChromeSafariBrowser();
 
 class NoUser extends StatelessWidget {
   const NoUser({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -16,30 +16,35 @@ class NoUser extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(bottom: 16),
             child: Text("No user chosen"),
           ),
           BreathingWidget(
             child: Padding(
-              padding: EdgeInsets.only(bottom: 16.0),
+              padding: const EdgeInsets.only(bottom: 16.0),
               child: FloatingActionButton.extended(
                 onPressed: () {
                   Navigator.of(context).pushNamed("addUser");
                 },
-                icon: Icon(Icons.add),
-                label: Text("Add user"),
+                icon: const Icon(Icons.add),
+                label: const Text("Add user"),
               ),
             ),
           ),
           FloatingActionButton.extended(
             heroTag: null,
-            icon: Icon(Icons.web),
-            label: Text("Create profile"),
+            icon: const Icon(Icons.web),
+            label: const Text("Create profile"),
             onPressed: () async {
-              browser.open('https://codestats.net/signup', options: {
-                "addShareButton": true,
-              });
+              browser.open(
+                url: Uri.parse('https://codestats.net/signup'),
+                options: ChromeSafariBrowserClassOptions(
+                  android: AndroidChromeCustomTabsOptions(
+                    addDefaultShareMenuItem: true,
+                  ),
+                ),
+              );
             },
           )
         ],

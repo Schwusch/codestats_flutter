@@ -1,13 +1,15 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:codestats_flutter/models/pulse/xp.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'pulse.g.dart';
 
-@JsonSerializable(nullable: true, useWrappers: true)
+@JsonSerializable()
 class Pulse {
-  final String machine;
-  final String sent_at;
-  final String sent_at_local;
+  final String? machine;
+  final String? sent_at;
+  final String? sent_at_local;
   final List<PulseXp> xps;
 
   Pulse(this.machine, this.sent_at, this.sent_at_local, this.xps);

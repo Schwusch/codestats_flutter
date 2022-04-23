@@ -1,18 +1,27 @@
-import 'package:codestats_flutter/bloc/bloc_provider.dart';
-import 'package:codestats_flutter/bloc/codestats_bloc.dart';
-import 'package:codestats_flutter/widgets/add_user_page.dart';
-import 'package:codestats_flutter/widgets/tab_navigator.dart';
+import 'package:codestats_flutter/utils.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_midi/flutter_midi.dart';
+import 'package:provider/provider.dart';
+
+import 'bloc/codestats_bloc.dart';
+import 'pages/add_user_page.dart';
+import 'pages/tab_navigator.dart';
 
 void main() {
-  runApp(CodeStatsApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(Provider<UserBloc>(
+    create: (context) => UserBloc(),
+    dispose: (context, bloc) => bloc.dispose(),
+    child: const CodeStatsApp(),
+  ));
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
 class CodeStatsApp extends StatefulWidget {
   static const platform = MethodChannel('app.channel.shared.data');
+
+  const CodeStatsApp({Key? key}) : super(key: key);
 
   @override
   CodeStatsAppState createState() => CodeStatsAppState();
@@ -20,56 +29,48 @@ class CodeStatsApp extends StatefulWidget {
 
 class CodeStatsAppState extends State<CodeStatsApp>
     with WidgetsBindingObserver {
-  final UserBloc _bloc = UserBloc();
-
-  getIntentLastPathSegment({bool fetchAll = false}) async {
-    String user;
+  getIntentLastPathSegment(BuildContext context,
+      {bool fetchAll = false}) async {
+    String? user;
     try {
       user =
           await CodeStatsApp.platform.invokeMethod("getIntentLastPathSegment");
+    } catch (e) {
+      log(e);
+    }
 
-    } catch (e) {}
-    print("getIntentLastPathSegment: $user");
+    log("getIntentLastPathSegment: $user");
 
-    var addUser = () {
-      _bloc.addUser(user);
-    };
-
+    final _bloc = context.read<UserBloc>();
     if (user != null && user != "users") {
-      if (_bloc.currentUserController.isHydrated) {
-        addUser();
+      if (_bloc.currentUserControllerIsHydrated) {
+        _bloc.addUser(user);
       } else {
-        _bloc.currentUserController.onHydrate = addUser;
+        _bloc.currentUserControllerTasksOnHydrate.add(() {
+          _bloc.addUser(user!);
+        });
       }
-    } else if(fetchAll) {
-      if (_bloc.currentUserController.isHydrated) {
-      _bloc.fetchAllUsers();
+    } else if (fetchAll) {
+      if (_bloc.currentUserControllerIsHydrated) {
+        _bloc.fetchAllUsers();
       } else {
-        _bloc.currentUserController.onHydrate = () {
+        _bloc.currentUserControllerTasksOnHydrate.add(() {
           _bloc.fetchAllUsers();
-        };
+        });
       }
     }
-  }
-
-  void loadMidi(String asset) async {
-    print("Loading File...");
-    FlutterMidi.unmute();
-    ByteData _byte = await rootBundle.load(asset);
-    FlutterMidi.prepare(sf2: _byte, name: asset.replaceAll("midi/", ""));
   }
 
   @override
   void initState() {
     super.initState();
-    loadMidi("midi/zelda.sf2");
-    getIntentLastPathSegment(fetchAll: true);
-    WidgetsBinding.instance.addObserver(this);
+    getIntentLastPathSegment(context, fetchAll: true);
+    WidgetsBinding.instance?.addObserver(this);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 
@@ -77,29 +78,25 @@ class CodeStatsAppState extends State<CodeStatsApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      getIntentLastPathSegment(fetchAll: true);
+      getIntentLastPathSegment(context, fetchAll: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<UserBloc>(
-      bloc: _bloc,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Code::Stats',
-        theme: ThemeData(
-          textTheme: Typography(platform: TargetPlatform.android).white.apply(
-              bodyColor: Colors.blueGrey[600],
-              displayColor: Colors.blueGrey[600]),
-          primarySwatch: Colors.blueGrey,
-        ),
-        initialRoute: "home",
-        routes: {
-          "home": (_) => TabNavigator(bloc: _bloc,),
-          "addUser": (_) => AddUserPage(),
-        },
+    return MaterialApp(
+      theme: ThemeData(
+        textTheme: Typography().white.apply(
+            bodyColor: Colors.blueGrey[600],
+            displayColor: Colors.blueGrey[600]),
+        primarySwatch: Colors.blueGrey,
       ),
+      title: 'Code::Stats',
+      initialRoute: "home",
+      routes: {
+        "home": (_) => const TabNavigator(),
+        "addUser": (_) => const AddUserPage(),
+      },
     );
   }
 }

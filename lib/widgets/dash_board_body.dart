@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 class DashBoardBody extends StatefulWidget {
   final UserBloc bloc;
 
-  const DashBoardBody({Key key, @required this.bloc}) : super(key: key);
+  const DashBoardBody({Key? key, required this.bloc}) : super(key: key);
 
   @override
   _DashBoardBodyState createState() => _DashBoardBodyState();
@@ -23,12 +23,12 @@ class _DashBoardBodyState extends State<DashBoardBody> {
       stream: widget.bloc.currentUser,
       initialData: UserWrap(),
       builder: (BuildContext context, AsyncSnapshot<UserWrap> snapshot) {
-        var user = snapshot.data;
-        if (user.name != null && user.name.isNotEmpty && user.data == null) {
-          return Center(
+        var user = snapshot.data!;
+        if (user.name != null && user.name!.isNotEmpty && user.data == null) {
+          return const Center(
             child: RandomLoadingAnimation(),
           );
-        } else if (user.name == null || user.name.isEmpty) {
+        } else if (user.name == null || user.name!.isEmpty) {
           widget.bloc.selectNextUser();
           return NoUser();
         } else {

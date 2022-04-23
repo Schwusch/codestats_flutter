@@ -1,56 +1,49 @@
 name: codestats_flutter
 description: View codestats in your phone
 
-version: 1.0.22+23
+publish_to: 'none'
+
+version: 2.0.0
 
 environment:
-  sdk: '>=2.2.2 <3.0.0'
+  sdk: ">=2.16.2 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-    version: <=1.2.1
-  package_info: ^0.3.2
-  date_format: ^1.0.5
-  charts_flutter:
-    path: ../charts/charts_flutter
-  superpower: ^0.4.0
-  flutter_circular_chart:
-    git:
-      url: https://github.com/Schwusch/flutter_circular_chart.git
-  fl_chart: ^0.1.5
-  intl: ^0.15.7
-  json_annotation: ^2.0.0
-  phoenix_wings: ^0.2.1
-  dio: 2.1.13
-  flutter_spinkit: ^3.1.0
-  rxdart: ^0.20.0
-  share: ^0.5.3
-  auto_size_text: ^0.3.0
-  random_color: ^1.0.3
-  path_provider: ^1.0.0
-  flutter_inappbrowser: ^1.2.1
-  flip_panel: ^1.0.0
-  draggable_scrollbar: ^0.0.4
-  bubble_tab_indicator: ^0.1.4
-  image: ^2.1.4
-  # Music related
-  tonic: 0.2.3
-  flutter_midi: ^1.0.0
-  # ???
-  confetti: ^0.1.0
+
+  cupertino_icons: ^1.0.2
+  date_format: ^2.0.6
+  provider: ^6.0.2
+  rxdart: ^0.27.3
+  json_annotation: ^4.4.0
+  phoenix_wings: ^1.0.2
+  charts_flutter: ^0.12.0
+  random_color: ^1.0.6-nullsafety
+  dio: ^4.0.6
+  path_provider: ^2.0.9
+  hydrated: ^2.1.0
+  bubble_tab_indicator: ^0.1.6
+  flutter_spinkit: ^5.1.0
+  flutter_inappwebview: ^5.3.2
+  draggable_scrollbar: ^0.1.0
+  intl: ^0.17.0
+  auto_size_text: ^3.0.0
+  share: ^2.0.4
+  circular_chart_flutter: ^0.0.2
+  fl_chart: ^0.50.1
+  package_info_plus: ^1.4.2
 
 dev_dependencies:
-  json_serializable: ^2.0.1
-  build_runner: ^1.1.2
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+  json_serializable: ^6.1.5
+  build_runner: ^2.1.8
 
 flutter:
   uses-material-design: true
+
   assets:
     - assets/icon/ic_launcher.png
-    - midi/zelda.sf2
-
-  fonts:
-    - family: OCRAEXT
-      fonts:
-        - asset: fonts/OCRAEXT.TTF

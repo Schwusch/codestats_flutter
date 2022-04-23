@@ -8,7 +8,7 @@ class RandomLoadingAnimation extends StatelessWidget {
   final color;
 
   const RandomLoadingAnimation({
-    Key key,
+    Key? key,
     this.size = 75,
     this.color = Colors.blueGrey,
   }) : super(key: key);
@@ -64,7 +64,7 @@ class RandomLoadingAnimation extends StatelessWidget {
           size: size,
         );
       case 9:
-        return SpinKitPouringHourglass(
+        return SpinKitPouringHourGlassRefined(
           color: color,
           size: size,
         );

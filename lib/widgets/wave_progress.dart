@@ -8,9 +8,13 @@ class WaveProgress extends StatefulWidget {
   final double progress;
   final int frequency;
 
-  WaveProgress(this.size, this.fillColor, this.progress,
-      {Key key, this.frequency = 0})
-      : super(key: key);
+  const WaveProgress(
+    this.size,
+    this.fillColor,
+    this.progress, {
+    Key? key,
+    this.frequency = 0,
+  }) : super(key: key);
 
   @override
   WaveProgressState createState() => WaveProgressState();
@@ -18,22 +22,22 @@ class WaveProgress extends StatefulWidget {
 
 class WaveProgressState extends State<WaveProgress>
     with TickerProviderStateMixin {
-  AnimationController waveController;
-  AnimationController heightController;
-  Animation heightAnimation;
-  Tween<double> heightTween;
+  late AnimationController waveController;
+  late AnimationController heightController;
+  late Animation<double> heightAnimation;
+  late Tween<double> heightTween;
 
   @override
   void initState() {
     super.initState();
     waveController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2500),
+      duration: const Duration(milliseconds: 2500),
     );
 
     heightController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
     );
 
     heightAnimation = CurvedAnimation(
@@ -66,7 +70,7 @@ class WaveProgressState extends State<WaveProgress>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: widget.size,
       height: widget.size,
       //decoration: new BoxDecoration(color: Colors.green),
@@ -74,7 +78,7 @@ class WaveProgressState extends State<WaveProgress>
         clipper: CircleClipper(),
         child: AnimatedBuilder(
           animation: waveController,
-          builder: (BuildContext context, Widget child) {
+          builder: (BuildContext context, Widget? child) {
             return CustomPaint(
               painter: WaveProgressPainter(heightTween.animate(heightAnimation),
                   waveController, widget.fillColor, widget.frequency),
@@ -87,8 +91,8 @@ class WaveProgressState extends State<WaveProgress>
 }
 
 class WaveProgressPainter extends CustomPainter {
-  Animation<double> _waveAnimation;
-  Animation<double> _heightAnimation;
+  final Animation<double> _waveAnimation;
+  final Animation<double> _heightAnimation;
   Color fillColor;
   final int frequency;
 

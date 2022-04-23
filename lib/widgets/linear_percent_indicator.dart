@@ -5,7 +5,7 @@ enum LinearStrokeCap { butt, round, roundAll }
 class LinearPercentIndicator extends StatefulWidget {
   ///Percent value between 0.0 and 1.0
   final double percent;
-  final double recent;
+  final double? recent;
   final double width;
 
   ///Height of the line
@@ -26,16 +26,16 @@ class LinearPercentIndicator extends StatefulWidget {
   final int animationDuration;
 
   ///widget at the left of the Line
-  final Widget leading;
+  final Widget? leading;
 
   ///widget at the right of the Line
-  final Widget trailing;
+  final Widget? trailing;
 
   ///widget inside the Line
-  final Widget center;
+  final Widget? center;
 
   ///The kind of finish to place on the end of lines drawn, values supported: butt, round, roundAll
-  final LinearStrokeCap linearStrokeCap;
+  final LinearStrokeCap? linearStrokeCap;
 
   ///alignment of the Row (leading-widget-center-trailing)
   final MainAxisAlignment alignment;
@@ -44,11 +44,11 @@ class LinearPercentIndicator extends StatefulWidget {
   final EdgeInsets padding;
 
   LinearPercentIndicator(
-      {Key key,
+      {Key? key,
       this.fillColor = Colors.transparent,
       this.percent = 0.0,
       this.lineHeight = 5.0,
-      @required this.width,
+      required this.width,
       this.backgroundColor = const Color(0xFFB8C7CB),
       this.progressColor = Colors.red,
       this.animation = false,
@@ -73,8 +73,8 @@ class LinearPercentIndicator extends StatefulWidget {
 
 class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
     with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation _animation;
+  AnimationController? _animationController;
+  Animation<double>? _animation;
   double _percent = 0.0;
   double _recent = 0.0;
 
@@ -92,24 +92,25 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
           duration: Duration(milliseconds: widget.animationDuration));
       _animation = CurvedAnimation(
         parent: Tween(begin: 0.0, end: 1.0).animate(
-          _animationController,
+          _animationController!,
         ),
         curve: Curves.bounceOut,
       );
-      _animationController.forward();
+      _animationController!.forward();
     }
 
     _percent = widget.percent;
-    _recent = widget.recent;
+    _recent = widget.recent ?? 0;
     super.initState();
   }
 
   @override
   void didUpdateWidget(LinearPercentIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.percent != widget.percent || oldWidget.recent != widget.recent) {
+    if (oldWidget.percent != widget.percent ||
+        oldWidget.recent != widget.recent) {
       setState(() {
-        _recent = widget.recent;
+        _recent = widget.recent ?? 0;
         _percent = widget.percent;
         _animationController?.forward(from: 0);
       });
@@ -118,7 +119,7 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
 
   @override
   Widget build(BuildContext context) {
-    var items = List<Widget>();
+    var items = <Widget>[];
     if (widget.leading != null) {
       items.add(
           Padding(padding: EdgeInsets.only(right: 5.0), child: widget.leading));
@@ -132,7 +133,6 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
               animation: _animation,
               progress: _percent,
               recent: _recent,
-              center: widget.center,
               progressColor: widget.progressColor,
               recentColor: widget.recentColor,
               backgroundColor: widget.backgroundColor,
@@ -144,8 +144,8 @@ class _LinearPercentIndicatorState extends State<LinearPercentIndicator>
         )));
 
     if (widget.trailing != null) {
-      items.add(
-          Padding(padding: EdgeInsets.only(left: 5.0), child: widget.trailing));
+      items.add(Padding(
+          padding: const EdgeInsets.only(left: 5.0), child: widget.trailing));
     }
 
     return Material(
@@ -165,24 +165,24 @@ class LinearPainter extends CustomPainter {
   final Paint _paintBackground = Paint();
   final Paint _paintRecentLine = Paint();
   final Paint _paintLine = Paint();
-  final lineWidth;
-  final recent;
-  final progress;
-  final center;
-  final Color recentColor;
+  final double lineWidth;
+  final double? recent;
+  final double progress;
+  //final double center;
+  final Color? recentColor;
   final Color progressColor;
   final Color backgroundColor;
-  final LinearStrokeCap linearStrokeCap;
-  final Animation<double> animation;
+  final LinearStrokeCap? linearStrokeCap;
+  final Animation<double>? animation;
 
   LinearPainter({
     this.recent,
     this.recentColor,
-    this.lineWidth,
-    this.progress,
-    this.center,
-    this.progressColor,
-    this.backgroundColor,
+    required this.lineWidth,
+    required this.progress,
+    //this.center,
+    required this.progressColor,
+    required this.backgroundColor,
     this.linearStrokeCap = LinearStrokeCap.butt,
     this.animation,
   }) : super(repaint: animation) {
@@ -197,9 +197,9 @@ class LinearPainter extends CustomPainter {
     _paintLine.strokeWidth = lineWidth;
 
     if (recent != null && recentColor != null) {
-      _paintRecentLine.color = recent.toString() == "0.0"
-          ? recentColor.withOpacity(0.0)
-          : recentColor;
+      _paintRecentLine.color = recent!.toString() == "0.0"
+          ? recentColor!.withOpacity(0.0)
+          : recentColor!;
       _paintRecentLine.style = PaintingStyle.stroke;
       _paintRecentLine.strokeWidth = lineWidth;
     }
@@ -229,7 +229,7 @@ class LinearPainter extends CustomPainter {
     canvas.drawLine(
         start,
         Offset(
-          size.width * (_recent ?? 0),
+          size.width * _recent,
           size.height / 2,
         ),
         _paintRecentLine);

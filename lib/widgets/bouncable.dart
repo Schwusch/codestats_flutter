@@ -7,8 +7,9 @@ typedef OnTap = void Function();
 class Bouncable extends StatefulWidget {
   final Widget child;
 
-  const Bouncable({Key key, this.child, this.onTap}) : super(key: key);
-  final OnTap onTap;
+  const Bouncable({Key? key, required this.child, this.onTap})
+      : super(key: key);
+  final OnTap? onTap;
 
   @override
   _BouncableState createState() => _BouncableState();
@@ -16,10 +17,10 @@ class Bouncable extends StatefulWidget {
 
 class _BouncableState extends State<Bouncable>
     with SingleTickerProviderStateMixin {
-  AnimationController depth;
-  SpringSimulation springSimulation;
+  late AnimationController depth;
+  late SpringSimulation springSimulation;
   static SpringDescription spring =
-  SpringDescription(mass: 1, stiffness: 400, damping: 6);
+      const SpringDescription(mass: 1, stiffness: 400, damping: 6);
 
   @override
   void initState() {
@@ -43,17 +44,15 @@ class _BouncableState extends State<Bouncable>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (_) {
-        if(widget.onTap != null)
-          widget.onTap();
+        widget.onTap?.call();
         depth.animateWith(SpringSimulation(spring, depth.value, 0, -30));
       },
       child: AnimatedBuilder(
         animation: depth,
-        builder: (_, __) =>
-            Transform.scale(
-              scale: depth.value * 0.1 + 1,
-              child: widget.child,
-            ),
+        builder: (_, __) => Transform.scale(
+          scale: depth.value * 0.1 + 1,
+          child: widget.child,
+        ),
       ),
     );
   }

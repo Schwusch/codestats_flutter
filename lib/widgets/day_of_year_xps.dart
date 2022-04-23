@@ -1,9 +1,9 @@
+import 'dart:math';
+
 import 'package:codestats_flutter/models/user/user.dart';
-import 'package:codestats_flutter/widgets/Snappable.dart';
 import 'package:codestats_flutter/widgets/subheader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:superpower/superpower.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 
 class Month {
@@ -14,13 +14,13 @@ class Month {
 }
 
 class DayOfYearXps extends StatelessWidget {
-  final User userModel;
+  final User? userModel;
   final ScrollController scrollController;
 
   const DayOfYearXps({
-    Key key,
-    @required this.userModel,
-    this.scrollController,
+    Key? key,
+    required this.userModel,
+    required this.scrollController,
   }) : super(key: key);
 
   @override
@@ -29,80 +29,75 @@ class DayOfYearXps extends StatelessWidget {
     final formatter = DateFormat('MMM d');
     List<Widget> days = [];
 
-    var doyx = userModel.dayOfYearXps
+    var doyx = userModel?.dayOfYearXps
         .map((key, value) => MapEntry(int.parse(key), value));
 
-    var maxXp = $(doyx.values).max().clamp(1, double.maxFinite);
+    var maxXp = doyx?.values.reduce(max).clamp(1, double.maxFinite) ?? 1;
 
-    doyx.keys.forEach((day) {
+    // ignore: avoid_function_literals_in_foreach_calls
+    doyx?.keys.forEach((day) {
       var date = DateTime(2000).add(Duration(days: day - 1));
-      months[date.month - 1].daysXp[date.day] = doyx[day];
+      months[date.month - 1].daysXp[date.day] = doyx[day]!;
     });
 
-    months.forEach(
-      (month) {
-        var keys = month.daysXp.keys.toList()..sort();
-        days.addAll(
-          keys.map(
-            (day) {
-              var xpPercent = month.daysXp[day] / maxXp;
+    for (var month in months) {
+      var keys = month.daysXp.keys.toList()..sort();
+      days.addAll(
+        keys.map(
+          (day) {
+            var xpPercent = month.daysXp[day]! / maxXp;
 
-              var thenDate = DateTime(2020, month.number, day);
-              var todayDate = DateTime.now();
+            var thenDate = DateTime(2020, month.number, day);
+            var todayDate = DateTime.now();
 
-              bool today =
-                  todayDate.month == month.number && todayDate.day == day;
+            bool today =
+                todayDate.month == month.number && todayDate.day == day;
 
-              var style = TextStyle(
-                color: xpPercent < 0.4
-                    ? Colors.blueGrey[600]
-                    : Colors.grey.shade300,
-                fontWeight: today ? FontWeight.bold : FontWeight.normal,
-                decoration:
-                    today ? TextDecoration.underline : TextDecoration.none,
-              );
+            var style = TextStyle(
+              color:
+                  xpPercent < 0.4 ? Colors.blueGrey[600] : Colors.grey.shade300,
+              fontWeight: today ? FontWeight.bold : FontWeight.normal,
+              decoration:
+                  today ? TextDecoration.underline : TextDecoration.none,
+            );
 
-              var xpStr = month.daysXp[day].toString();
+            var xpStr = month.daysXp[day].toString();
 
-              return Snappable(
-                snapOnTap: true,
-                child: Container(
-                  color: Colors.black.withOpacity(xpPercent),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            formatter.format(
-                              thenDate,
-                            ),
-                            style: style.copyWith(
-                                fontSize: constraints.maxWidth * .2),
-                          ),
-                          Text(
-                            xpStr,
-                            style: style.copyWith(
-                                fontSize: 18 -
-                                    xpStr.length * constraints.maxWidth * .015),
-                          ),
-                        ],
+            return Container(
+              color: Colors.black.withOpacity(xpPercent),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: LayoutBuilder(
+                  builder: (context, constraints) => Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        formatter.format(
+                          thenDate,
+                        ),
+                        style:
+                            style.copyWith(fontSize: constraints.maxWidth * .2),
                       ),
-                    ),
+                      Text(
+                        xpStr,
+                        style: style.copyWith(
+                            fontSize: 18 -
+                                xpStr.length * constraints.maxWidth * .015),
+                      ),
+                    ],
                   ),
                 ),
-              );
-            },
-          ),
-        );
-      },
-    );
+              ),
+            );
+          },
+        ),
+      );
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: [
-        SubHeader(
+        const SubHeader(
           text: "Total XP by day of year",
         ),
         Expanded(
@@ -112,7 +107,7 @@ class DayOfYearXps extends StatelessWidget {
               controller: scrollController,
               crossAxisCount: 7,
               children: days,
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 bottom: 30,
                 left: 8,
                 right: 8,

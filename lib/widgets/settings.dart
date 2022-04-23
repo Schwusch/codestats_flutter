@@ -1,16 +1,17 @@
-import 'package:codestats_flutter/bloc/bloc_provider.dart';
 import 'package:codestats_flutter/bloc/codestats_bloc.dart';
 import 'package:codestats_flutter/bloc/state.dart';
 import 'package:codestats_flutter/widgets/expandable_user_list.dart';
 import 'package:codestats_flutter/widgets/recent_period_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:superpower/superpower.dart';
-import 'package:package_info/package_info.dart';
+import 'package:provider/provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class Settings extends StatelessWidget {
+  const Settings({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    UserBloc bloc = BlocProvider.of(context);
+    final bloc = context.read<UserBloc>();
 
     return Scaffold(
       backgroundColor: Colors.blueGrey,
@@ -27,7 +28,7 @@ class Settings extends StatelessWidget {
                   fontStyle: FontStyle.italic),
             ),
           ),
-          RecentPeriodSettings(),
+          const RecentPeriodSettings(),
           ListTile(
             title: Text(
               "Users",
@@ -39,7 +40,7 @@ class Settings extends StatelessWidget {
             ),
             trailing: IconButton(
               color: Colors.white,
-              icon: Icon(Icons.add_circle_outline),
+              icon: const Icon(Icons.add_circle_outline),
               onPressed: () {
                 Navigator.of(context).pushNamed("addUser");
               },
@@ -52,10 +53,11 @@ class Settings extends StatelessWidget {
               if (users != null && users.isNotEmpty) {
                 return ExpandableUserList(
                   key: UniqueKey(),
-                  users: $(users.keys).sorted(),
+                  users: users.keys.toList()..sort(),
                 );
-              } else
+              } else {
                 return Container();
+              }
             },
           ),
           ListTile(
@@ -68,18 +70,19 @@ class Settings extends StatelessWidget {
                   child: Image.asset("assets/icon/ic_launcher.png"),
                 ),
                 children: [
-                  Text("The Code::Stats logo is licensed with CC BY-NC 4.0"),
-                  Text("Copyright © 2016, Mikko Ahlroth"),
+                  const Text(
+                      "The Code::Stats logo is licensed with CC BY-NC 4.0"),
+                  const Text("Copyright © 2016, Mikko Ahlroth"),
                 ],
                 applicationVersion: packageInfo.version,
                 applicationName: packageInfo.appName,
               );
             },
-            leading: Icon(
+            leading: const Icon(
               Icons.info,
               color: Colors.white,
             ),
-            title: Text(
+            title: const Text(
               "About Code::Stats",
               style: TextStyle(color: Colors.white),
             ),

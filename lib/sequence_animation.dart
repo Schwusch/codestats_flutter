@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
-class _AnimationInformation {
+class _AnimationInformation<E> {
   _AnimationInformation({
-    this.animatable,
-    this.from,
-    this.to,
-    this.curve,
-    this.tag,
+    required this.animatable,
+    required this.from,
+    required this.to,
+    required this.curve,
+    required this.tag,
   });
 
-  final Animatable animatable;
+  final Animatable<E> animatable;
   final Duration from;
   final Duration to;
   final Curve curve;
   final Object tag;
 }
 
-class SequenceAnimationBuilder {
-  List<_AnimationInformation> _animations = [];
+class SequenceAnimationBuilder<E> {
+  final List<_AnimationInformation<E>> _animations = [];
 
   /// Adds an [Animatable] to the sequence, in the most cases this would be a [Tween].
   /// The from and to [Duration] specify points in time where the animation takes place.
@@ -41,12 +40,12 @@ class SequenceAnimationBuilder {
   ///         .animate(controller);
   /// ```
   ///
-  SequenceAnimationBuilder addAnimatable({
-    @required Animatable animatable,
-    @required Duration from,
-    @required Duration to,
-    Curve curve: Curves.linear,
-    @required Object tag,
+  SequenceAnimationBuilder<E> addAnimatable({
+    required Animatable<E> animatable,
+    required Duration from,
+    required Duration to,
+    Curve curve = Curves.linear,
+    required Object tag,
   }) {
     assert(to >= from);
     _animations.add(_AnimationInformation(
@@ -55,22 +54,22 @@ class SequenceAnimationBuilder {
   }
 
   /// The controllers duration is going to be overwritten by this class, you should not specify it on your own
-  SequenceAnimation animate(AnimationController controller) {
+  SequenceAnimation<E> animate(AnimationController controller) {
     int longestTimeMicro = 0;
-    _animations.forEach((info) {
+    for (var info in _animations) {
       int micro = info.to.inMicroseconds;
       if (micro > longestTimeMicro) {
         longestTimeMicro = micro;
       }
-    });
+    }
     // Sets the duration of the controller
     controller.duration = Duration(microseconds: longestTimeMicro);
 
-    Map<Object, Animatable> animatables = {};
+    Map<Object, Animatable<E>> animatables = {};
     Map<Object, double> begins = {};
     Map<Object, double> ends = {};
 
-    _animations.forEach((info) {
+    for (var info in _animations) {
       assert(info.to.inMicroseconds <= longestTimeMicro);
 
       double begin = info.from.inMicroseconds / longestTimeMicro;
@@ -83,22 +82,22 @@ class SequenceAnimationBuilder {
         ends[info.tag] = end;
       } else {
         assert(
-        ends[info.tag] <= begin,
-        "When animating the same property you need to: \n"
+            ends[info.tag]! <= begin,
+            "When animating the same property you need to: \n"
             "a) Have them not overlap \n"
             "b) Add them in an ordered fashion");
         animatables[info.tag] = IntervalAnimatable(
-          animatable: animatables[info.tag],
+          animatable: animatables[info.tag]!,
           defaultAnimatable:
-          IntervalAnimatable.chainCurve(info.animatable, intervalCurve),
-          begin: begins[info.tag],
-          end: ends[info.tag],
+              IntervalAnimatable.chainCurve(info.animatable, intervalCurve),
+          begin: begins[info.tag]!,
+          end: ends[info.tag]!,
         );
         ends[info.tag] = end;
       }
-    });
+    }
 
-    Map<Object, Animation> result = {};
+    Map<Object, Animation<E>> result = {};
 
     animatables.forEach((tag, animInfo) {
       result[tag] = animInfo.animate(controller);
@@ -108,17 +107,17 @@ class SequenceAnimationBuilder {
   }
 }
 
-class SequenceAnimation {
-  final Map<Object, Animation> _animations;
+class SequenceAnimation<E> {
+  final Map<Object, Animation<E>> _animations;
 
   /// Use the [SequenceAnimationBuilder] to construct this class.
   SequenceAnimation._internal(this._animations);
 
   /// Returns the animation with a given tag, this animation is tied to the controller.
-  Animation operator [](Object key) {
+  Animation<E> operator [](Object key) {
     assert(_animations.containsKey(key),
-    "There was no animatable with the key: $key");
-    return _animations[key];
+        "There was no animatable with the key: $key");
+    return _animations[key]!;
   }
 }
 
@@ -126,10 +125,10 @@ class SequenceAnimation {
 /// if not it evaluates the [defaultAnimatable]
 class IntervalAnimatable<T> extends Animatable<T> {
   IntervalAnimatable({
-    @required this.animatable,
-    @required this.defaultAnimatable,
-    @required this.begin,
-    @required this.end,
+    required this.animatable,
+    required this.defaultAnimatable,
+    required this.begin,
+    required this.end,
   });
 
   final Animatable animatable;
@@ -145,7 +144,7 @@ class IntervalAnimatable<T> extends Animatable<T> {
 
   /// Chains an [Animatable] with a [CurveTween] and the given [Interval].
   /// Basically, the animation is being constrained to the given interval
-  static Animatable chainCurve(Animatable parent, Interval interval) {
+  static Animatable<E> chainCurve<E>(Animatable<E> parent, Interval interval) {
     return parent.chain(CurveTween(curve: interval));
   }
 

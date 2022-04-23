@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'xp.g.dart';
 
-@JsonSerializable(nullable: true, useWrappers: true)
+@JsonSerializable()
 class Xp {
   int xp;
   final String name;

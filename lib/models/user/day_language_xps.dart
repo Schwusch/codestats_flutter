@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'day_language_xps.g.dart';
 
-@JsonSerializable(nullable: true, useWrappers: true)
+@JsonSerializable()
 class DayLanguageXps {
   final int xp;
   final String language;
@@ -10,7 +10,8 @@ class DayLanguageXps {
 
   DayLanguageXps(this.xp, this.language, this.date);
 
-  factory DayLanguageXps.fromJson(Map<String, dynamic> json) => _$DayLanguageXpsFromJson(json);
+  factory DayLanguageXps.fromJson(Map<String, dynamic> json) =>
+      _$DayLanguageXpsFromJson(json);
 
   Map<String, dynamic> toJson() => _$DayLanguageXpsToJson(this);
 }

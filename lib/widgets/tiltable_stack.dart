@@ -1,10 +1,6 @@
-import 'dart:ui';
-
 import 'package:codestats_flutter/main.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter/rendering.dart';
 import 'package:rxdart/rxdart.dart';
 
 class TiltableStack extends StatefulWidget {
@@ -12,8 +8,8 @@ class TiltableStack extends StatefulWidget {
   final Alignment alignment;
 
   const TiltableStack({
-    Key key,
-    @required this.children,
+    Key? key,
+    required this.children,
     this.alignment = Alignment.center,
   }) : super(key: key);
 
@@ -23,12 +19,11 @@ class TiltableStack extends StatefulWidget {
 
 class _TiltableStackState extends State<TiltableStack>
     with TickerProviderStateMixin {
-  AnimationController tilt;
-  AnimationController depth;
+  late AnimationController tilt;
+  late AnimationController depth;
   double pitch = 0;
   double yaw = 0;
-  Offset _offset;
-  SpringSimulation springSimulation;
+  Offset? _offset;
   PublishSubject<bool> stream = PublishSubject();
 
   @override
@@ -68,7 +63,8 @@ class _TiltableStackState extends State<TiltableStack>
     stream.add(true);
   }
 
-  SpringDescription spring = SpringDescription(mass: 1, stiffness: 400, damping: 6);
+  SpringDescription spring =
+      SpringDescription(mass: 1, stiffness: 400, damping: 6);
 
   cancelPan() {
     tilt.animateWith(SpringSimulation(spring, 1, 0, tilt.velocity));
@@ -77,19 +73,16 @@ class _TiltableStackState extends State<TiltableStack>
   }
 
   startPan() {
-    CodeStatsApp.platform.invokeMethod("startFourier");
     depth.animateWith(SpringSimulation(spring, depth.value, 1, depth.velocity));
   }
 
   updatePan(LongPressMoveUpdateDetails drag) {
     var size = MediaQuery.of(context).size;
     var offset = _globalToLocal(context, drag.globalPosition);
-    if (_offset == null) {
-      _offset = offset;
-    }
+    _offset ??= offset;
 
-    pitch += (offset.dy - _offset.dy) * (1 / size.height);
-    yaw -= (offset.dx - _offset.dx) * (1 / size.width);
+    pitch += (offset.dy - _offset!.dy) * (1 / size.height);
+    yaw -= (offset.dx - _offset!.dx) * (1 / size.width);
     _offset = offset;
 
     updateTransformation();
@@ -101,7 +94,8 @@ class _TiltableStackState extends State<TiltableStack>
       onLongPressMoveUpdate: updatePan,
       onLongPressStart: (_) => startPan(),
       onLongPressEnd: (_) => cancelPan(),
-      onTapDown: (_) => depth.animateWith(SpringSimulation(spring, depth.value, 0, -5)),
+      onTapDown: (_) =>
+          depth.animateWith(SpringSimulation(spring, depth.value, 0, -5)),
       child: StreamBuilder<bool>(
         stream: stream.stream,
         builder: (context, snap) => TiltedStack(
@@ -114,7 +108,7 @@ class _TiltableStackState extends State<TiltableStack>
   }
 
   Offset _globalToLocal(BuildContext context, Offset globalPosition) {
-    final RenderBox box = context.findRenderObject();
+    final box = context.findRenderObject()! as RenderBox;
     return box.globalToLocal(globalPosition);
   }
 }
@@ -129,10 +123,10 @@ class TransformationData {
 
 class TiltedStack extends StatelessWidget {
   const TiltedStack({
-    Key key,
-    @required this.children,
-    @required this.alignment,
-    @required this.data,
+    Key? key,
+    required this.children,
+    required this.alignment,
+    required this.data,
   }) : super(key: key);
 
   final TransformationData data;
@@ -158,11 +152,11 @@ class TiltedStack extends StatelessWidget {
                           ..rotateY(data.yaw)
                           ..translate(
                               -data.yaw * i * 70, data.pitch * i * 70, 0)
-                          ..scale((data.depth ?? 0) * (i + 1) * 0.1 + 1),
+                          ..scale(data.depth * (i + 1) * 0.1 + 1),
                         child: element,
                         alignment: FractionalOffset.center,
                       ),
-                      if (element.key is ValueKey && (data.depth ?? 0) > 0)
+                      if (element.key is ValueKey && data.depth > 0)
                         Opacity(
                           child: Transform(
                             transform: Matrix4.identity()
@@ -171,7 +165,7 @@ class TiltedStack extends StatelessWidget {
                               ..rotateY(data.yaw)
                               ..translate(-data.yaw * i * 1.5 * 70,
                                   data.pitch * i * 1.5 * 70, 0)
-                              ..scale((data.depth ?? 0) * (i + 1) * 0.1 + 1),
+                              ..scale(data.depth * (i + 1) * 0.1 + 1),
                             child: children[i + 1],
                             alignment: FractionalOffset.center,
                           ),

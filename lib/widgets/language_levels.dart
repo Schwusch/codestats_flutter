@@ -6,39 +6,39 @@ import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'package:flutter/material.dart';
 
 class LanguageLevelPage extends StatefulWidget {
-  final User userModel;
+  final User? userModel;
 
-  const LanguageLevelPage({Key key, @required this.userModel})
-      : super(key: key);
+  const LanguageLevelPage({Key? key, this.userModel}) : super(key: key);
 
   @override
   _LanguageLevelPageState createState() => _LanguageLevelPageState();
 }
 
-class _LanguageLevelPageState extends State<LanguageLevelPage> with SingleTickerProviderStateMixin{
+class _LanguageLevelPageState extends State<LanguageLevelPage>
+    with SingleTickerProviderStateMixin {
   ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    widget.userModel.totalLangs.sort((a, b) => b.xp - a.xp);
+    widget.userModel?.totalLangs.sort((a, b) => b.xp - a.xp);
     Map<String, List<Xp>> recentLanguages =
-        groupBy(widget.userModel.recentLangs, (Xp element) => element.name);
-
+        groupBy(widget.userModel!.recentLangs, (Xp element) => element.name);
+    final userModel = widget.userModel!;
     return LayoutBuilder(
       builder: (context, BoxConstraints constraints) =>
           DraggableScrollbar.arrows(
         backgroundColor: Colors.grey.shade500,
-        padding: EdgeInsets.only(right: 4.0),
+        padding: const EdgeInsets.only(right: 4.0),
         child: ListView.builder(
           controller: scrollController,
-          padding: EdgeInsets.only(top: 24, bottom: 24),
-          itemCount: widget.userModel.totalLangs.length,
+          padding: const EdgeInsets.only(top: 24, bottom: 24),
+          itemCount: userModel.totalLangs.length,
           itemBuilder: (context, index) => LevelPercentIndicator(
             width: constraints.maxWidth * 0.7,
-            name: widget.userModel.totalLangs[index].name,
-            xp: widget.userModel.totalLangs[index].xp,
-            recent: recentLanguages[widget.userModel.totalLangs[index].name]
-                ?.first
+            name: userModel.totalLangs[index].name,
+            xp: userModel.totalLangs[index].xp,
+            recent: recentLanguages[userModel.totalLangs[index].name]
+                ?.firstOrNull
                 ?.xp,
           ),
         ),
